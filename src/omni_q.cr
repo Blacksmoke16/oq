@@ -3,7 +3,9 @@ require "yaml"
 
 require "./to_xml"
 
+# A performant, and portable jq wrapper to support formats other than JSON.
 module OmniQ
+  # The support formats that can be converted to/from.
   enum Format
     Json
     Yaml
@@ -11,12 +13,24 @@ module OmniQ
   end
 
   struct Processor
+    # The format that the input data is in.
     property input_format : Format = Format::Json
+
+    # The format that the output should be transcoded into.
     property output_format : Format = Format::Json
+
+    # The args passed to the program.
+    #
+    # Non `OmniQ` args are just passed to `jq`.
     property args : Array(String) = [] of String
+
+    # The root of the XML document when transcoding to XML.
     property xml_root : String = "root"
+
+    # :nodoc:
     property slurp : Bool = false
 
+    # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
     def process
       input = IO::Memory.new
       output = IO::Memory.new
@@ -47,7 +61,7 @@ module OmniQ
       exit(1)
     end
 
-    def format_output(io : IO)
+    private def format_output(io : IO)
       io.rewind
       case @output_format
       when .json? then print io
