@@ -1,0 +1,20 @@
+name: omni-q
+version: '0.1.0'
+summary: A performant, and portable jq wrapper to support formats other than JSON
+description: |
+  A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
+
+grade: devel
+confinement: strict
+base: core18
+
+apps:
+  oq:
+    command: bin/oq
+
+parts:
+  oq:
+    source: ./
+    plugin: crystal
+    stage-packages:
+      - jq

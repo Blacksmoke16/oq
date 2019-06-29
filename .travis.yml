@@ -1,0 +1,27 @@
+language: crystal
+crystal:
+  - latest
+  - nightly
+
+install:
+  - shards install
+  - shards build
+
+before_script:
+  - bin/ameba
+  - crystal tool format --check
+
+script:
+  - crystal spec --warnings all --error-on-warnings
+
+after_success:
+  - crystal docs
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN
+  keep-history: false
+  local-dir: docs
+  on:
+    condition: "$TRAVIS_EVENT_TYPE != cron"
