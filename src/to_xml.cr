@@ -40,8 +40,8 @@ class Hash
       when "#text"           then value.to_xml builder; next
       end
 
-      case value
-      when Array then value.to_xml builder, key
+      if value.is_a?(Array) || ((value.is_a?(JSON::Any)) && (value = value.as_a?))
+        value.to_xml builder, key
       else
         builder.element(key) do
           value.to_xml(builder)

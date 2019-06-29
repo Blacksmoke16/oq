@@ -16,7 +16,6 @@ module OmniQ
     property args : Array(String) = [] of String
     property xml_root : String = "root"
     property slurp : Bool = false
-    property read_raw : Bool = false
 
     def process
       input = IO::Memory.new
