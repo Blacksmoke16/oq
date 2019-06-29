@@ -1,0 +1,22 @@
+name: omni-q
+
+description: |
+  A jq wrapper to faciliate the consumption and output of formats other than JSON; using jq filters to transform the data
+
+version: 0.1.0
+
+authors:
+  - Blacksmoke16 <Blacksmoke16@eve.tools>
+
+crystal: 0.29.0
+
+license: MIT
+
+targets:
+  oq:
+    main: src/oq.cr
+
+development_dependencies:
+  ameba:
+    github: veelenga/ameba
+    version: ~> 0.10.0
