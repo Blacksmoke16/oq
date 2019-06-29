@@ -35,13 +35,17 @@ end
 class Hash
   def to_xml(builder : XML::Builder) : Nil
     each do |key, value|
+      key = ((key.is_a?(JSON::Any) || key.is_a?(YAML::Any)) ? key.as_s : key)
+
       case key
       when .starts_with? '@' then builder.attribute key.lchop('@'), value; next
       when "#text"           then value.to_xml builder; next
       end
 
-      if value.is_a?(Array) || ((value.is_a?(JSON::Any)) && (value = value.as_a?))
+      if value.is_a?(Array)
         value.to_xml builder, key
+      elsif (value.is_a?(JSON::Any) || value.is_a?(YAML::Any)) && (v = value.as_a?)
+        v.to_xml builder, key
       else
         builder.element(key) do
           value.to_xml(builder)

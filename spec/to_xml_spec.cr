@@ -132,16 +132,24 @@ describe "#to_xml" do
 
     describe "with an array value" do
       it "should convert correctly" do
-        assert_builder_output("<friend>Jim</friend><friend>Bob</friend><friend>Alice</friend>") do |b|
-          JSON.parse({"friend" => ["Jim", "Bob", "Alice"]}.to_json).to_xml b
+        assert_builder_output("<friends>Jim</friends><friends>Bob</friends><friends>Alice</friends>") do |b|
+          {"friends" => ["Jim", "Bob", "Alice"]}.to_xml b
         end
       end
     end
 
     describe "with an JSON::Any value" do
       it "should convert correctly" do
-        assert_builder_output("<friends>Jim</friends><friends>Bob</friends><friends>Alice</friends>") do |b|
-          {"friends" => ["Jim", "Bob", "Alice"]}.to_xml b
+        assert_builder_output("<friend>Jim</friend><friend>Bob</friend><friend>Alice</friend>") do |b|
+          JSON.parse({"friend" => ["Jim", "Bob", "Alice"]}.to_json).to_xml b
+        end
+      end
+    end
+
+    describe "with an YAML::Any value" do
+      it "should convert correctly" do
+        assert_builder_output("<friend>Jim</friend><friend>Bob</friend><friend>Alice</friend>") do |b|
+          YAML.parse({"friend" => ["Jim", "Bob", "Alice"]}.to_yaml).to_xml b
         end
       end
     end
