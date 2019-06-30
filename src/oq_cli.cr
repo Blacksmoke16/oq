@@ -1,6 +1,6 @@
 require "option_parser"
 
-require "./omni_q"
+require "./oq"
 
 module Oq
   processor = Processor.new
