@@ -1,4 +1,4 @@
-name: omni-q
+name: oq
 version: '0.1.0'
 summary: A performant, and portable jq wrapper to support formats other than JSON
 description: |

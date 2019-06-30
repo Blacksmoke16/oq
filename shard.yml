@@ -14,7 +14,7 @@ license: MIT
 
 targets:
   oq:
-    main: src/oq.cr
+    main: src/oq_cli.cr
 
 development_dependencies:
   ameba:
