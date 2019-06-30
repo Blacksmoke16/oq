@@ -50,7 +50,7 @@ module Oq
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
 
-      unless @null_input
+      if !@null_input
         case @input_format
         when .json? then input << ARGF.gets_to_end
         when .yaml?
