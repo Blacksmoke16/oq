@@ -1,9 +1,9 @@
-# omni-q
+# oq
 
 [![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
-[![Build Status](https://travis-ci.org/Blacksmoke16/omni-q.svg?branch=master)](https://travis-ci.org/Blacksmoke16/omni-q)
-[![Latest release](https://img.shields.io/github/release/Blacksmoke16/omni-q.svg?style=flat-square)](https://github.com/Blacksmoke16/omni-q/releases)
-[![Snap Status](https://build.snapcraft.io/badge/Blacksmoke16/omni-q.svg)](https://build.snapcraft.io/user/Blacksmoke16/omni-q)
+[![Build Status](https://travis-ci.org/Blacksmoke16/oq.svg?branch=master)](https://travis-ci.org/Blacksmoke16/oq)
+[![Latest release](https://img.shields.io/github/release/Blacksmoke16/oq.svg?style=flat-square)](https://github.com/Blacksmoke16/oq/releases)
+[![Snap Status](https://build.snapcraft.io/badge/Blacksmoke16/oq.svg)](https://build.snapcraft.io/user/Blacksmoke16/oq)
 
 A performant, portable `jq` wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
@@ -15,18 +15,18 @@ A performant, portable `jq` wrapper thats facilitates the consumption and output
 ### Linux distrobutions supporting `snap` packages:
 
 ```bash
-snap install omni-q
+snap install oq
 ```
 
 ### MacOS: (Soon)
 
 ```bash
-brew install omni-q
+brew install oq
 ```
 
 ## Usage
 
-`omni-q` uses the `oq` binary, with a few custom arguments.  All other arguments get passed to `jq`.
+Use the `oq` binary, with a few custom arguments.  All other arguments get passed to `jq`.
 
 ```bash
 Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]
@@ -52,7 +52,7 @@ Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]
 
 ## Contributing
 
-1. Fork it (<https://github.com/Blacksmoke16/omni-q/fork>)
+1. Fork it (<https://github.com/Blacksmoke16/oq/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)

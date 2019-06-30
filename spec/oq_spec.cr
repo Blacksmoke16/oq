@@ -10,7 +10,7 @@ NESTED_JSON_OBJECT = <<-JSON
 {"foo":{"bar":{"baz":5}}}
 JSON
 
-describe OmniQ do
+describe Oq do
   describe "when given a filter file" do
     it "returns the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["-f", "spec/assets/test_filter"]) do |output|

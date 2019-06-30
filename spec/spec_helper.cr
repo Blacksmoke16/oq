@@ -1,5 +1,5 @@
 require "spec"
-require "../src/omni_q"
+require "../src/oq"
 
 # Asserts the built XML equals *expected*.
 def assert_builder_output(expected : String, &block : XML::Builder -> Nil) : Nil
