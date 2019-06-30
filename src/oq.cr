@@ -27,31 +27,52 @@ module Oq
     # The root of the XML document when transcoding to XML.
     property xml_root : String = "root"
 
+    # The number of spaces to use for indentation.
+    property indent : Int32 = 2
+
+    # :nodoc:
+    property tab : Bool = false
+
     # :nodoc:
     property slurp : Bool = false
+
+    # :nodoc:
+    property null_input : Bool = false
 
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
     def process
       input = IO::Memory.new
       output = IO::Memory.new
-      err = IO::Memory.new
+      error = IO::Memory.new
+
+      ARGV.replace ARGV - @args
 
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
 
-      case @input_format
-      when .json? then input << ARGF.gets_to_end
-      when .yaml?
-        ARGV.empty? ? (input << YAML.parse(STDIN).to_json) : (ARGV.join('\n', input) { |f, io| io << YAML.parse(File.open(f)).to_json })
+      unless @null_input
+        case @input_format
+        when .json? then input << ARGF.gets_to_end
+        when .yaml?
+          ARGV.empty? ? (input << YAML.parse(STDIN).to_json) : (ARGV.join('\n', input) { |f, io| io << YAML.parse(File.open(f)).to_json })
+        else
+          puts "Not Implemented"
+          exit(1)
+        end
       else
-        puts "Not Implemented"
-        exit(1)
+        @args = @args | ARGV
+        input << ARGF.gets_to_end
       end
 
-      run = Process.run("jq", args, input: input.rewind, output: output, error: err)
+      run = Process.run("jq", args, input: input.rewind, output: output, error: error)
 
       unless run.success?
-        puts err.to_s
+        if output.empty? && @null_input
+          puts "null"
+          exit
+        end
+
+        STDERR.puts error.to_s
         exit(1)
       end
 
@@ -63,10 +84,11 @@ module Oq
 
     private def format_output(io : IO)
       io.rewind
+
       case @output_format
       when .json? then print io
       when .yaml? then print JSON.parse(io).to_yaml
-      when .xml?  then print JSON.parse(io).to_xml root: @xml_root
+      when .xml?  then print JSON.parse(io).to_xml root: @xml_root, indent: (@tab ? "\t" : " ")*@indent
       end
     end
   end

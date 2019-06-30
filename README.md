@@ -3,7 +3,7 @@
 [![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
 [![Build Status](https://travis-ci.org/Blacksmoke16/oq.svg?branch=master)](https://travis-ci.org/Blacksmoke16/oq)
 [![Latest release](https://img.shields.io/github/release/Blacksmoke16/oq.svg?style=flat-square)](https://github.com/Blacksmoke16/oq/releases)
-[![Snap Status](https://build.snapcraft.io/badge/Blacksmoke16/oq.svg)](https://build.snapcraft.io/user/Blacksmoke16/oq)
+[![oq](https://snapcraft.io/omni-q/badge.svg)](https://snapcraft.io/omni-q)
 
 A performant, portable `jq` wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
@@ -33,7 +33,7 @@ Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]
     --help                          Show this help message.
     -i FORMAT, --input FORMAT       Format of the input data. Supported formats: json, yaml, xml.
     -o FORMAT, --output FORMAT      Format of the output data. Supported formats: json, yaml, xml.
-    --xml-root=ROOT                 Name of the root XML element if converting to XML.
+    --xml-root ROOT                 Name of the root XML element if converting to XML.
 ```
 
 ## Roadmap

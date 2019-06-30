@@ -4,7 +4,7 @@ summary: A performant, and portable jq wrapper to support formats other than JSO
 description: |
   A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 
-grade: devel
+grade: stable
 confinement: strict
 base: core18
 

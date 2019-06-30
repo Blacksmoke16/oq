@@ -3,14 +3,14 @@ require "yaml"
 require "xml"
 
 class Object
-  def to_xml(*, root : String = "root") : String
+  def to_xml(*, root : String = "root", indent : String = "  ") : String
     String.build do |str|
-      to_xml str, root: root
+      to_xml str, root: root, indent: indent
     end
   end
 
-  def to_xml(io : IO, *, root : String?) : Nil
-    XML.build(io, indent: "  ", encoding: "utf-8") do |builder|
+  def to_xml(io : IO, *, root : String?, indent : String) : Nil
+    XML.build(io, indent: indent, encoding: "utf-8") do |builder|
       builder.element root do
         to_xml builder
       end
