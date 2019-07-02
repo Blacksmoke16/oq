@@ -3,7 +3,7 @@ require "yaml"
 
 require "./to_xml"
 
-# A performant, and portable jq wrapper to support formats other than JSON.
+# A performant and portable jq wrapper to support formats other than JSON.
 module Oq
   # The support formats that can be converted to/from.
   enum Format
@@ -52,21 +52,24 @@ module Oq
 
       if !@null_input
         case @input_format
-        when .json? then input << ARGF.gets_to_end
+        when .json? then IO.copy(ARGF, input)
         when .yaml?
           ARGV.empty? ? (input << YAML.parse(STDIN).to_json) : (ARGV.join('\n', input) { |f, io| io << YAML.parse(File.open(f)).to_json })
         else
-          puts "Not Implemented"
+          STDERR.puts "Not Implemented"
           exit(1)
         end
+
+        input.rewind
       else
         @args = @args | ARGV
-        input << ARGF.gets_to_end
       end
 
-      run = Process.run("jq", args, input: input.rewind, output: output, error: error)
+      run = parallel(
+        Process.run("jq", args, input: input, output: output, error: error)
+      )
 
-      unless run.success?
+      unless run[0].success?
         if output.empty? && @null_input
           puts "null"
           exit
@@ -84,7 +87,6 @@ module Oq
 
     private def format_output(io : IO)
       io.rewind
-
       case @output_format
       when .json? then print io
       when .yaml? then print JSON.parse(io).to_yaml

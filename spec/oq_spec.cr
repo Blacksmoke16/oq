@@ -148,17 +148,27 @@ describe Oq do
   end
 
   describe "with null input option" do
-    it "should compact the output" do
-      run_binary(input: "", args: ["-n", "0"]) do |output|
-        output.should eq "0\n"
+    describe "with a scalar value" do
+      it "should compact the output" do
+        run_binary(input: nil, args: ["-n", "0"]) do |output|
+          output.should eq "0\n"
+        end
       end
     end
-  end
 
-  describe "with null input option from STDIN" do
-    it "should compact the output" do
-      run_binary(input: "foo", args: ["-n"]) do |output|
-        output.should eq "null\n"
+    describe "with a JSON object string" do
+      it "should compact the output" do
+        run_binary(input: nil, args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
+          output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
+        end
+      end
+    end
+
+    describe "with input from STDIN" do
+      it "should compact the output" do
+        run_binary(input: "foo", args: ["-n"]) do |output|
+          output.should eq "null\n"
+        end
       end
     end
   end
@@ -191,6 +201,14 @@ describe Oq do
     it "returns the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["--xml-root", "friends", "-o", "xml", "."]) do |output|
         output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<friends>\n  <name>Jim</name>\n</friends>\n"
+      end
+    end
+  end
+
+  describe "when streaming input" do
+    it "returns the correct output" do
+      run_binary(input: %({"a": [1, 2.2, true, "abc", null]}), args: ["-nc", "--stream", "fromstream( 1|truncate_stream(inputs) |  select(length>1) | .[0] |= .[1:] )"]) do |output|
+        output.should eq %(1\n2.2\ntrue\n"abc"\nnull\n)
       end
     end
   end
