@@ -12,7 +12,7 @@ JSON
 
 describe Oq do
   describe "when given a filter file" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["-f", "spec/assets/test_filter"]) do |output|
         output.should eq %("Jim"\n)
       end
@@ -20,7 +20,7 @@ describe Oq do
   end
 
   describe "with a simple filter" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: [".name"]) do |output|
         output.should eq %("Jim"\n)
       end
@@ -28,7 +28,7 @@ describe Oq do
   end
 
   describe "with a filter to get nested values" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: NESTED_JSON_OBJECT, args: [".foo.bar.baz"]) do |output|
         output.should eq "5\n"
       end
@@ -36,7 +36,7 @@ describe Oq do
   end
 
   describe "with a filter to get nested values and YAML input" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: "---\nfoo:\n  bar:\n    baz: 5", args: ["-i", "yaml", ".foo.bar.baz"]) do |output|
         output.should eq "5\n"
       end
@@ -132,7 +132,7 @@ describe Oq do
   end
 
   describe "with the -c options" do
-    it "should compact the output" do
+    it "should return the correct output" do
       run_binary(input: NESTED_JSON_OBJECT, args: ["-c", "."]) do |output|
         output.should eq %({"foo":{"bar":{"baz":5}}}\n)
       end
@@ -149,13 +149,13 @@ describe Oq do
 
   describe "with null input option" do
     describe "with a scalar value" do
-      it "should compact the output" do
+      it "should return the correct output" do
         run_binary(input: nil, args: ["-n", "0"]) do |output|
           output.should eq "0\n"
         end
       end
 
-      it "should compact the output" do
+      it "should return the correct output" do
         run_binary(input: nil, args: ["--null-input", "0"]) do |output|
           output.should eq "0\n"
         end
@@ -163,7 +163,7 @@ describe Oq do
     end
 
     describe "with a JSON object string" do
-      it "should compact the output" do
+      it "should return the correct output" do
         run_binary(input: nil, args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
           output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
         end
@@ -171,7 +171,7 @@ describe Oq do
     end
 
     describe "with input from STDIN" do
-      it "should compact the output" do
+      it "should return the correct output" do
         run_binary(input: "foo", args: ["-n"]) do |output|
           output.should eq "null\n"
         end
@@ -180,7 +180,7 @@ describe Oq do
   end
 
   describe "with a custom indent value with JSON" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["--indent", "1", "."]) do |output|
         output.should eq %({\n "name": "Jim"\n}\n)
       end
@@ -188,7 +188,7 @@ describe Oq do
   end
 
   describe "with the --tab option" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["--tab", "."]) do |output|
         output.should eq %({\n\t"name": "Jim"\n}\n)
       end
@@ -196,7 +196,7 @@ describe Oq do
   end
 
   describe "with a custom indent value with XML" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["--indent", "3", "-o", "xml", "."]) do |output|
         output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n   <name>Jim</name>\n</root>\n"
       end
@@ -204,7 +204,7 @@ describe Oq do
   end
 
   describe "with a custom XML root" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["--xml-root", "friends", "-o", "xml", "."]) do |output|
         output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<friends>\n  <name>Jim</name>\n</friends>\n"
       end
@@ -212,7 +212,7 @@ describe Oq do
   end
 
   describe "when streaming input" do
-    it "returns the correct output" do
+    it "should return the correct output" do
       run_binary(input: %({"a": [1, 2.2, true, "abc", null]}), args: ["-nc", "--stream", "fromstream( 1|truncate_stream(inputs) |  select(length>1) | .[0] |= .[1:] )"]) do |output|
         output.should eq %(1\n2.2\ntrue\n"abc"\nnull\n)
       end
