@@ -14,10 +14,8 @@ module Oq
     parser.on("--indent NUMBER", "Use the given number of spaces for indentation (JSON/XML only).") { |n| processor.indent = n.to_i; processor.args << "--indent"; processor.args << n }
     parser.invalid_option do |flag|
       case flag
-      when "-s"    then processor.slurp = true
-      when "-n"    then processor.null_input = true
-      when "--tab" then processor.tab = true
-      when "-M"    then processor.args.delete "-C"
+      when "-n", "--null-input" then processor.null_input = true
+      when "--tab"              then processor.tab = true
       end
 
       processor.args << flag

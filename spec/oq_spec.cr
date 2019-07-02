@@ -154,6 +154,12 @@ describe Oq do
           output.should eq "0\n"
         end
       end
+
+      it "should compact the output" do
+        run_binary(input: nil, args: ["--null-input", "0"]) do |output|
+          output.should eq "0\n"
+        end
+      end
     end
 
     describe "with a JSON object string" do

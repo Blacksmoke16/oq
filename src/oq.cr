@@ -34,9 +34,6 @@ module Oq
     property tab : Bool = false
 
     # :nodoc:
-    property slurp : Bool = false
-
-    # :nodoc:
     property null_input : Bool = false
 
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.

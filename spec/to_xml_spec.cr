@@ -122,6 +122,14 @@ describe "#to_xml" do
       end
     end
 
+    describe "with multiple attribute objects" do
+      it "should convert correctly" do
+        assert_builder_output("<name>Jim</name><age unit=\"years\" some_key=\"-1\">12</age>") do |b|
+          {"name" => "Jim", "age" => {"@unit" => "years", "@some_key" => -1, "#text" => 12}}.to_xml b
+        end
+      end
+    end
+
     describe "with a nested attribute object" do
       it "should convert correctly" do
         assert_builder_output("<name>Jim</name><age><unit>years</unit>12</age>") do |b|
@@ -176,6 +184,14 @@ describe "#to_xml" do
       it "should convert correctly" do
         assert_builder_output("<name>Jim</name><age unit=\"years\">12</age>") do |b|
           {"name": "Jim", "age": {"@unit": "years", "#text": 12}}.to_xml b
+        end
+      end
+    end
+
+    describe "with multiple attribute objects" do
+      it "should convert correctly" do
+        assert_builder_output("<name>Jim</name><age unit=\"years\" some_key=\"-1\">12</age>") do |b|
+          {"name": "Jim", "age": {"@unit": "years", "@some_key": -1, "#text": 12}}.to_xml b
         end
       end
     end
