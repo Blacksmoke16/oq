@@ -3,7 +3,7 @@
 [![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
 [![Build Status](https://travis-ci.org/Blacksmoke16/oq.svg?branch=master)](https://travis-ci.org/Blacksmoke16/oq)
 [![Latest release](https://img.shields.io/github/release/Blacksmoke16/oq.svg?style=flat-square)](https://github.com/Blacksmoke16/oq/releases)
-[![oq](https://snapcraft.io/omni-q/badge.svg)](https://snapcraft.io/omni-q)
+[![oq](https://snapcraft.io/oq/badge.svg)](https://snapcraft.io/oq)
 
 A performant, portable `jq` wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
