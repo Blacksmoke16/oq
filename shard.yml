@@ -1,4 +1,4 @@
-name: omni-q
+name: oq
 
 description: |
   A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
