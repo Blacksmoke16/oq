@@ -15,6 +15,6 @@ def run_binary(input : String?, name : String = "bin/oq", args : Array(String) =
   buffer = IO::Memory.new
   in = IO::Memory.new
   in << input if input
-  status = Process.run(name, args, error: buffer, output: buffer, input: in.rewind)
+  status = Process.run(name, args, output: buffer, input: in.rewind)
   yield buffer.to_s, status
 end

@@ -123,7 +123,7 @@ describe Oq do
     end
   end
 
-  describe "with raw output" do
+  describe "with YAML raw output" do
     it "should return the correct output" do
       run_binary(input: "", args: ["-R", "-o", "yaml", ".", "spec/assets/data1.json"]) do |output|
         output.should eq %(--- '{"name": "Jim"}'\n)
@@ -173,7 +173,7 @@ describe Oq do
     describe "with input from STDIN" do
       it "should return the correct output" do
         run_binary(input: "foo", args: ["-n"]) do |output|
-          output.should eq "null\n"
+          output.should be_empty
         end
       end
     end
@@ -215,15 +215,6 @@ describe Oq do
     it "should return the correct output" do
       run_binary(input: %({"a": [1, 2.2, true, "abc", null]}), args: ["-nc", "--stream", "fromstream( 1|truncate_stream(inputs) |  select(length>1) | .[0] |= .[1:] )"]) do |output|
         output.should eq %(1\n2.2\ntrue\n"abc"\nnull\n)
-      end
-    end
-  end
-
-  describe "with XML input" do
-    it "should return not implemented" do
-      run_binary(input: "", args: ["-i", "xml", "."]) do |output, status|
-        output.should eq "Not Implemented\n"
-        status.exit_code.should eq 1
       end
     end
   end
