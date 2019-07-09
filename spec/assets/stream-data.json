@@ -1,0 +1,6 @@
+{"machine": "possible_victim01", "domain": "evil.com", "timestamp":1435071870}
+{"machine": "possible_victim01", "domain": "evil.com", "timestamp":1435071875}
+{"machine": "possible_victim01", "domain": "soevil.com", "timestamp":1435071877}
+{"machine": "possible_victim02", "domain": "bad.com", "timestamp":1435071877}
+{"machine": "possible_victim03", "domain": "soevil.com", "timestamp":1435071879}
+

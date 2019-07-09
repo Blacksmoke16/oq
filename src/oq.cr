@@ -62,14 +62,16 @@ module Oq
     end
 
     private def run_jq(input : Process::Stdio, output : Process::Stdio, error = STDERR) : Nil
-      pp args
       run = Process.run("jq", args, input: input, output: output, error: error)
       exit(1) unless run.success?
       exit if @input_format.json? && @output_format.json?
     end
 
     private def get_input : Process::Stdio
-      return Process::Redirect::Close if @null_input
+      if @null_input
+        @args = @args + ARGV
+        return Process::Redirect::Close
+      end
       return ARGF if @input_format.json?
       input = IO::Memory.new
 
