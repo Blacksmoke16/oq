@@ -8,7 +8,7 @@
 A performant, portable `jq` wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
 * Compiles to a single binary for easy portability.
-* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non JSON format.  
+* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
 
 ## Installation
 
@@ -38,7 +38,7 @@ cd oq/
 shards build --production
 ```
 
-The built binary will be available as `./bin/oq`.  Can copy/move it elsewhere.
+The built binary will be available as `./bin/oq`.  This can be relocated elsewhere on your machine; be sure it is in your `PATH` to access it as `oq`.
 
 ## Usage
 
