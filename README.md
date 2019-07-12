@@ -12,7 +12,9 @@ A performant, portable `jq` wrapper thats facilitates the consumption and output
 
 ## Installation
 
-### Linux distrobutions supporting `snap` packages:
+### Linux via `snap`:
+
+For more on installing & using `snap` with your Linux distribution, see the [official docs](https://docs.snapcraft.io/installing-snapd).
 
 ```bash
 snap install oq
@@ -25,6 +27,8 @@ brew install oq
 ```
 
 ### From Source:
+
+If building from source, `jq` will need to be installed separately. Instructions & downloads can be found in the [official documentation](https://stedolan.github.io/jq/).
 
 Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/reference/installation/).
 
