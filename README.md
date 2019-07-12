@@ -8,11 +8,13 @@
 A performant, portable `jq` wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
 * Compiles to a single binary for easy portability.
-* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non JSON format.  
+* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
 
 ## Installation
 
-### Linux distrobutions supporting `snap` packages:
+### Linux via `snap`:
+
+For more on installing & using `snap` with your Linux distribution, see the [official documentation](https://docs.snapcraft.io/installing-snapd).
 
 ```bash
 snap install oq
@@ -26,6 +28,8 @@ brew install oq
 
 ### From Source:
 
+If building from source, `jq` will need to be installed separately. Installation instructions can be found in the [official documentation](https://stedolan.github.io/jq/).
+
 Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/reference/installation/).
 
 ```bash
@@ -34,8 +38,7 @@ cd oq/
 shards build --production
 ```
 
-The built binary will be available as `./bin/oq`.  Can copy/move it elsewhere.
-
+The built binary will be available as `./bin/oq`.  This can be relocated elsewhere on your machine; be sure it is in your `PATH` to access it as `oq`.
 
 ## Usage
 
@@ -69,3 +72,4 @@ Plans for `1.0.0`:
 ## Contributors
 
 - [Blacksmoke16](https://github.com/Blacksmoke16) Blacksmoke16 - creator, maintainer
+- [sprngr](https://github.com/sprngr) Michael Springer - contributor
