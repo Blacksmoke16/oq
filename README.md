@@ -14,7 +14,7 @@ A performant, portable `jq` wrapper thats facilitates the consumption and output
 
 ### Linux via `snap`:
 
-For more on installing & using `snap` with your Linux distribution, see the [official docs](https://docs.snapcraft.io/installing-snapd).
+For more on installing & using `snap` with your Linux distribution, see the [official documentation](https://docs.snapcraft.io/installing-snapd).
 
 ```bash
 snap install oq
@@ -28,7 +28,7 @@ brew install oq
 
 ### From Source:
 
-If building from source, `jq` will need to be installed separately. Instructions & downloads can be found in the [official documentation](https://stedolan.github.io/jq/).
+If building from source, `jq` will need to be installed separately. Installation instructions can be found in the [official documentation](https://stedolan.github.io/jq/).
 
 Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/reference/installation/).
 
@@ -39,7 +39,6 @@ shards build --production
 ```
 
 The built binary will be available as `./bin/oq`.  Can copy/move it elsewhere.
-
 
 ## Usage
 
@@ -73,3 +72,4 @@ Plans for `1.0.0`:
 ## Contributors
 
 - [Blacksmoke16](https://github.com/Blacksmoke16) Blacksmoke16 - creator, maintainer
+- [sprngr](https://github.com/sprngr) Michael Springer - contributor
