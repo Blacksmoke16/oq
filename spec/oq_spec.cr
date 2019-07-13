@@ -123,7 +123,7 @@ describe Oq do
     end
   end
 
-  describe "with raw output" do
+  describe "with YAML raw output" do
     it "should return the correct output" do
       run_binary(input: "", args: ["-R", "-o", "yaml", ".", "spec/assets/data1.json"]) do |output|
         output.should eq %(--- '{"name": "Jim"}'\n)
@@ -173,7 +173,7 @@ describe Oq do
     describe "with input from STDIN" do
       it "should return the correct output" do
         run_binary(input: "foo", args: ["-n"]) do |output|
-          output.should eq "null\n"
+          output.should be_empty
         end
       end
     end
@@ -219,11 +219,10 @@ describe Oq do
     end
   end
 
-  describe "with XML input" do
-    it "should return not implemented" do
-      run_binary(input: "", args: ["-i", "xml", "."]) do |output, status|
-        output.should eq "Not Implemented\n"
-        status.exit_code.should eq 1
+  describe "when using 'input'" do
+    it "should return the correct output" do
+      run_binary(args: ["-cnf", "spec/assets/stream-filter", "spec/assets/stream-data.json"]) do |output|
+        output.should eq %({"possible_victim01":{"total":3,"evildoers":{"evil.com":2,"soevil.com":1}},"possible_victim02":{"total":1,"evildoers":{"bad.com":1}},"possible_victim03":{"total":1,"evildoers":{"soevil.com":1}}}\n)
       end
     end
   end

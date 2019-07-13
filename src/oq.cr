@@ -36,59 +36,53 @@ module Oq
     # :nodoc:
     property null_input : Bool = false
 
-    # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
-    def process
-      input = IO::Memory.new
-      output = IO::Memory.new
-      error = IO::Memory.new
+    @output : IO = IO::Memory.new
 
+    # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
+    def process : Nil
       ARGV.replace ARGV - @args
 
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
 
-      if !@null_input
-        case @input_format
-        when .json? then IO.copy(ARGF, input)
-        when .yaml?
-          ARGV.empty? ? (input << YAML.parse(STDIN).to_json) : (ARGV.join('\n', input) { |f, io| io << YAML.parse(File.open(f)).to_json })
-        else
-          STDERR.puts "Not Implemented"
-          exit(1)
-        end
+      run_jq input: get_input, output: get_output
 
-        input.rewind
-      else
-        @args = @args | ARGV
-      end
-
-      run = parallel(
-        Process.run("jq", args, input: input, output: output, error: error)
-      )
-
-      unless run[0].success?
-        if output.empty? && @null_input
-          puts "null"
-          exit
-        end
-
-        STDERR.puts error.to_s
-        exit(1)
-      end
-
-      format_output output
+      format_output
     rescue ex
       puts "oq error: #{ex.message}"
       exit(1)
     end
 
-    private def format_output(io : IO)
-      io.rewind
+    private def format_output
+      @output.rewind
       case @output_format
-      when .json? then print io
-      when .yaml? then print JSON.parse(io).to_yaml
-      when .xml?  then print JSON.parse(io).to_xml root: @xml_root, indent: (@tab ? "\t" : " ")*@indent
+      when .yaml? then print JSON.parse(@output).to_yaml
+      when .xml?  then print JSON.parse(@output).to_xml root: @xml_root, indent: (@tab ? "\t" : " ")*@indent
       end
+    end
+
+    private def run_jq(input : Process::Stdio, output : Process::Stdio, error = STDERR) : Nil
+      run = Process.run("jq", args, input: input, output: output, error: error)
+      exit(1) unless run.success?
+      exit if @input_format.json? && @output_format.json?
+    end
+
+    private def get_input : Process::Stdio
+      if @null_input
+        @args = @args + ARGV
+        return Process::Redirect::Close
+      end
+      return ARGF if @input_format.json?
+      input = IO::Memory.new
+
+      ARGV.empty? ? YAML.parse(ARGF).to_json(input) : (ARGV.each { |f| YAML.parse(File.open(f)).to_json(input << '\n') })
+
+      input.rewind
+    end
+
+    private def get_output : Process::Stdio
+      return STDOUT if @output_format.json?
+      @output
     end
   end
 end
