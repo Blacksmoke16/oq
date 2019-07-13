@@ -2,7 +2,7 @@
 *.snap
 /.shards/
 /bin/
-/doc/
+/docs/
 /lib/
 
 # Libraries don't need dependency lock

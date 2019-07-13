@@ -2,6 +2,7 @@ require "json"
 require "yaml"
 require "xml"
 
+# :nodoc:
 class Object
   def to_xml(*, root : String = "root", indent : String = "  ") : String
     String.build do |str|
@@ -22,6 +23,7 @@ class Object
   end
 end
 
+# :nodoc:
 class Array
   def to_xml(builder : XML::Builder, key : String? = nil) : Nil
     each do |v|
@@ -32,6 +34,7 @@ class Array
   end
 end
 
+# :nodoc:
 class Hash
   def to_xml(builder : XML::Builder) : Nil
     each do |key, value|
@@ -55,6 +58,7 @@ class Hash
   end
 end
 
+# :nodoc:
 struct Set
   def to_xml(builder : XML::Builder, key : String? = nil) : Nil
     each do |v|
@@ -65,6 +69,7 @@ struct Set
   end
 end
 
+# :nodoc:
 struct Tuple
   def to_xml(builder : XML::Builder, key : String? = nil) : Nil
     {% for i in 0...T.size %}
@@ -80,18 +85,21 @@ struct Tuple
   end
 end
 
+# :nodoc:
 struct NamedTuple
   def to_xml(builder : XML::Builder) : Nil
     to_h.transform_keys(&.to_s).to_xml builder
   end
 end
 
+# :nodoc:
 struct JSON::Any
   def to_xml(builder : XML::Builder) : Nil
     raw.to_xml(builder)
   end
 end
 
+# :nodoc:
 struct YAML::Any
   def to_xml(builder : XML::Builder) : Nil
     raw.to_xml(builder)
