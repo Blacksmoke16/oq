@@ -226,4 +226,12 @@ describe Oq do
       end
     end
   end
+
+  describe "when converting from JSON null to XML" do
+    it "should return null as self closing tag" do
+      run_binary(input: %({ "e": [ null, {}, "" ] }), args: ["-o", "xml", "."]) do |output|
+        output.should eq %(<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <e/>\n  <e/>\n  <e></e>\n</root>\n)
+      end
+    end
+  end
 end

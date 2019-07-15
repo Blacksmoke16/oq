@@ -24,6 +24,12 @@ class Object
 end
 
 # :nodoc:
+struct Nil
+  def to_xml(builder : XML::Builder) : Nil
+  end
+end
+
+# :nodoc:
 class Array
   def to_xml(builder : XML::Builder, key : String? = nil) : Nil
     each do |v|
