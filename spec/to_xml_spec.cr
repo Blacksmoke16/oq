@@ -108,7 +108,7 @@ describe "#to_xml" do
   describe Hash do
     describe "with standard values" do
       it "should convert correctly" do
-        assert_builder_output("<name>Jim</name><age>12</age><foo></foo>") do |b|
+        assert_builder_output("<name>Jim</name><age>12</age><foo/>") do |b|
           {"name" => "Jim", "age" => 12, "foo" => nil}.to_xml b
         end
       end
@@ -174,7 +174,7 @@ describe "#to_xml" do
   describe NamedTuple do
     describe "with standard values" do
       it "should convert correctly" do
-        assert_builder_output("<name>Jim</name><age>12</age><foo></foo>") do |b|
+        assert_builder_output("<name>Jim</name><age>12</age><foo/>") do |b|
           {name: "Jim", age: 12, foo: nil}.to_xml b
         end
       end
