@@ -5,14 +5,15 @@
 [![Latest release](https://img.shields.io/github/release/Blacksmoke16/oq.svg?style=flat-square)](https://github.com/Blacksmoke16/oq/releases)
 [![oq](https://snapcraft.io/oq/badge.svg)](https://snapcraft.io/oq)
 
-A performant, portable `jq` wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
+A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
 * Compiles to a single binary for easy portability.
 * Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
+* Supports XML and YAML as additional output formats.
 
 ## Installation
 
-### Linux via `snap`:
+### Linux via [snap](https://snapcraft.io/)
 
 For more on installing & using `snap` with your Linux distribution, see the [official documentation](https://docs.snapcraft.io/installing-snapd).
 
@@ -20,13 +21,13 @@ For more on installing & using `snap` with your Linux distribution, see the [off
 snap install oq
 ```
 
-### MacOS: (Soon)
+### MacOS (Soon)
 
 ```bash
 brew install oq
 ```
 
-### From Source:
+### From Source
 
 If building from source, `jq` will need to be installed separately. Installation instructions can be found in the [official documentation](https://stedolan.github.io/jq/).
 
@@ -44,7 +45,7 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 
 ### CLI
 
-Use the `oq` binary, with a few optional custom arguments.  All other arguments get passed to `jq`.
+Use the `oq` binary, with a few optional custom arguments.  All other arguments get passed to `jq`. See [jq manual](https://stedolan.github.io/jq/manual/) for details.
 
 ```bash
 Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]
@@ -54,7 +55,7 @@ Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]
     --xml-root ROOT                 Name of the root XML element if converting to XML.
 ```
 
-### Serialization
+### API
 
 Crystal applications can `require "oq/to_xml"` in order to use the `#to_xml` method to serialize objects to XML.
 
