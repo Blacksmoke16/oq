@@ -1,5 +1,5 @@
 module OQ::Converters::Xml
-  def self.serialize(input : IO, output : IO, **args)
+  def self.serialize(input : IO, output : IO, **args) : Nil
     json = JSON::PullParser.new(input)
     builder = XML::Builder.new(output)
     indent, prlog, root = self.parse_args(args)
@@ -23,7 +23,7 @@ module OQ::Converters::Xml
     raise "Not Implemented"
   end
 
-  private def self.parse_args(args : NamedTuple)
+  private def self.parse_args(args : NamedTuple) : Nil
     {
       args["indent"],
       args["xml_prolog"],

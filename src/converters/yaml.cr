@@ -6,7 +6,7 @@ class JSON::Builder
 end
 
 module OQ::Converters::Yaml
-  def self.deserialize(input : IO, output : IO, **args)
+  def self.deserialize(input : IO, output : IO, **args) : Nil
     yaml = YAML::PullParser.new(input)
     json = JSON::Builder.new(output)
 
@@ -54,7 +54,7 @@ module OQ::Converters::Yaml
     end
   end
 
-  def self.serialize(input : IO, output : IO, **args)
+  def self.serialize(input : IO, output : IO, **args) : Nil
     json = JSON::PullParser.new(input)
     yaml = YAML::Builder.new(output)
 
