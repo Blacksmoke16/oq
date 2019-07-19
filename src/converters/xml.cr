@@ -1,29 +1,31 @@
 module OQ::Converters::Xml
+  @@at_root : Bool = true
+
   def self.serialize(input : IO, output : IO, **args) : Nil
     json = JSON::PullParser.new(input)
     builder = XML::Builder.new(output)
-    indent, prlog, root = self.parse_args(args)
+    indent, prolog, root = self.parse_args(args)
 
     builder.indent = indent
 
-    builder.start_document "1.0", "UTF-8" if prlog
+    builder.start_document "1.0", "UTF-8" if prolog
     builder.start_element root unless root.blank?
 
     loop do
-      build builder, json
+      consume builder, json
       break if json.kind == :EOF
     end
 
     builder.end_element unless root.blank?
-    builder.end_document if prlog
-    builder.flush unless prlog
+    builder.end_document if prolog
+    builder.flush unless prolog
   end
 
   def self.deserialize(input : IO, output : IO, **args)
     raise "Not Implemented"
   end
 
-  private def self.parse_args(args : NamedTuple) : Nil
+  private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String)
     {
       args["indent"],
       args["xml_prolog"],
@@ -31,35 +33,42 @@ module OQ::Converters::Xml
     }
   end
 
-  private def self.build(builder, json : JSON::PullParser, key : String? = nil) : String
+  private def self.consume(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil) : String
     case json.kind
-    when :null   then return json.read_null.to_s
-    when :int    then return json.read_int.to_s
-    when :float  then return json.read_float.to_s
-    when :string then return json.read_string
-    when :bool   then return json.read_bool.to_s
+    when :null   then json.read_null
+    when :string then builder.text json.read_string
+    when :int    then builder.text json.read_int.to_s
+    when :float  then builder.text json.read_float.to_s
+    when :bool   then builder.text json.read_bool.to_s
     when :begin_object
-      json.read_object do |sub_key|
-        builder.start_element sub_key if !sub_key.starts_with?('@') && sub_key != "#text" && json.kind != :begin_array
-        if sub_key.starts_with?('@')
-          builder.attribute sub_key.lchop('@'), build(builder, json, sub_key)
+      @@at_root = false
+      json.read_object do |key|
+        if key.starts_with?('@')
+          builder.attribute key.lchop('@'), json.read_string
+        elsif json.kind == :begin_array
+          consume builder, json, key, key
         else
-          builder.text build(builder, json, sub_key)
+          builder.element key do
+            consume builder, json, key
+          end
         end
-        builder.end_element if !sub_key.starts_with?('@') && sub_key != "#text" && json.kind != :begin_array
       end
     when :begin_array
-      json.read_array do
-        # case json.kind
-        # when :begin_object then build builder, json
-        # else
-        builder.element(key || "item") do
-          builder.text build builder, json, key
-        end
-        # end
-      end
-    end
+      json.read_begin_array
+      array_key = array_key || "item"
 
+      if json.kind == :end_array
+        builder.element(array_key) { } unless @@at_root
+      else
+        while json.kind != :end_array
+          builder.element array_key do
+            consume builder, json, key
+          end
+        end
+      end
+
+      json.read_end_array
+    end
     ""
   end
 end
