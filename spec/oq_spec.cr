@@ -10,7 +10,7 @@ NESTED_JSON_OBJECT = <<-JSON
 {"foo":{"bar":{"baz":5}}}
 JSON
 
-describe Oq do
+describe OQ do
   describe "when given a filter file" do
     it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["-f", "spec/assets/test_filter"]) do |output|
@@ -91,7 +91,7 @@ describe Oq do
     end
   end
 
-  describe "with multiple YAML file input" do
+  pending "with multiple YAML file input" do
     it "should return the correct output" do
       run_binary(input: "", args: ["-c", "-i", "yaml", ".", "spec/assets/data1.yml", "spec/assets/data2.yml"]) do |output|
         output.should eq %({"name":"Jim"}\n{"age":17}\n)
@@ -99,7 +99,7 @@ describe Oq do
     end
   end
 
-  describe "with multiple YAML file input and slurp" do
+  pending "with multiple YAML file input and slurp" do
     it "should return the correct output" do
       run_binary(input: "", args: ["-c", "-i", "yaml", "-s", ".", "spec/assets/data1.yml", "spec/assets/data2.yml"]) do |output|
         output.should eq %([{"name":"Jim"},{"age":17}]\n)
@@ -173,7 +173,7 @@ describe Oq do
     describe "with input from STDIN" do
       it "should return the correct output" do
         run_binary(input: "foo", args: ["-n"]) do |output|
-          output.should be_empty
+          output.should eq "null\n"
         end
       end
     end

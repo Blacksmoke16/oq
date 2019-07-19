@@ -45,31 +45,7 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 
 ### CLI
 
-Use the `oq` binary, with a few optional custom arguments.  All other arguments get passed to `jq`. See [jq manual](https://stedolan.github.io/jq/manual/) for details.
-
-```bash
-Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]
-    --help                          Show this help message.
-    -i FORMAT, --input FORMAT       Format of the input data. Supported formats: json, yaml.
-    -o FORMAT, --output FORMAT      Format of the output data. Supported formats: json, yaml, xml.
-    --xml-root ROOT                 Name of the root XML element if converting to XML.
-```
-
-### API
-
-Crystal applications can `require "oq/to_xml"` in order to use the `#to_xml` method to serialize objects to XML.
-
-```crystal
-require "oq/to_xml"
-
-hash = {"name": "Jim"}
-
-puts hash.to_xml
-# <?xml version="1.0" encoding="UTF-8"?>
-# <root>
-#   <name>Jim</name>
-# </root>
-```
+Use the `oq` binary, with a few optional custom arguments, see `oq --help`.  All other arguments get passed to `jq`. See [jq manual](https://stedolan.github.io/jq/manual/) for details.
 
 ## Roadmap
 

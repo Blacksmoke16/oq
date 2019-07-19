@@ -12,7 +12,6 @@ module OQ::Converters::Yaml
 
     yaml.read_stream do
       loop do
-        puts yaml.kind
         case yaml.kind
         when .document_start?
           json.start_document

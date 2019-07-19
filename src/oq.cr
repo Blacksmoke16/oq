@@ -75,6 +75,7 @@ module OQ
         # Otherwise stream the conversion of the input format to JSON.
         input_read, input_write = IO.pipe
         input_format.converter.deserialize(ARGF, input_write)
+        input_write.close
       end
 
       output_read, output_write = IO.pipe
