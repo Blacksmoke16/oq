@@ -5,7 +5,9 @@ require "yaml"
 require "./converters/*"
 
 # A performant and portable `jq` wrapper to support formats other than JSON.
-module Oq
+module OQ
+  VERSION = "0.1.1"
+
   # The support formats that can be converted to/from.
   enum Format
     Json

@@ -12,7 +12,7 @@ module OQ::Converters::Xml
     builder.start_element root unless root.blank?
 
     loop do
-      consume builder, json
+      emit builder, json
       break if json.kind == :EOF
     end
 
@@ -33,7 +33,7 @@ module OQ::Converters::Xml
     }
   end
 
-  private def self.consume(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil) : String
+  private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil) : String
     case json.kind
     when :null   then json.read_null
     when :string then builder.text json.read_string
@@ -45,11 +45,11 @@ module OQ::Converters::Xml
       json.read_object do |key|
         if key.starts_with?('@')
           builder.attribute key.lchop('@'), json.read_string
-        elsif json.kind == :begin_array
-          consume builder, json, key, key
+        elsif json.kind == :begin_array || key == "#text"
+          emit builder, json, key, key
         else
           builder.element key do
-            consume builder, json, key
+            emit builder, json, key
           end
         end
       end
@@ -62,7 +62,7 @@ module OQ::Converters::Xml
       else
         while json.kind != :end_array
           builder.element array_key do
-            consume builder, json, key
+            emit builder, json, key
           end
         end
       end

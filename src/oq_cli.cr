@@ -2,7 +2,7 @@ require "option_parser"
 
 require "./oq"
 
-module Oq
+module OQ
   processor = Processor.new
 
   OptionParser.parse! do |parser|
@@ -12,7 +12,16 @@ module Oq
 
       Process.run("jq", ["-h"], output: output)
 
-      puts parser, output.to_s.lines.tap(&.delete_at(0..1)).join('\n')
+      puts parser, output.to_s.lines.map(&.gsub('\t', "    ")).tap(&.delete_at(0..1)).join('\n')
+      exit
+    end
+    parser.on("-V", "--version", "Returns the current versions of oq and jq.") do
+      output = IO::Memory.new
+
+      Process.run("jq", ["--version"], output: output)
+
+      puts "jq: #{output}"
+      puts "oq: #{OQ::VERSION}"
       exit
     end
     parser.on("-i FORMAT", "--input FORMAT", "Format of the input data. Supported formats: #{Format.to_s}") { |format| (f = Format.parse?(format)) && !f.xml? ? processor.input_format = f : (puts "Invalid input format: '#{format}'"; exit(1)) }
