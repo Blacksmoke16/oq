@@ -172,8 +172,8 @@ describe OQ do
 
     describe "with input from STDIN" do
       it "should return the correct output" do
-        run_binary(input: "foo", args: ["-n"]) do |output|
-          output.should eq "null\n"
+        run_binary(input: "foo", args: ["-n", ".'"]) do |output|
+          output.should be_empty
         end
       end
     end

@@ -49,16 +49,14 @@ module OQ
     # If the XML prolog should be emitted.
     property xml_prolog : Bool = true
 
+    # The name for XML array elements without keys.
+    property xml_item : String = "item"
+
     # The number of spaces to use for indentation.
     property indent : Int32 = 2
 
     # :nodoc:
     property tab : Bool = false
-
-    # :nodoc:
-    property null_input : Bool = false
-
-    @output : IO = IO::Memory.new
 
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
     def process : Nil
@@ -95,7 +93,8 @@ module OQ
         STDOUT,
         indent: ((tab ? "\t" : " ")*indent),
         xml_root: xml_root,
-        xml_prolog: xml_prolog
+        xml_prolog: xml_prolog,
+        xml_item: xml_item
       )
     rescue ex
       puts "oq error: #{ex.message}"

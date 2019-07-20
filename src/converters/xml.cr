@@ -4,7 +4,7 @@ module OQ::Converters::Xml
   def self.serialize(input : IO, output : IO, **args) : Nil
     json = JSON::PullParser.new(input)
     builder = XML::Builder.new(output)
-    indent, prolog, root = self.parse_args(args)
+    indent, prolog, root, xml_item = self.parse_args(args)
 
     builder.indent = indent
 
@@ -12,7 +12,7 @@ module OQ::Converters::Xml
     builder.start_element root unless root.blank?
 
     loop do
-      emit builder, json
+      emit builder, json, xml_item: xml_item
       break if json.kind == :EOF
     end
 
@@ -25,44 +25,42 @@ module OQ::Converters::Xml
     raise "Not Implemented"
   end
 
-  private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String)
+  private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String, String)
     {
       args["indent"],
       args["xml_prolog"],
       args["xml_root"],
+      args["xml_item"],
     }
   end
 
-  private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil) : String
+  private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : String
     case json.kind
-    when :null   then json.read_null
-    when :string then builder.text json.read_string
-    when :int    then builder.text json.read_int.to_s
-    when :float  then builder.text json.read_float.to_s
-    when :bool   then builder.text json.read_bool.to_s
+    when :null                        then json.read_null
+    when :string, :int, :float, :bool then builder.text get_value json
     when :begin_object
       @@at_root = false
-      json.read_object do |key|
-        if key.starts_with?('@')
-          builder.attribute key.lchop('@'), json.read_string
-        elsif json.kind == :begin_array || key == "#text"
-          emit builder, json, key, key
+      json.read_object do |k|
+        if k.starts_with?('@')
+          builder.attribute k.lchop('@'), get_value json
+        elsif json.kind == :begin_array || k == "#text"
+          emit builder, json, k, k, xml_item: xml_item
         else
-          builder.element key do
-            emit builder, json, key
+          builder.element k do
+            emit builder, json, k, xml_item: xml_item
           end
         end
       end
     when :begin_array
       json.read_begin_array
-      array_key = array_key || "item"
+      array_key = array_key || xml_item
 
       if json.kind == :end_array
         builder.element(array_key) { } unless @@at_root
       else
         while json.kind != :end_array
           builder.element array_key do
-            emit builder, json, key
+            emit builder, json, key, xml_item: xml_item
           end
         end
       end
@@ -70,5 +68,16 @@ module OQ::Converters::Xml
       json.read_end_array
     end
     ""
+  end
+
+  private def self.get_value(json : JSON::PullParser)
+    case json.kind
+    when :string then json.read_string
+    when :int    then json.read_int.to_s
+    when :float  then json.read_float.to_s
+    when :bool   then json.read_bool.to_s
+    else
+      ""
+    end
   end
 end
