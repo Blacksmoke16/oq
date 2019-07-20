@@ -80,7 +80,7 @@ module OQ
 
       Process.new(
         "jq",
-        @args,
+        args,
         input: input_read,
         output: output_write,
         error: STDERR

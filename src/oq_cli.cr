@@ -35,6 +35,12 @@ module OQ
     parser.invalid_option do |flag|
       case flag
       when "--tab" then processor.tab = true
+      when "-L"
+        processor.args << flag
+        idx = ARGV.index(flag).not_nil!
+        processor.args << ARGV[idx + 1]
+        ARGV.delete_at idx..(idx + 1)
+        next
       end
 
       processor.args << flag

@@ -35,39 +35,7 @@ describe OQ do
     end
   end
 
-  describe "with a filter to get nested values and YAML input" do
-    it "should return the correct output" do
-      run_binary(input: "---\nfoo:\n  bar:\n    baz: 5", args: ["-i", "yaml", ".foo.bar.baz"]) do |output|
-        output.should eq "5\n"
-      end
-    end
-  end
-
-  describe "with YAML output" do
-    it "should return the correct output" do
-      run_binary(input: NESTED_JSON_OBJECT, args: ["-o", "yaml", "."]) do |output|
-        output.should eq "---\nfoo:\n  bar:\n    baz: 5\n"
-      end
-    end
-  end
-
-  describe "with XML output" do
-    it "should return the correct output" do
-      run_binary(input: NESTED_JSON_OBJECT, args: ["-o", "xml", "."]) do |output|
-        output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <foo>\n    <bar>\n      <baz>5</baz>\n    </bar>\n  </foo>\n</root>\n"
-      end
-    end
-  end
-
-  describe "with YAML input" do
-    it "should return the correct output" do
-      run_binary(input: "---\nfoo:\n  bar:\n    baz: 5\n", args: ["-c", "-i", "yaml", "."]) do |output|
-        output.should eq "#{NESTED_JSON_OBJECT}\n"
-      end
-    end
-  end
-
-  describe "with a JSON file input" do
+  describe "with a file input" do
     it "should return the correct output" do
       run_binary(input: "", args: [".", "spec/assets/data1.json"]) do |output|
         output.should eq "#{SIMPLE_JSON_OBJECT}\n"
@@ -91,46 +59,6 @@ describe OQ do
     end
   end
 
-  pending "with multiple YAML file input" do
-    it "should return the correct output" do
-      run_binary(input: "", args: ["-c", "-i", "yaml", ".", "spec/assets/data1.yml", "spec/assets/data2.yml"]) do |output|
-        output.should eq %({"name":"Jim"}\n{"age":17}\n)
-      end
-    end
-  end
-
-  pending "with multiple YAML file input and slurp" do
-    it "should return the correct output" do
-      run_binary(input: "", args: ["-c", "-i", "yaml", "-s", ".", "spec/assets/data1.yml", "spec/assets/data2.yml"]) do |output|
-        output.should eq %([{"name":"Jim"},{"age":17}]\n)
-      end
-    end
-  end
-
-  describe "with STDIN YAML input and slurp" do
-    it "should return the correct output" do
-      run_binary(input: "---\nname: Jim", args: ["-c", "-i", "yaml", "-s", "."]) do |output|
-        output.should eq %([{"name":"Jim"}]\n)
-      end
-    end
-  end
-
-  describe "with YAML input and XML output" do
-    it "should convert between formats" do
-      run_binary(input: "---\nfoo:\n  bar:\n    baz: 5\n", args: ["-i", "yaml", "-o", "xml", "."]) do |output|
-        output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n  <foo>\n    <bar>\n      <baz>5</baz>\n    </bar>\n  </foo>\n</root>\n"
-      end
-    end
-  end
-
-  describe "with YAML raw output" do
-    it "should return the correct output" do
-      run_binary(input: "", args: ["-R", "-o", "yaml", ".", "spec/assets/data1.json"]) do |output|
-        output.should eq %(--- '{"name": "Jim"}'\n)
-      end
-    end
-  end
-
   describe "with the -c options" do
     it "should return the correct output" do
       run_binary(input: NESTED_JSON_OBJECT, args: ["-c", "."]) do |output|
@@ -142,7 +70,16 @@ describe OQ do
   describe "without the -c options" do
     it "should return the correct output" do
       run_binary(input: NESTED_JSON_OBJECT, args: ["."]) do |output|
-        output.should eq %({\n  "foo": {\n    "bar": {\n      "baz": 5\n    }\n  }\n}\n)
+        output.should eq(<<-JSON
+          {
+            "foo": {
+              "bar": {
+                "baz": 5
+              }
+            }
+          }\n
+          JSON
+        )
       end
     end
   end
@@ -160,20 +97,20 @@ describe OQ do
           output.should eq "0\n"
         end
       end
-    end
 
-    describe "with a JSON object string" do
-      it "should return the correct output" do
-        run_binary(input: nil, args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
-          output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
+      describe "with a JSON object string" do
+        it "should return the correct output" do
+          run_binary(input: nil, args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
+            output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
+          end
         end
       end
-    end
 
-    describe "with input from STDIN" do
-      it "should return the correct output" do
-        run_binary(input: "foo", args: ["-n", ".'"]) do |output|
-          output.should be_empty
+      describe "with input from STDIN" do
+        it "should return the correct output" do
+          run_binary(input: "foo", args: ["-n", "."]) do |output|
+            output.should eq "null\n"
+          end
         end
       end
     end
@@ -183,30 +120,6 @@ describe OQ do
     it "should return the correct output" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["--indent", "1", "."]) do |output|
         output.should eq %({\n "name": "Jim"\n}\n)
-      end
-    end
-  end
-
-  describe "with the --tab option" do
-    it "should return the correct output" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["--tab", "."]) do |output|
-        output.should eq %({\n\t"name": "Jim"\n}\n)
-      end
-    end
-  end
-
-  describe "with a custom indent value with XML" do
-    it "should return the correct output" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["--indent", "3", "-o", "xml", "."]) do |output|
-        output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n   <name>Jim</name>\n</root>\n"
-      end
-    end
-  end
-
-  describe "with a custom XML root" do
-    it "should return the correct output" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["--xml-root", "friends", "-o", "xml", "."]) do |output|
-        output.should eq "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<friends>\n  <name>Jim</name>\n</friends>\n"
       end
     end
   end
@@ -227,10 +140,10 @@ describe OQ do
     end
   end
 
-  describe "when converting from JSON null to XML" do
-    it "should return null as self closing tag" do
-      run_binary(input: %({ "e": [ null, {}, "" ] }), args: ["-o", "xml", "."]) do |output|
-        output.should eq %(<?xml version="1.0" encoding="UTF-8"?>\n<root>\n  <e/>\n  <e/>\n  <e></e>\n</root>\n)
+  describe "with the -L option" do
+    it "should be passed correctly" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-L", "'/home/'", "."]) do |output|
+        output.should eq %({\n  "name": "Jim"\n}\n)
       end
     end
   end
