@@ -34,43 +34,48 @@ module OQ::Converters::Xml
     }
   end
 
-  private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : String
+  private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
     case json.kind
     when :null                        then json.read_null
     when :string, :int, :float, :bool then builder.text get_value json
-    when :begin_object
-      @@at_root = false
-      json.read_object do |k|
-        if k.starts_with?('@')
-          builder.attribute k.lchop('@'), get_value json
-        elsif json.kind == :begin_array || k == "#text"
-          emit builder, json, k, k, xml_item: xml_item
-        else
-          builder.element k do
-            emit builder, json, k, xml_item: xml_item
-          end
-        end
-      end
-    when :begin_array
-      json.read_begin_array
-      array_key = array_key || xml_item
-
-      if json.kind == :end_array
-        builder.element(array_key) { } unless @@at_root
-      else
-        while json.kind != :end_array
-          builder.element array_key do
-            emit builder, json, key, xml_item: xml_item
-          end
-        end
-      end
-
-      json.read_end_array
+    when :begin_object                then handle_object builder, json, key, array_key, xml_item: xml_item
+    when :begin_array                 then handle_array builder, json, key, array_key, xml_item: xml_item
     end
-    ""
   end
 
-  private def self.get_value(json : JSON::PullParser)
+  private def self.handle_object(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+    @@at_root = false
+    json.read_object do |k|
+      if k.starts_with?('@')
+        builder.attribute k.lchop('@'), get_value json
+      elsif json.kind == :begin_array || k == "#text"
+        emit builder, json, k, k, xml_item: xml_item
+      else
+        builder.element k do
+          emit builder, json, k, xml_item: xml_item
+        end
+      end
+    end
+  end
+
+  private def self.handle_array(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+    json.read_begin_array
+    array_key = array_key || xml_item
+
+    if json.kind == :end_array
+      builder.element(array_key) { } unless @@at_root
+    else
+      while json.kind != :end_array
+        builder.element array_key do
+          emit builder, json, key, xml_item: xml_item
+        end
+      end
+    end
+
+    json.read_end_array
+  end
+
+  private def self.get_value(json : JSON::PullParser) : String
     case json.kind
     when :string then json.read_string
     when :int    then json.read_int.to_s
