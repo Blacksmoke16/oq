@@ -72,29 +72,33 @@ module OQ
       else
         # Otherwise stream the conversion of the input format to JSON.
         input_read, input_write = IO.pipe
-        input_format.converter.deserialize(ARGF, input_write)
-        input_write.close
+        spawn do
+          input_format.converter.deserialize(ARGF, input_write)
+          input_write.close
+        end
       end
 
       output_read, output_write = IO.pipe
 
-      Process.new(
+      spawn do
+        output_write.close
+
+        output_format.converter.serialize(
+          output_read,
+          STDOUT,
+          indent: ((tab ? "\t" : " ")*indent),
+          xml_root: xml_root,
+          xml_prolog: xml_prolog,
+          xml_item: xml_item
+        )
+      end
+
+      Process.run(
         "jq",
         args,
         input: input_read,
         output: output_write,
         error: STDERR
-      )
-
-      output_write.close
-
-      output_format.converter.serialize(
-        output_read,
-        STDOUT,
-        indent: ((tab ? "\t" : " ")*indent),
-        xml_root: xml_root,
-        xml_prolog: xml_prolog,
-        xml_item: xml_item
       )
     rescue ex
       puts "oq error: #{ex.message}"
