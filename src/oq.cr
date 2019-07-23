@@ -21,13 +21,15 @@ module OQ
 
     # Maps a given format to its converter.
     def converter
-      case self
-      when .yaml? then OQ::Converters::Yaml
-      when .json? then OQ::Converters::Json
-      when .xml?  then OQ::Converters::Xml
-      else
-        raise "Unsupported format: '#{self}'."
-      end
+      {% begin %}
+        case self
+          {% for format in @type.constants %}
+            when .{{format.downcase.id}}? then OQ::Converters::{{format.id}}
+          {% end %}
+        else
+          raise "Unsupported format: '#{self}'."
+        end
+      {% end %}
     end
   end
 

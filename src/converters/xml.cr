@@ -1,6 +1,10 @@
 module OQ::Converters::Xml
   @@at_root : Bool = true
 
+  def self.deserialize(input : IO, output : IO, **args) : Nil
+    raise "Not Implemented"
+  end
+
   def self.serialize(input : IO, output : IO, **args) : Nil
     json = JSON::PullParser.new(input)
     builder = XML::Builder.new(output)
@@ -19,10 +23,6 @@ module OQ::Converters::Xml
     builder.end_element unless root.blank?
     builder.end_document if prolog
     builder.flush unless prolog
-  end
-
-  def self.deserialize(input : IO, output : IO, **args)
-    raise "Not Implemented"
   end
 
   private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String, String)

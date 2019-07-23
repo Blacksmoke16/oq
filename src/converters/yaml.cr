@@ -26,7 +26,7 @@ module OQ::Converters::Yaml
           if json.next_is_object_key?
             json.scalar(string)
           else
-            scalar = YAML::Schema::Core.parse_scalar(string)
+            scalar = YAML::Schema::Core.parse_scalar(yaml)
             case scalar
             when Nil
               json.scalar(scalar)
