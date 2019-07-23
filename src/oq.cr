@@ -65,24 +65,16 @@ module OQ
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
 
-      # We can just feed ARGF directly to `jq` if
-      # the input format is JSON.
-      if input_format.json?
-        input_read = ARGF
-      else
-        # Otherwise stream the conversion of the input format to JSON.
-        input_read, input_write = IO.pipe
-        spawn do
-          input_format.converter.deserialize(ARGF, input_write)
-          input_write.close
-        end
-      end
-
+      input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
 
       spawn do
-        output_write.close
+        input_format.converter.deserialize(ARGF, input_write)
+        input_write.close
+      end
 
+      spawn do
+        output_write.close
         output_format.converter.serialize(
           output_read,
           STDOUT,
