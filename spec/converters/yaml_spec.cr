@@ -328,11 +328,7 @@ describe OQ::Converters::Yaml do
     describe Nil do
       it "should output correctly" do
         run_binary("null", args: ["-o", "yaml", "."]) do |output|
-          output.should eq(<<-YAML
-            --- 
-            ...\n
-            YAML
-          )
+          output.should eq "--- \n...\n"
         end
       end
     end

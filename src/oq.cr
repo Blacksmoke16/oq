@@ -73,6 +73,8 @@ module OQ
       spawn do
         input_format.converter.deserialize(ARGF, input_write)
         input_write.close
+      rescue ex
+        handle_error ex
       end
 
       spawn do
@@ -85,6 +87,8 @@ module OQ
           xml_prolog: xml_prolog,
           xml_item: xml_item
         )
+      rescue ex
+        handle_error ex
       end
 
       Process.run(
@@ -95,6 +99,10 @@ module OQ
         error: STDERR
       )
     rescue ex
+      handle_error ex
+    end
+
+    private def handle_error(ex : Exception)
       puts "oq error: #{ex.message}"
       exit(1)
     end
