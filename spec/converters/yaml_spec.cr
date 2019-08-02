@@ -238,7 +238,7 @@ describe OQ::Converters::Yaml do
         end
       end
 
-      pending "with anchors" do
+      describe "with anchors" do
         it "should output correctly" do
           run_binary(ANCHORS, args: ["-i", "yaml", "-c", "."]) do |output|
             output.should eq %({"base":{"name":"Everyone has same name"},"foo":{"name":"Everyone has same name","age":10},"bar":{"name":"Everyone has same name","age":20}}\n)
