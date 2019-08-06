@@ -3,7 +3,7 @@ name: oq
 description: |
   A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 
-version: 0.1.1
+version: 0.2.0
 
 authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
@@ -18,5 +18,5 @@ targets:
 
 development_dependencies:
   ameba:
-    github: veelenga/ameba
+    github: crystal-ameba/ameba
     version: ~> 0.10.0
