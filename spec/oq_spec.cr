@@ -10,6 +10,10 @@ NESTED_JSON_OBJECT = <<-JSON
 {"foo":{"bar":{"baz":5}}}
 JSON
 
+ARRAY_JSON_OBJECT = <<-JSON
+{"names":[1,2,3]}
+JSON
+
 describe OQ do
   describe "when given a filter file" do
     it "should return the correct output" do
@@ -144,6 +148,15 @@ describe OQ do
     it "should be passed correctly" do
       run_binary(input: SIMPLE_JSON_OBJECT, args: ["-L", "'/home/'", "."]) do |output|
         output.should eq %({\n  "name": "Jim"\n}\n)
+      end
+    end
+  end
+
+  describe "when there is a jq error" do
+    it "should return the error and correct exit code" do
+      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, run, error|
+        error.should eq %(jq: error (at <stdin>:0): Cannot index number with string "name"\n)
+        run.exit_code.should eq 1
       end
     end
   end
