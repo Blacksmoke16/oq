@@ -91,13 +91,15 @@ module OQ
         handle_error ex
       end
 
-      Process.run(
+      run = Process.run(
         "jq",
         args,
         input: input_read,
         output: output_write,
         error: STDERR
       )
+
+      exit(1) unless run.success?
     rescue ex
       handle_error ex
     end
