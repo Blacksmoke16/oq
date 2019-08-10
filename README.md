@@ -21,9 +21,10 @@ For more on installing & using `snap` with your Linux distribution, see the [off
 snap install oq
 ```
 
-### MacOS (Soon)
+### MacOS
 
 ```bash
+brew tap blacksmoke16/tap
 brew install oq
 ```
 
