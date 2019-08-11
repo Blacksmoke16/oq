@@ -6,7 +6,7 @@ require "./converters/*"
 
 # A performant and portable `jq` wrapper to support formats other than JSON.
 module OQ
-  VERSION = "0.2.0"
+  VERSION = "0.2.1"
 
   # The support formats that can be converted to/from.
   enum Format

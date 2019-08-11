@@ -1,10 +1,3 @@
-class JSON::Builder
-  def next_is_object_key?
-    state = @state.last
-    state.is_a?(ObjectState) && state.name
-  end
-end
-
 module OQ::Converters::Yaml
   # OPTIMIZE: Figure out a way to handle aliases/anchors while streaming.
   def self.deserialize(input : IO, output : IO, **args) : Nil
@@ -20,29 +13,29 @@ module OQ::Converters::Yaml
       yaml.document do
         loop do
           case json.kind
-          when :null
+          when .null?
             yaml.scalar(nil)
-          when :bool
+          when .bool?
             yaml.scalar(json.bool_value)
-          when :int
+          when .int?
             yaml.scalar(json.int_value)
-          when :float
+          when .float?
             yaml.scalar(json.float_value)
-          when :string
+          when .string?
             if YAML::Schema::Core.reserved_string?(json.string_value)
               yaml.scalar(json.string_value, style: :double_quoted)
             else
               yaml.scalar(json.string_value)
             end
-          when :begin_array
+          when .begin_array?
             yaml.start_sequence
-          when :end_array
+          when .end_array?
             yaml.end_sequence
-          when :begin_object
+          when .begin_object?
             yaml.start_mapping
-          when :end_object
+          when .end_object?
             yaml.end_mapping
-          when :EOF
+          when .eof?
             break
           end
           json.read_next
