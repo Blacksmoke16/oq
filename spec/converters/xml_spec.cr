@@ -42,6 +42,48 @@ XML_OBJECT_ARRAY = <<-XML
 </items>
 XML
 
+XML_INLINE_ARRAY = <<-XML
+<article key="tr/ibm/RJ2144">
+  <author>E. F. Codd</author>
+  <author>Robert S. Arnold</author>
+  <author>Jean-Marc Cadiou</author>
+  <author>Chin-Liang Chang</author>
+  <author>Nick Roussopoulos</author>
+  <title>RENDEZVOUS Version 1: An Experimental English Language Query Formulation System for Casual Users of Relational Data Bases.</title>
+  <journal>IBM Research Report</journal>
+  <volume>RJ2144</volume>
+  <month>January</month>
+  <year>1978</year>
+  <ee>db/labs/ibm/RJ2144.html</ee>
+  <cdrom>ibmTR/rj2144.pdf</cdrom>
+</article>
+XML
+
+XML_DOCTYPE = <<-XML
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE dblp SYSTEM "dblp.dtd">
+<dblp>
+  <mastersthesis key="ms/Brown92">
+    <author>Kurt P. Brown</author>
+    <title>PRPL: A Database Workload Specification Language, v1.3.</title>
+    <year>1992</year>
+    <school>Univ. of Wisconsin-Madison</school>
+  </mastersthesis>
+</dblp>
+XML
+
+XML_ATTRIBUTE_IN_ARRAY = <<-XML
+<jobs>
+  <ad>
+    <salary currency="CAD">80000</salary>
+    <working_hours>full-time</working_hours>
+  </ad>
+  <ad>
+    <working_hours>full-time</working_hours>
+  </ad>
+</jobs>
+XML
+
 describe OQ::Converters::Xml do
   describe ".deserialize" do
     describe Object do
@@ -108,13 +150,29 @@ describe OQ::Converters::Xml do
           end
         end
       end
+
+      describe "with an inline array" do
+        it "should output correctly" do
+          run_binary(XML_INLINE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"article":{"@key":"tr/ibm/RJ2144","author":["E. F. Codd","Robert S. Arnold","Jean-Marc Cadiou","Chin-Liang Chang","Nick Roussopoulos"],"title":"RENDEZVOUS Version 1: An Experimental English Language Query Formulation System for Casual Users of Relational Data Bases.","journal":"IBM Research Report","volume":"RJ2144","month":"January","year":"1978","ee":"db/labs/ibm/RJ2144.html","cdrom":"ibmTR/rj2144.pdf"}}\n)
+          end
+        end
+      end
+
+      describe "with a doctype" do
+        it "should output correctly" do
+          run_binary(XML_DOCTYPE, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"dblp":{"mastersthesis":{"@key":"ms/Brown92","author":"Kurt P. Brown","title":"PRPL: A Database Workload Specification Language, v1.3.","year":"1992","school":"Univ. of Wisconsin-Madison"}}}\n)
+          end
+        end
+      end
     end
 
     describe Array do
       describe "of scalar values" do
         it "should output correctly" do
           run_binary(XML_SCALAR_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"items":["1","2","3"]}\n)
+            output.should eq %({"items":{"number":["1","2","3"]}}\n)
           end
         end
       end
@@ -122,7 +180,15 @@ describe OQ::Converters::Xml do
       describe "of objects" do
         it "should output correctly" do
           run_binary(XML_OBJECT_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"items":[{"flagID":"0","itemID":"0","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"},{"flagID":"0","itemID":"1","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"}]}\n)
+            output.should eq %({"items":{"item":[{"flagID":"0","itemID":"0","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"},{"flagID":"0","itemID":"1","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"}]}}\n)
+          end
+        end
+      end
+
+      describe "with object that has an attribute" do
+        it "should output correctly" do
+          run_binary(XML_ATTRIBUTE_IN_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"jobs":{"ad":[{"salary":{"@currency":"CAD","#text":"80000"},"working_hours":"full-time"},{"working_hours":"full-time"}]}}\n)
           end
         end
       end
