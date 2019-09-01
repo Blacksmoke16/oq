@@ -40,7 +40,7 @@ module OQ::Converters::Xml
     elsif (has_nested_elements || !node.attributes.empty?)
       # Define an object field if this element does not
       # consist solely of text nodes or has attributes
-      unless node.is_array
+      if !node.is_array
         builder.field node.name do
           builder.object do
             process_attributes node.attributes, builder
@@ -56,7 +56,7 @@ module OQ::Converters::Xml
       end
     else
       # If the node is not part of an array output a field for an object
-      unless node.is_array
+      if !node.is_array
         builder.field node.name, node.children.first.content
       else
         # Otherwise output a scalar for an array item
