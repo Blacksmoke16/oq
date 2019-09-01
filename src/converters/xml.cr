@@ -1,8 +1,94 @@
+struct XML::Node
+  property is_array = false
+end
+
 module OQ::Converters::Xml
   @@at_root : Bool = true
 
   def self.deserialize(input : IO, output : IO, **args) : Nil
-    raise "Not Implemented"
+    builder = JSON::Builder.new(output)
+    xml = XML::Reader.new(input)
+
+    # Set reader to first element
+    xml.read
+
+    builder.document do
+      builder.object do
+        process_node xml.expand, builder
+      end
+    end
+  end
+
+  private def self.process_node(node : XML::Node?, builder : JSON::Builder) : Nil
+    return unless node
+
+    has_nested_elements = node.children.any? do |child|
+      next if child.content.blank?
+      !child.type.text_node?
+    end
+
+    # If the children all have the same name assume its an array
+    if node.children.map { |c| next if c.content.blank?; c.name }.compact.uniq.size == 1 && node.children.size > 1
+      builder.field node.name do
+        builder.array do
+          node.children.reject(&.content.blank?).each do |n|
+            n.is_array = true
+            process_node n, builder
+          end
+        end
+      end
+    elsif (has_nested_elements || !node.attributes.empty?)
+      # Define an object field if this element does not
+      # consist solely of text nodes or has attributes
+      unless node.is_array
+        builder.field node.name do
+          builder.object do
+            process_attributes node.attributes, builder
+            process_elements node.children, builder, exclude_text_nodes: has_nested_elements
+          end
+        end
+      else
+        builder.object do
+          process_attributes node.attributes, builder
+          # Filter out mixed content nodes
+          process_elements node.children, builder
+        end
+      end
+    else
+      # If the node is not part of an array output a field for an object
+      unless node.is_array
+        builder.field node.name, node.children.first.content
+      else
+        # Otherwise output a scalar for an array item
+        builder.scalar node.children.first.content
+      end
+    end
+  end
+
+  private def self.process_elements(elements : XML::NodeSet, builder : JSON::Builder, *, exclude_text_nodes : Bool = false)
+    elements.each do |el|
+      next if exclude_text_nodes && el.type.text_node?
+      next if el.content.blank?
+
+      # If the element is just a text node wrapper define a JSON field
+      if !el.attributes.empty?
+        process_node el, builder
+      elsif el.children.size == 1 && el.children.first.type.text_node?
+        builder.field el.name, el.children.first.content
+      elsif el.type.text_node?
+        builder.field "#text", el.content
+      else
+        # Otherwise its a nested object
+        process_node el, builder
+      end
+    end
+  end
+
+  private def self.process_attributes(attributes : XML::Attributes, builder : JSON::Builder)
+    # Process node attributes
+    attributes.each do |attr|
+      builder.field "@#{attr.name}", attr.content
+    end
   end
 
   def self.serialize(input : IO, output : IO, **args) : Nil

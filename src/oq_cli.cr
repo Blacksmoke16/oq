@@ -26,7 +26,7 @@ module OQ
       puts "oq: #{OQ::VERSION}"
       exit
     end
-    parser.on("-i FORMAT", "--input FORMAT", "Format of the input data. Supported formats: #{Format.to_s}") { |format| (f = Format.parse?(format)) && !f.xml? ? processor.input_format = f : (puts "Invalid input format: '#{format}'"; exit(1)) }
+    parser.on("-i FORMAT", "--input FORMAT", "Format of the input data. Supported formats: #{Format.to_s}") { |format| (f = Format.parse?(format)) ? processor.input_format = f : (puts "Invalid input format: '#{format}'"; exit(1)) }
     parser.on("-o FORMAT", "--output FORMAT", "Format of the output data. Supported formats: #{Format.to_s}") { |format| (f = Format.parse?(format)) ? processor.output_format = f : (puts "Invalid output format: '#{format}'"; exit(1)) }
     parser.on("--indent NUMBER", "Use the given number of spaces for indentation (JSON/XML only).") { |n| processor.indent = n.to_i; processor.args << "--indent"; processor.args << n }
     parser.on("--xml-root ROOT", "Name of the root XML element if converting to XML.") { |r| processor.xml_root = r }

@@ -64,6 +64,9 @@ module OQ
     def process : Nil
       ARGV.replace ARGV - @args
 
+      # Add color option if STDOUT is a tty
+      @args << "-C" if STDOUT.tty?
+
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
 
