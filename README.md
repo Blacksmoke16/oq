@@ -9,7 +9,7 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 
 * Compiles to a single binary for easy portability.
 * Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
-* Supports XML and YAML as additional output formats.
+* Supports XML and YAML as additional input/output formats.
 
 ## Installation
 

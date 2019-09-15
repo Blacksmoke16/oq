@@ -14,7 +14,7 @@ module OQ::Converters::Xml
 
     builder.document do
       builder.object do
-        until xml.node_type.element_node?
+        until xml.node_type.element?
           xml.read
         end
         process_node xml.expand, builder
@@ -26,7 +26,6 @@ module OQ::Converters::Xml
     return unless node
 
     has_nested_elements = node.children.any? do |child|
-      next if child.content.blank?
       !child.type.text_node?
     end
 
@@ -36,7 +35,7 @@ module OQ::Converters::Xml
           builder.object do
             process_attributes node.attributes, builder
 
-            node.children.reject(&.content.blank?).group_by(&.name).each do |name, children|
+            node.children.group_by(&.name).each do |name, children|
               next if children.first.type.text_node? && has_nested_elements
 
               # Array
@@ -55,8 +54,12 @@ module OQ::Converters::Xml
         end
       else
         builder.object do
-          node.children.reject(&.content.blank?).each do |n|
-            process_element n, builder
+          node.children.each do |n|
+            if n.content.blank?
+              process_element n, builder
+            else
+              process_node n, builder
+            end
           end
         end
       end
@@ -66,13 +69,15 @@ module OQ::Converters::Xml
   end
 
   private def self.process_element(node : XML::Node, builder : JSON::Builder) : Nil
+    return if node.text? && node.content.blank?
+
     if !node.attributes.empty?
       process_node node, builder
     elsif !node.is_array
-      builder.field node.name, node.children.first.content
+      builder.field node.name, node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
     else
       # Otherwise output a scalar for an array item
-      builder.scalar node.children.first.content
+      builder.scalar node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
     end
   end
 

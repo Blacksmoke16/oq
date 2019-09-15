@@ -42,6 +42,27 @@ XML_OBJECT_ARRAY = <<-XML
 </items>
 XML
 
+XML_NESTED_OBJECT_ARRAY = <<-XML
+<?xml version='1.0' ?>
+<!DOCTYPE root SYSTEM "http://www.cs.washington.edu/research/projects/xmltk/xmldata/data/auctions/ebay.dtd">
+<root>
+ <listing>
+   <seller_info>
+       <seller_name> cubsfantony</seller_name>
+       <seller_rating> 848</seller_rating>
+   </seller_info>
+   <payment_types>Visa/MasterCard, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted</payment_types>
+</listing>
+<listing>
+   <seller_info>
+       <seller_name> ct-inc</seller_name>
+       <seller_rating> 403</seller_rating>
+   </seller_info>
+   <payment_types>Visa/MasterCard, Discover, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted</payment_types>
+</listing>
+</root>
+XML
+
 XML_INLINE_ARRAY = <<-XML
 <article key="tr/ibm/RJ2144">
   <author>E. F. Codd</author>
@@ -84,6 +105,14 @@ XML_ATTRIBUTE_IN_ARRAY = <<-XML
 </jobs>
 XML
 
+XML_ALL_EMPTY = <<-XML
+<root>
+  <one> </one>
+  <two>
+  </two>
+</root>
+XML
+
 describe OQ::Converters::Xml do
   describe ".deserialize" do
     describe Object do
@@ -91,6 +120,14 @@ describe OQ::Converters::Xml do
         it "should output correctly" do
           run_binary(%(<person>Fred</person>), args: ["-i", "xml", "-c", "."]) do |output|
             output.should eq %({"person":"Fred"}\n)
+          end
+        end
+      end
+
+      describe "that has only empty children elements" do
+        it "should output an object with null values" do
+          run_binary(XML_ALL_EMPTY, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"root":{"one":null,"two":null}}\n)
           end
         end
       end
@@ -178,9 +215,19 @@ describe OQ::Converters::Xml do
       end
 
       describe "of objects" do
-        it "should output correctly" do
-          run_binary(XML_OBJECT_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"items":{"item":[{"flagID":"0","itemID":"0","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"},{"flagID":"0","itemID":"1","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"}]}}\n)
+        describe "with no nested objects" do
+          it "should output correctly" do
+            run_binary(XML_OBJECT_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"items":{"item":[{"flagID":"0","itemID":"0","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"},{"flagID":"0","itemID":"1","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"}]}}\n)
+            end
+          end
+        end
+
+        describe "with nested objects" do
+          it "should output correctly" do
+            run_binary(XML_NESTED_OBJECT_ARRAY, args: ["-i", "xml", "-c", ".root.listing"]) do |output|
+              output.should eq %([{"seller_info":{"seller_name":" cubsfantony","seller_rating":" 848"},"payment_types":"Visa/MasterCard, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted"},{"seller_info":{"seller_name":" ct-inc","seller_rating":" 403"},"payment_types":"Visa/MasterCard, Discover, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted"}]\n)
+            end
           end
         end
       end
@@ -195,357 +242,357 @@ describe OQ::Converters::Xml do
     end
   end
 
-  # describe ".serialize" do
-  #   it "allows not emitting the xml prolog" do
-  #     run_binary("1", args: ["-o", "xml", "--no-prolog", "."]) do |output|
-  #       output.should eq(<<-XML
-  #         <root>1</root>\n
-  #         XML
-  #       )
-  #     end
-  #   end
+  describe ".serialize" do
+    it "allows not emitting the xml prolog" do
+      run_binary("1", args: ["-o", "xml", "--no-prolog", "."]) do |output|
+        output.should eq(<<-XML
+          <root>1</root>\n
+          XML
+        )
+      end
+    end
 
-  #   describe "allows setting the root element" do
-  #     describe "to another string" do
-  #       it "should use the provided name" do
-  #         run_binary("1", args: ["-o", "xml", "--xml-root", "foo", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <foo>1</foo>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+    describe "allows setting the root element" do
+      describe "to another string" do
+        it "should use the provided name" do
+          run_binary("1", args: ["-o", "xml", "--xml-root", "foo", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <foo>1</foo>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "to an empty string" do
-  #       it "should not be emitted" do
-  #         run_binary("1", args: ["-o", "xml", "--xml-root", "", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             1
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "to an empty string" do
+        it "should not be emitted" do
+          run_binary("1", args: ["-o", "xml", "--xml-root", "", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              1
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "it allows changing the array item name" do
-  #       describe "with a single nesting level" do
-  #         it "should emit item tags for non empty values" do
-  #           run_binary(%(["x",{}]), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
-  #             output.should eq(<<-XML
-  #               <?xml version="1.0" encoding="UTF-8"?>
-  #               <root>
-  #                 <foo>x</foo>
-  #                 <foo/>
-  #               </root>\n
-  #               XML
-  #             )
-  #           end
-  #         end
-  #       end
+      describe "it allows changing the array item name" do
+        describe "with a single nesting level" do
+          it "should emit item tags for non empty values" do
+            run_binary(%(["x",{}]), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
+              output.should eq(<<-XML
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
+                  <foo>x</foo>
+                  <foo/>
+                </root>\n
+                XML
+              )
+            end
+          end
+        end
 
-  #       describe "with a larger nesting level" do
-  #         it "should emit item tags for non empty values" do
-  #           run_binary(%({"a":[[]]}), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
-  #             output.should eq(<<-XML
-  #               <?xml version="1.0" encoding="UTF-8"?>
-  #               <root>
-  #                 <a>
-  #                   <foo/>
-  #                 </a>
-  #               </root>\n
-  #               XML
-  #             )
-  #           end
-  #         end
-  #       end
-  #     end
+        describe "with a larger nesting level" do
+          it "should emit item tags for non empty values" do
+            run_binary(%({"a":[[]]}), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
+              output.should eq(<<-XML
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
+                  <a>
+                    <foo/>
+                  </a>
+                </root>\n
+                XML
+              )
+            end
+          end
+        end
+      end
 
-  #     describe "it allows changing the indent" do
-  #       describe "more spaces" do
-  #         it "should emit the extra spaces" do
-  #           run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "4", "."]) do |output|
-  #             output.should eq(<<-XML
-  #               <?xml version="1.0" encoding="UTF-8"?>
-  #               <root>
-  #                   <name>Jim</name>
-  #                   <age>12</age>
-  #               </root>\n
-  #               XML
-  #             )
-  #           end
-  #         end
-  #       end
+      describe "it allows changing the indent" do
+        describe "more spaces" do
+          it "should emit the extra spaces" do
+            run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "4", "."]) do |output|
+              output.should eq(<<-XML
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
+                    <name>Jim</name>
+                    <age>12</age>
+                </root>\n
+                XML
+              )
+            end
+          end
+        end
 
-  #       describe "to tabs" do
-  #         it "should emit the indent as tabs" do
-  #           run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "3", "--tab", "."]) do |output|
-  #             output.should eq(<<-XML
-  #               <?xml version="1.0" encoding="UTF-8"?>
-  #               <root>
-  #               \t\t\t<name>Jim</name>
-  #               \t\t\t<age>12</age>
-  #               </root>\n
-  #               XML
-  #             )
-  #           end
-  #         end
-  #       end
-  #     end
-  #   end
+        describe "to tabs" do
+          it "should emit the indent as tabs" do
+            run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "3", "--tab", "."]) do |output|
+              output.should eq(<<-XML
+                <?xml version="1.0" encoding="UTF-8"?>
+                <root>
+                \t\t\t<name>Jim</name>
+                \t\t\t<age>12</age>
+                </root>\n
+                XML
+              )
+            end
+          end
+        end
+      end
+    end
 
-  #   describe String do
-  #     describe "not blank" do
-  #       it "should output correctly" do
-  #         run_binary(%("Jim"), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>Jim</root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+    describe String do
+      describe "not blank" do
+        it "should output correctly" do
+          run_binary(%("Jim"), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>Jim</root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "blank" do
-  #       it "should output correctly" do
-  #         run_binary(%(""), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #           <?xml version="1.0" encoding="UTF-8"?>
-  #           <root></root>\n
-  #           XML
-  #           )
-  #         end
-  #       end
-  #     end
-  #   end
+      describe "blank" do
+        it "should output correctly" do
+          run_binary(%(""), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root></root>\n
+            XML
+            )
+          end
+        end
+      end
+    end
 
-  #   describe Bool do
-  #     it "should output correctly" do
-  #       run_binary(%(true), args: ["-o", "xml", "."]) do |output|
-  #         output.should eq(<<-XML
-  #           <?xml version="1.0" encoding="UTF-8"?>
-  #           <root>true</root>\n
-  #           XML
-  #         )
-  #       end
-  #     end
-  #   end
+    describe Bool do
+      it "should output correctly" do
+        run_binary(%(true), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>true</root>\n
+            XML
+          )
+        end
+      end
+    end
 
-  #   describe Float do
-  #     it "should output correctly" do
-  #       run_binary(%("1.5"), args: ["-o", "xml", "."]) do |output|
-  #         output.should eq(<<-XML
-  #           <?xml version="1.0" encoding="UTF-8"?>
-  #           <root>1.5</root>\n
-  #           XML
-  #         )
-  #       end
-  #     end
-  #   end
+    describe Float do
+      it "should output correctly" do
+        run_binary(%("1.5"), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>1.5</root>\n
+            XML
+          )
+        end
+      end
+    end
 
-  #   describe Nil do
-  #     it "should output correctly" do
-  #       run_binary("null", args: ["-o", "xml", "."]) do |output|
-  #         output.should eq(<<-XML
-  #           <?xml version="1.0" encoding="UTF-8"?>
-  #           <root/>\n
-  #           XML
-  #         )
-  #       end
-  #     end
-  #   end
+    describe Nil do
+      it "should output correctly" do
+        run_binary("null", args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root/>\n
+            XML
+          )
+        end
+      end
+    end
 
-  #   describe Array do
-  #     describe "empty array on root" do
-  #       it "should emit a self closing root tag" do
-  #         run_binary("[]", args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root/>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+    describe Array do
+      describe "empty array on root" do
+        it "should emit a self closing root tag" do
+          run_binary("[]", args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root/>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "array with values on root" do
-  #       it "should emit item tags for non empty values" do
-  #         run_binary(%(["x",{}]), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <item>x</item>
-  #               <item/>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "array with values on root" do
+        it "should emit item tags for non empty values" do
+          run_binary(%(["x",{}]), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <item>x</item>
+                <item/>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "object with empty array/values" do
-  #       it "should emit self closing tags for each" do
-  #         run_binary(%({"a":[],"b":{},"c":null}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <a/>
-  #               <b/>
-  #               <c/>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "object with empty array/values" do
+        it "should emit self closing tags for each" do
+          run_binary(%({"a":[],"b":{},"c":null}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <a/>
+                <b/>
+                <c/>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "2D array object value" do
-  #       it "should emit key name tag then self closing item tag" do
-  #         run_binary(%({"a":[[]]}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <a>
-  #                 <item/>
-  #               </a>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "2D array object value" do
+        it "should emit key name tag then self closing item tag" do
+          run_binary(%({"a":[[]]}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <a>
+                  <item/>
+                </a>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "object value mixed/nested array values" do
-  #       it "should emit correctly" do
-  #         run_binary(%({"x":[1,[2,[3]]]}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <x>1</x>
-  #               <x>
-  #                 <item>2</item>
-  #                 <item>
-  #                   <item>3</item>
-  #                 </item>
-  #               </x>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "object value mixed/nested array values" do
+        it "should emit correctly" do
+          run_binary(%({"x":[1,[2,[3]]]}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <x>1</x>
+                <x>
+                  <item>2</item>
+                  <item>
+                    <item>3</item>
+                  </item>
+                </x>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "object value array primitive values" do
-  #       it "should emit correctly" do
-  #         run_binary(%({"x":[1,2,3]}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <x>1</x>
-  #               <x>2</x>
-  #               <x>3</x>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
-  #   end
+      describe "object value array primitive values" do
+        it "should emit correctly" do
+          run_binary(%({"x":[1,2,3]}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <x>1</x>
+                <x>2</x>
+                <x>3</x>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
+    end
 
-  #   describe Object do
-  #     describe "simple key/value" do
-  #       it "should output correctly" do
-  #         run_binary(%({"name":"Jim"}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <name>Jim</name>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+    describe Object do
+      describe "simple key/value" do
+        it "should output correctly" do
+          run_binary(%({"name":"Jim"}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <name>Jim</name>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "nested object" do
-  #       it "should output correctly" do
-  #         run_binary(%({"name":"Jim", "city": {"street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <name>Jim</name>
-  #               <city>
-  #                 <street>forbs</street>
-  #               </city>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "nested object" do
+        it "should output correctly" do
+          run_binary(%({"name":"Jim", "city": {"street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <name>Jim</name>
+                <city>
+                  <street>forbs</street>
+                </city>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "with an attribute" do
-  #       it "should output correctly" do
-  #         run_binary(%({"name":"Jim", "city": {"@street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <name>Jim</name>
-  #               <city street="forbs"/>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "with an attribute" do
+        it "should output correctly" do
+          run_binary(%({"name":"Jim", "city": {"@street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <name>Jim</name>
+                <city street="forbs"/>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "with an attribute and #text" do
-  #       it "should output correctly" do
-  #         run_binary(%({"name":"Jim", "city": {"@street":"forbs", "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <name>Jim</name>
-  #               <city street="forbs">Atlantic</city>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "with an attribute and #text" do
+        it "should output correctly" do
+          run_binary(%({"name":"Jim", "city": {"@street":"forbs", "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <name>Jim</name>
+                <city street="forbs">Atlantic</city>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "with attributes" do
-  #       it "should output correctly" do
-  #         run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123}}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <name>Jim</name>
-  #               <city street="forbs" post="123"/>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
+      describe "with attributes" do
+        it "should output correctly" do
+          run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123}}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <name>Jim</name>
+                <city street="forbs" post="123"/>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
 
-  #     describe "with attributes and #text" do
-  #       it "should output correctly" do
-  #         run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123, "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
-  #           output.should eq(<<-XML
-  #             <?xml version="1.0" encoding="UTF-8"?>
-  #             <root>
-  #               <name>Jim</name>
-  #               <city street="forbs" post="123">Atlantic</city>
-  #             </root>\n
-  #             XML
-  #           )
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+      describe "with attributes and #text" do
+        it "should output correctly" do
+          run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123, "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <name>Jim</name>
+                <city street="forbs" post="123">Atlantic</city>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
+    end
+  end
 end
