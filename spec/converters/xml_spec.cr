@@ -80,6 +80,20 @@ XML_INLINE_ARRAY = <<-XML
 </article>
 XML
 
+XML_INLINE_ARRAY_WITHIN_ARRAY = <<-XML
+<articles>
+  <article key="tr/dec/SRC1997-018">
+    <year>1997</year>
+    <ee>db/labs/dec/SRC1997-018.html</ee>
+    <ee>http://www.mcjones.org/System_R/SQL_Reunion_95/</ee>
+  </article>
+  <article key="tr/gte/TR-0263-08-94-165">
+    <ee>db/labs/gte/TR-0263-08-94-165.html</ee>
+    <year>1994</year>
+  </article>
+</articles>
+XML
+
 XML_DOCTYPE = <<-XML
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE dblp SYSTEM "dblp.dtd">
@@ -103,6 +117,19 @@ XML_ATTRIBUTE_IN_ARRAY = <<-XML
     <working_hours>full-time</working_hours>
   </ad>
 </jobs>
+XML
+
+XML_ATTRIBUTE_IN_ARRAY_ROOT_ELEMENT = <<-XML
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE dblp SYSTEM "dblp.dtd">
+<dblp>
+  <mastersthesis key="ms/Brown92">
+    <author>Kurt P. Brown</author>
+  </mastersthesis>
+  <mastersthesis key="ms/Yurek97">
+    <author>Tolga Yurek</author>
+  </mastersthesis>
+</dblp>
 XML
 
 XML_ALL_EMPTY = <<-XML
@@ -223,6 +250,14 @@ describe OQ::Converters::Xml do
           end
         end
 
+        describe "with an inline array" do
+          it "should output correctly" do
+            run_binary(XML_INLINE_ARRAY_WITHIN_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"articles":{"article":[{"@key":"tr/dec/SRC1997-018","year":"1997","ee":["db/labs/dec/SRC1997-018.html","http://www.mcjones.org/System_R/SQL_Reunion_95/"]},{"@key":"tr/gte/TR-0263-08-94-165","ee":"db/labs/gte/TR-0263-08-94-165.html","year":"1994"}]}}\n)
+            end
+          end
+        end
+
         describe "with nested objects" do
           it "should output correctly" do
             run_binary(XML_NESTED_OBJECT_ARRAY, args: ["-i", "xml", "-c", ".root.listing"]) do |output|
@@ -236,6 +271,14 @@ describe OQ::Converters::Xml do
         it "should output correctly" do
           run_binary(XML_ATTRIBUTE_IN_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
             output.should eq %({"jobs":{"ad":[{"salary":{"@currency":"CAD","#text":"80000"},"working_hours":"full-time"},{"working_hours":"full-time"}]}}\n)
+          end
+        end
+      end
+
+      describe "where array object element has an attribute" do
+        it "should output correctly" do
+          run_binary(XML_ATTRIBUTE_IN_ARRAY_ROOT_ELEMENT, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"dblp":{"mastersthesis":[{"@key":"ms/Brown92","author":"Kurt P. Brown"},{"@key":"ms/Yurek97","author":"Tolga Yurek"}]}}\n)
           end
         end
       end

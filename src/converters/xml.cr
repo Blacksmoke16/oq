@@ -30,7 +30,7 @@ module OQ::Converters::Xml
     end
 
     if has_nested_elements || !node.attributes.empty?
-      if !node.is_array || !node.attributes.empty?
+      if !node.is_array
         builder.field node.name do
           builder.object do
             process_attributes node.attributes, builder
@@ -54,11 +54,21 @@ module OQ::Converters::Xml
         end
       else
         builder.object do
-          node.children.each do |n|
-            if n.content.blank?
-              process_element n, builder
+          process_attributes node.attributes, builder
+
+          node.children.group_by(&.name).each do |name, children|
+            next if children.first.type.text_node? && has_nested_elements
+
+            # Array
+            if children.size > 1
+              process_array name, children, builder
             else
-              process_node n, builder
+              if children.first.type.text_node?
+                builder.field "#text", children.first.content
+              else
+                # Element
+                process_node children.first, builder
+              end
             end
           end
         end
