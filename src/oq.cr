@@ -70,9 +70,12 @@ module OQ
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
 
+      channel = Channel(Nil).new
+
       spawn do
         input_format.converter.deserialize(ARGF, input_write)
         input_write.close
+        channel.send nil
       rescue ex
         handle_error ex
       end
@@ -87,6 +90,7 @@ module OQ
           xml_prolog: xml_prolog,
           xml_item: xml_item
         )
+        channel.send nil
       rescue ex
         handle_error ex
       end
@@ -100,6 +104,10 @@ module OQ
       )
 
       exit(1) unless run.success?
+
+      2.times do
+        channel.receive
+      end
     rescue ex
       handle_error ex
     end
