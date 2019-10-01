@@ -5,7 +5,7 @@ require "./oq"
 module OQ
   processor = Processor.new
 
-  OptionParser.parse! do |parser|
+  OptionParser.parse do |parser|
     parser.banner = "Usage: oq [--help] [oq-arguments] [jq-arguments] jq_filter [file [files...]]"
     parser.on("-h", "--help", "Show this help message.") do
       output = IO::Memory.new

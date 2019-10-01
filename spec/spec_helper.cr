@@ -2,7 +2,7 @@ require "spec"
 require "../src/oq"
 
 # Runs the the binary with the given *name* and *args*.
-def run_binary(input : String? = nil, name : String = "bin/oq", args : Array(String) = [] of String, &block : String, Process::Status, String -> Nil)
+def run_binary(input : String? = nil, name : String = %(#{__DIR__.chomp("/spec")}/bin/oq), args : Array(String) = [] of String, &block : String, Process::Status, String -> Nil)
   buffer = IO::Memory.new
   error = IO::Memory.new
   in = IO::Memory.new
