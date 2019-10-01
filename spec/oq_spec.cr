@@ -17,7 +17,7 @@ JSON
 describe OQ do
   describe "when given a filter file" do
     it "should return the correct output" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-f", "#{__DIR__}/assets/test_filter"]) do |output|
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-f", "spec/assets/test_filter"]) do |output|
         output.should eq %("Jim"\n)
       end
     end
@@ -41,7 +41,7 @@ describe OQ do
 
   describe "with a file input" do
     it "should return the correct output" do
-      run_binary(input: "", args: [".", "#{__DIR__}/assets/data1.json"]) do |output|
+      run_binary(input: "", args: [".", "spec/assets/data1.json"]) do |output|
         output.should eq "#{SIMPLE_JSON_OBJECT}\n"
       end
     end
@@ -49,7 +49,7 @@ describe OQ do
 
   describe "with multiple JSON file input" do
     it "should return the correct output" do
-      run_binary(input: "", args: ["-c", ".", "#{__DIR__}/assets/data1.json", "#{__DIR__}/assets/data2.json"]) do |output|
+      run_binary(input: "", args: ["-c", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
         output.should eq %({"name":"Jim"}\n{"name":"Bob"}\n)
       end
     end
@@ -57,7 +57,7 @@ describe OQ do
 
   describe "with multiple JSON file input and slurp" do
     it "should return the correct output" do
-      run_binary(input: "", args: ["-c", "--slurp", ".", "#{__DIR__}/assets/data1.json", "#{__DIR__}/assets/data2.json"]) do |output|
+      run_binary(input: "", args: ["-c", "--slurp", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
         output.should eq %([{"name":"Jim"},{"name":"Bob"}]\n)
       end
     end
@@ -138,7 +138,7 @@ describe OQ do
 
   describe "when using 'input'" do
     it "should return the correct output" do
-      run_binary(args: ["-cnf", "#{__DIR__}/assets/stream-filter", "#{__DIR__}/assets/stream-data.json"]) do |output|
+      run_binary(args: ["-cnf", "spec/assets/stream-filter", "spec/assets/stream-data.json"]) do |output|
         output.should eq %({"possible_victim01":{"total":3,"evildoers":{"evil.com":2,"soevil.com":1}},"possible_victim02":{"total":1,"evildoers":{"bad.com":1}},"possible_victim03":{"total":1,"evildoers":{"soevil.com":1}}}\n)
       end
     end
