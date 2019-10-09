@@ -22,6 +22,7 @@ module OQ::Converters::Xml
     end
   end
 
+  # ameba:disable Metrics/CyclomaticComplexity
   private def self.process_node(node : XML::Node?, builder : JSON::Builder) : Nil
     return unless node
 
