@@ -65,7 +65,15 @@ module OQ
       ARGV.replace ARGV - @args
 
       # Add color option if STDOUT is a tty
-      @args << "-C" if STDOUT.tty?
+      # and the output format is JSON
+      # (Since it will go straight to STDOUT and not convertered)
+      @args << "-C" if STDOUT.tty? && output_format.json?
+
+      # If the -C option was explicially included
+      # and the output format is not JSON;
+      # remove it from the args to prevent
+      # conversion errors
+      @args.delete("-C") if !output_format.json?
 
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
