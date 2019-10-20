@@ -1,8 +1,3 @@
-# :nodoc:
-struct XML::Node
-  property is_array = false
-end
-
 module OQ::Converters::Xml
   @@at_root : Bool = true
 
@@ -162,11 +157,11 @@ module OQ::Converters::Xml
   private def self.get_value(json : JSON::PullParser) : String
     case json.kind
     when .string? then json.read_string
-    when .int?    then json.read_int.to_s
-    when .float?  then json.read_float.to_s
-    when .bool?   then json.read_bool.to_s
+    when .int?    then json.read_int
+    when .float?  then json.read_float
+    when .bool?   then json.read_bool
     else
       ""
-    end
+    end.to_s
   end
 end
