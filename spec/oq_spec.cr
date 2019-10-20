@@ -178,9 +178,9 @@ describe OQ do
 
   describe "when there is a jq error" do
     it "should return the error and correct exit code" do
-      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, run, error|
+      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, status, error|
         error.should eq %(jq: error (at <stdin>:0): Cannot index number with string "name"\n)
-        run.exit_code.should eq 1
+        status.exit_code.should eq 1
       end
     end
   end

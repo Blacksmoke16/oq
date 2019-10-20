@@ -13,102 +13,80 @@ module OQ::Converters::Xml
     # Set reader to first element
     xml.read
 
+    # Raise an error if the document is invalid and could not be read
+    raise XML::Error.new LibXML.xmlGetLastError if xml.node_type.none?
+
     builder.document do
       builder.object do
         until xml.node_type.element?
           xml.read
         end
-        process_node xml.expand, builder
-      end
-    end
-  end
 
-  # ameba:disable Metrics/CyclomaticComplexity
-  private def self.process_node(node : XML::Node?, builder : JSON::Builder) : Nil
-    return unless node
-
-    has_nested_elements = node.children.any? do |child|
-      !child.type.text_node? && !child.cdata?
-    end
-
-    if has_nested_elements || !node.attributes.empty?
-      if !node.is_array
-        builder.field node.name do
-          builder.object do
-            process_attributes node.attributes, builder
-
-            node.children.group_by(&.name).each do |name, children|
-              next if children.first.type.text_node? && has_nested_elements
-
-              # Array
-              if children.size > 1
-                process_array name, children, builder
-              else
-                if children.first.type.text_node?
-                  builder.field "#text", children.first.content
-                else
-                  # Element
-                  process_node children.first, builder
-                end
-              end
-            end
-          end
-        end
-      else
-        builder.object do
-          process_attributes node.attributes, builder
-
-          node.children.group_by(&.name).each do |name, children|
-            next if children.first.type.text_node? && has_nested_elements
-
-            # Array
-            if children.size > 1
-              process_array name, children, builder
-            else
-              if children.first.type.text_node?
-                builder.field "#text", children.first.content
-              else
-                # Element
-                process_node children.first, builder
-              end
-            end
-          end
-        end
-      end
-    else
-      process_element node, builder
-    end
-  end
-
-  private def self.process_element(node : XML::Node, builder : JSON::Builder) : Nil
-    return if node.text? && node.content.blank?
-
-    if !node.attributes.empty?
-      process_node node, builder
-    elsif !node.is_array
-      builder.field node.name, node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
-    else
-      # Otherwise output a scalar for an array item
-      builder.scalar node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
-    end
-  end
-
-  private def self.process_array(name : String, children : Array(XML::Node), builder : JSON::Builder) : Nil
-    builder.field name do
-      builder.array do
-        children.each do |n|
-          n.is_array = true
-          process_node n, builder
+        # Can be cleaned up after crystal-lang/crystal#8186 is released
+        if node = xml.expand
+          process_element_node node, builder
         end
       end
     end
   end
 
-  private def self.process_attributes(attributes : XML::Attributes, builder : JSON::Builder) : Nil
+  private def self.has_nested_elements(node : XML::Node) : Bool
+    node.children.any? { |child| !child.text? && !child.cdata? }
+  end
+
+  private def self.process_children(node : XML::Node, builder : JSON::Builder) : Nil
     # Process node attributes
-    attributes.each do |attr|
+    node.attributes.each do |attr|
       builder.field "@#{attr.name}", attr.content
     end
+
+    # Determine how to process a node's children
+    node.children.group_by(&.name).each do |name, children|
+      next if children.first.text? && has_nested_elements(node)
+
+      # Array
+      if children.size > 1
+        process_array_node name, children, builder
+      else
+        if children.first.text?
+          # node content in attribute object
+          builder.field "#text", children.first.content
+        else
+          # Element
+          process_element_node children.first, builder
+        end
+      end
+    end
+  end
+
+  private def self.process_element_node(node : XML::Node, builder : JSON::Builder) : Nil
+    return builder.field node.name, get_node_value node if !has_nested_elements(node) && node.attributes.empty?
+
+    builder.field node.name do
+      builder.object do
+        process_children node, builder
+      end
+    end
+  end
+
+  private def self.process_array_node(name : String, children : Array(XML::Node), builder : JSON::Builder) : Nil
+    builder.field name do
+      builder.array do
+        children.each do |node|
+          if !has_nested_elements(node) && node.attributes.empty?
+            builder.scalar get_node_value node
+          else
+            builder.object do
+              process_children node, builder
+            end
+          end
+        end
+      end
+    end
+  end
+
+  private def self.get_node_value(node : XML::Node) : String?
+    node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
   end
 
   def self.serialize(input : IO, output : IO, **args) : Nil
