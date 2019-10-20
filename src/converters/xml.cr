@@ -1,3 +1,4 @@
+# :nodoc:
 struct XML::Node
   property is_array = false
 end
@@ -27,7 +28,7 @@ module OQ::Converters::Xml
     return unless node
 
     has_nested_elements = node.children.any? do |child|
-      !child.type.text_node?
+      !child.type.text_node? && !child.cdata?
     end
 
     if has_nested_elements || !node.attributes.empty?

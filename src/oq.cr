@@ -114,7 +114,7 @@ module OQ
         error: STDERR
       )
 
-      exit(1) unless run.success?
+      abort unless run.success?
 
       2.times do
         channel.receive
@@ -124,8 +124,7 @@ module OQ
     end
 
     private def handle_error(ex : Exception)
-      puts "oq error: #{ex.message}"
-      exit(1)
+      abort "oq error: #{ex.message}"
     end
   end
 end

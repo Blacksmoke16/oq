@@ -20,6 +20,10 @@ XML_SCALAR_ARRAY = <<-XML
 </items>
 XML
 
+XML_CDATA = <<-XML
+<desc><![CDATA[<message>Some Description</message>]]></desc>
+XML
+
 XML_OBJECT_ARRAY = <<-XML
 <?xml version="1.0" encoding="utf-8"?>
 <items>
@@ -227,6 +231,14 @@ describe OQ::Converters::Xml do
         it "should output correctly" do
           run_binary(XML_DOCTYPE, args: ["-i", "xml", "-c", "."]) do |output|
             output.should eq %({"dblp":{"mastersthesis":{"@key":"ms/Brown92","author":"Kurt P. Brown","title":"PRPL: A Database Workload Specification Language, v1.3.","year":"1992","school":"Univ. of Wisconsin-Madison"}}}\n)
+          end
+        end
+      end
+
+      describe "with CDATA" do
+        it "should output correctly" do
+          run_binary(XML_CDATA, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"desc":"<message>Some Description</message>"}\n)
           end
         end
       end
