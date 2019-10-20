@@ -114,7 +114,7 @@ module OQ
         error: STDERR
       )
 
-      abort unless run.success?
+      exit 1 unless run.success?
 
       2.times do
         channel.receive
