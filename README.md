@@ -48,6 +48,42 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 
 Use the `oq` binary, with a few optional custom arguments, see `oq --help`.  All other arguments get passed to `jq`. See [jq manual](https://stedolan.github.io/jq/manual/) for details.
 
+### Examples
+
+#### Consume JSON and output XML
+
+```bash
+echo '{"name": "Jim"}' | oq -o xml .
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>Jim</name>
+</root>
+```
+
+#### Consume YAML from a file and output JSON
+
+data.yaml
+
+```yaml
+---
+name: Jim
+numbers:
+  - 1
+  - 2
+  - 3
+```
+
+```bash
+oq -i yaml -o xml . data.yaml 
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>Jim</name>
+  <numbers>1</numbers>
+  <numbers>2</numbers>
+  <numbers>3</numbers>
+</root>
+```
+
 ## Roadmap
 
 Plans for `1.0.0`:

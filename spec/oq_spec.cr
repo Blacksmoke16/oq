@@ -184,4 +184,22 @@ describe OQ do
       end
     end
   end
+
+  describe "with an invalid input format" do
+    it "should return the error and correct exit code" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-i", "foo"]) do |_, status, error|
+        error.should eq %(Invalid input format: 'foo'\n)
+        status.exit_code.should eq 1
+      end
+    end
+  end
+
+  describe "with an invalid output format" do
+    it "should return the error and correct exit code" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-o", "foo"]) do |_, status, error|
+        error.should eq %(Invalid output format: 'foo'\n)
+        status.exit_code.should eq 1
+      end
+    end
+  end
 end
