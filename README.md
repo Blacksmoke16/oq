@@ -32,7 +32,7 @@ brew install oq
 
 If building from source, `jq` will need to be installed separately. Installation instructions can be found in the [official documentation](https://stedolan.github.io/jq/).
 
-Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/reference/installation/).
+Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/install).
 
 ```bash
 git clone https://github.com/Blacksmoke16/oq.git
