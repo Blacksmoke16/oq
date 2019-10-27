@@ -2,7 +2,94 @@ module OQ::Converters::Xml
   @@at_root : Bool = true
 
   def self.deserialize(input : IO, output : IO, **args) : Nil
-    raise "Not Implemented"
+    builder = JSON::Builder.new output
+    xml = XML::Reader.new input
+
+    # Set reader to first element
+    xml.read
+
+    # Raise an error if the document is invalid and could not be read
+    raise XML::Error.new LibXML.xmlGetLastError if xml.node_type.none?
+
+    builder.document do
+      builder.object do
+        # Skip non element nodes, i.e. the prolog or DOCTYPE, etc.
+        until xml.node_type.element?
+          xml.read
+        end
+
+        # TODO: clean up after crystal-lang/crystal#8186 is released
+        if node = xml.expand
+          process_element_node node, builder
+        else
+          raise XML::Error.new LibXML.xmlGetLastError
+        end
+      end
+    end
+  end
+
+  private def self.process_element_node(node : XML::Node, builder : JSON::Builder) : Nil
+    # If the node doesn't have nested elements nor attributes; just emit a scalar value
+    return builder.field node.name, get_node_value node if !has_nested_elements(node) && node.attributes.empty?
+
+    # Otherwise process the node as a key/value pair
+    builder.field node.name do
+      builder.object do
+        process_children node, builder
+      end
+    end
+  end
+
+  private def self.process_array_node(name : String, children : Array(XML::Node), builder : JSON::Builder) : Nil
+    builder.field name do
+      builder.array do
+        children.each do |node|
+          # If the node doesn't have nested elements nor attributes; just emit a scalar value
+          if !has_nested_elements(node) && node.attributes.empty?
+            builder.scalar get_node_value node
+          else
+            # Otherwise process the node within an object
+            builder.object do
+              process_children node, builder
+            end
+          end
+        end
+      end
+    end
+  end
+
+  private def self.process_children(node : XML::Node, builder : JSON::Builder) : Nil
+    # Process node attributes
+    node.attributes.each do |attr|
+      builder.field "@#{attr.name}", attr.content
+    end
+
+    # Determine how to process a node's children
+    node.children.group_by(&.name).each do |name, children|
+      # Skip non significant whitespace; Skip mixed character input
+      next if children.first.text? && has_nested_elements(node)
+
+      # Array
+      if children.size > 1
+        process_array_node name, children, builder
+      else
+        if children.first.text?
+          # node content in attribute object
+          builder.field "#text", children.first.content
+        else
+          # Element
+          process_element_node children.first, builder
+        end
+      end
+    end
+  end
+
+  private def self.has_nested_elements(node : XML::Node) : Bool
+    node.children.any? { |child| !child.text? && !child.cdata? }
+  end
+
+  private def self.get_node_value(node : XML::Node) : String?
+    node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
   end
 
   def self.serialize(input : IO, output : IO, **args) : Nil
@@ -78,11 +165,11 @@ module OQ::Converters::Xml
   private def self.get_value(json : JSON::PullParser) : String
     case json.kind
     when .string? then json.read_string
-    when .int?    then json.read_int.to_s
-    when .float?  then json.read_float.to_s
-    when .bool?   then json.read_bool.to_s
+    when .int?    then json.read_int
+    when .float?  then json.read_float
+    when .bool?   then json.read_bool
     else
       ""
-    end
+    end.to_s
   end
 end

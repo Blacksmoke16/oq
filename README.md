@@ -9,7 +9,7 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 
 * Compiles to a single binary for easy portability.
 * Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
-* Supports XML and YAML as additional output formats.
+* Supports XML and YAML as additional input/output formats.
 
 ## Installation
 
@@ -32,7 +32,7 @@ brew install oq
 
 If building from source, `jq` will need to be installed separately. Installation instructions can be found in the [official documentation](https://stedolan.github.io/jq/).
 
-Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/reference/installation/).
+Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/install).
 
 ```bash
 git clone https://github.com/Blacksmoke16/oq.git
@@ -47,6 +47,42 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 ### CLI
 
 Use the `oq` binary, with a few optional custom arguments, see `oq --help`.  All other arguments get passed to `jq`. See [jq manual](https://stedolan.github.io/jq/manual/) for details.
+
+### Examples
+
+#### Consume JSON and output XML
+
+```bash
+echo '{"name": "Jim"}' | oq -o xml .
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>Jim</name>
+</root>
+```
+
+#### Consume YAML from a file and output JSON
+
+data.yaml
+
+```yaml
+---
+name: Jim
+numbers:
+  - 1
+  - 2
+  - 3
+```
+
+```bash
+oq -i yaml -o xml . data.yaml 
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <name>Jim</name>
+  <numbers>1</numbers>
+  <numbers>2</numbers>
+  <numbers>3</numbers>
+</root>
+```
 
 ## Roadmap
 

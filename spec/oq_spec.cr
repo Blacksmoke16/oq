@@ -39,6 +39,30 @@ describe OQ do
     end
   end
 
+  describe "with the -C option" do
+    it "should colorize the output" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: [".", "-c", "-C"]) do |output|
+        output.should eq %(\e[1;39m{\e[0m\e[34;1m\"name\"\e[0m\e[1;39m:\e[0m\e[0;32m\"Jim\"\e[0m\e[1;39m\e[1;39m}\e[0m\n)
+      end
+    end
+  end
+
+  describe "with a non-JSON output format" do
+    it "should convert the JSON to that format" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: [".", "-o", "yaml"]) do |output|
+        output.should eq "---\nname: Jim\n"
+      end
+    end
+
+    describe "with the -C option" do
+      it "should remove the -C option" do
+        run_binary(input: SIMPLE_JSON_OBJECT, args: [".", "-o", "yaml", "-C"]) do |output|
+          output.should eq "---\nname: Jim\n"
+        end
+      end
+    end
+  end
+
   describe "with a file input" do
     it "should return the correct output" do
       run_binary(input: "", args: [".", "spec/assets/data1.json"]) do |output|
@@ -154,9 +178,27 @@ describe OQ do
 
   describe "when there is a jq error" do
     it "should return the error and correct exit code" do
-      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, run, error|
+      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, status, error|
         error.should eq %(jq: error (at <stdin>:0): Cannot index number with string "name"\n)
-        run.exit_code.should eq 1
+        status.exit_code.should eq 1
+      end
+    end
+  end
+
+  describe "with an invalid input format" do
+    it "should return the error and correct exit code" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-i", "foo"]) do |_, status, error|
+        error.should eq %(Invalid input format: 'foo'\n)
+        status.exit_code.should eq 1
+      end
+    end
+  end
+
+  describe "with an invalid output format" do
+    it "should return the error and correct exit code" do
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-o", "foo"]) do |_, status, error|
+        error.should eq %(Invalid output format: 'foo'\n)
+        status.exit_code.should eq 1
       end
     end
   end

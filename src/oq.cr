@@ -64,6 +64,17 @@ module OQ
     def process : Nil
       ARGV.replace ARGV - @args
 
+      # Add color option if STDOUT is a tty
+      # and the output format is JSON
+      # (Since it will go straight to STDOUT and not convertered)
+      @args << "-C" if STDOUT.tty? && output_format.json?
+
+      # If the -C option was explicially included
+      # and the output format is not JSON;
+      # remove it from the args to prevent
+      # conversion errors
+      @args.delete("-C") if !output_format.json?
+
       # Shift off the filter from ARGV
       @args << ARGV.shift unless ARGV.empty?
 
@@ -103,7 +114,7 @@ module OQ
         error: STDERR
       )
 
-      exit(1) unless run.success?
+      exit 1 unless run.success?
 
       2.times do
         channel.receive
@@ -113,8 +124,7 @@ module OQ
     end
 
     private def handle_error(ex : Exception)
-      puts "oq error: #{ex.message}"
-      exit(1)
+      abort "oq error: #{ex.message}"
     end
   end
 end
