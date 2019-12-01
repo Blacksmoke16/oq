@@ -60,7 +60,7 @@ echo '{"name": "Jim"}' | oq -o xml .
 </root>
 ```
 
-#### Consume YAML from a file and output JSON
+#### Consume YAML from a file and output XML
 
 data.yaml
 
@@ -88,7 +88,7 @@ oq -i yaml -o xml . data.yaml
 
 Plans for `1.0.0`:
 
-* XML input format
+* ~~XML input format~~
 * Address bugs/issues that arise
 * Small feature requests
 * Possibly additional formats
