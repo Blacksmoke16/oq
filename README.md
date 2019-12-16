@@ -84,15 +84,6 @@ oq -i yaml -o xml . data.yaml
 </root>
 ```
 
-## Roadmap
-
-Plans for `1.0.0`:
-
-* ~~XML input format~~
-* Address bugs/issues that arise
-* Small feature requests
-* Possibly additional formats
-
 ## Contributing
 
 1. Fork it (<https://github.com/Blacksmoke16/oq/fork>)
