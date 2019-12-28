@@ -3,8 +3,9 @@ require "option_parser"
 require "./oq"
 
 module OQ
-  private def self.consume_arguments(flag : String, positions : Int32 = 1) : Array
+  private def self.consume_arguments(flag : String, positions : Int32? = 1) : Array
     idx = ARGV.index(flag).not_nil!
+    positions = positions ? positions : ARGV[idx..].size
     ARGV.delete_at idx..(idx + positions)
   end
 
@@ -38,9 +39,10 @@ module OQ
     parser.on("--xml-item NAME", "The name for XML array elements without keys.") { |i| processor.xml_item = i }
     parser.invalid_option do |flag|
       case flag
-      when "--tab"                             then processor.tab = true
-      when "-L"                                then processor.args.concat consume_arguments flag; next
-      when "--arg", "--argjson", "--slurpfile" then processor.args.concat consume_arguments flag, 2; next
+      when "--tab"                                          then processor.tab = true
+      when "-L"                                             then processor.args.concat consume_arguments flag; next
+      when "--arg", "--argjson", "--slurpfile", "--rawfile" then processor.args.concat consume_arguments flag, 2; next
+      when "--args", "--jsonargs"                           then processor.args.concat consume_arguments flag, nil; next
       end
 
       processor.args << flag

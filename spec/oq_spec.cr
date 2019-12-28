@@ -194,7 +194,31 @@ describe OQ do
 
   describe "with the --slurpfile option" do
     it "should be passed correctly" do
-      run_binary(input: %({}), args: ["-cn", "--slurpfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
+      run_binary(input: %({}), args: ["-c", "--slurpfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
+        output.should eq %({"ids":[1,2,3]}\n)
+      end
+    end
+  end
+
+  describe "with the --rawfile option" do
+    it "should be passed correctly" do
+      run_binary(input: %({}), args: ["-c", "--rawfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
+        output.should eq %({"ids":"1\\n2\\n3\\n"}\n)
+      end
+    end
+  end
+
+  describe "with the --args option" do
+    it "should be passed correctly" do
+      run_binary(input: %({}), args: ["-c", %({"ids":$ARGS.positional}), "--args", "1", "2", "3"]) do |output|
+        output.should eq %({"ids":["1","2","3"]}\n)
+      end
+    end
+  end
+
+  describe "with the --jsonargs option" do
+    it "should be passed correctly" do
+      run_binary(input: %({}), args: ["-c", %({"ids":$ARGS.positional}), "--jsonargs", "1", "2", "3"]) do |output|
         output.should eq %({"ids":[1,2,3]}\n)
       end
     end
