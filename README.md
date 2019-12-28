@@ -42,6 +42,20 @@ shards build --production
 
 The built binary will be available as `./bin/oq`.  This can be relocated elsewhere on your machine; be sure it is in your `PATH` to access it as `oq`.
 
+### Docker
+
+`oq` can easily be included into a Docker image by fetching the static binary from Github for the version of `oq` that you want.
+
+```dockerfile
+# Set an arg to store the oq version that should be installed.
+ARG OQ_VERSION=1.0.0
+
+# Grab the binary from the latest Github release and make it executable; placing it within /usr/local/bin.  Can also put it elsewhere if you so desire.
+RUN wget https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-${OQ_VERSION}-linux-x86_64 -O /usr/local/bin/oq && chmod +x /usr/local/bin/oq
+
+# Also be sure to install jq if it is not already!
+```
+
 ## Usage
 
 ### CLI
