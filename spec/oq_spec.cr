@@ -176,6 +176,30 @@ describe OQ do
     end
   end
 
+  describe "with the --arg option" do
+    it "should be passed correctly" do
+      run_binary(input: %({}), args: ["-c", "--arg", "foo", "bar", %({"name":$foo})]) do |output|
+        output.should eq %({"name":"bar"}\n)
+      end
+    end
+  end
+
+  describe "with the --argjson option" do
+    it "should be passed correctly" do
+      run_binary(input: %({}), args: ["-c", "--argjson", "foo", "123", %({"id":$foo})]) do |output|
+        output.should eq %({"id":123}\n)
+      end
+    end
+  end
+
+  describe "with the --slurpfile option" do
+    it "should be passed correctly" do
+      run_binary(input: %({}), args: ["-cn", "--slurpfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
+        output.should eq %({"ids":[1,2,3]}\n)
+      end
+    end
+  end
+
   describe "when there is a jq error" do
     it "should return the error and correct exit code" do
       run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, status, error|
