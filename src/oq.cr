@@ -67,7 +67,7 @@ module OQ
       # Add color option if STDOUT is a tty
       # and the output format is JSON
       # (Since it will go straight to STDOUT and not convertered)
-      @args << "-C" if STDOUT.tty? && output_format.json?
+      @args.unshift "-C" if STDOUT.tty? && output_format.json?
 
       # If the -C option was explicially included
       # and the output format is not JSON;
@@ -76,17 +76,17 @@ module OQ
       @args.delete("-C") if !output_format.json?
 
       # Shift off the filter from ARGV
-      @args << ARGV.shift unless ARGV.empty?
+      @args.unshift ARGV.shift unless ARGV.empty?
 
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
 
-      channel = Channel(Nil).new
+      channel = Channel(Bool).new
 
       spawn do
         input_format.converter.deserialize(ARGF, input_write)
         input_write.close
-        channel.send nil
+        channel.send true
       rescue ex
         handle_error ex
       end
@@ -101,7 +101,7 @@ module OQ
           xml_prolog: xml_prolog,
           xml_item: xml_item
         )
-        channel.send nil
+        channel.send true
       rescue ex
         handle_error ex
       end
