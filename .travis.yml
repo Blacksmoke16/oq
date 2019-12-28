@@ -16,9 +16,10 @@ install:
 before_script:
   - bin/ameba
   - crystal tool format --check
+  - ./bin/oq -V
 
 script:
-  - crystal spec --warnings all --error-on-warnings
+  - crystal spec --order random --error-on-warnings
 
 after_success:
   - crystal docs
