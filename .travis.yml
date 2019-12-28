@@ -14,11 +14,12 @@ install:
   - shards build
 
 before_script:
-  - bin/ameba
-  - crystal tool format --check
+  - export PATH=/var/lib/snapd/snap/bin/:$PATH
   - ./bin/oq -V
 
 script:
+  - bin/ameba
+  - crystal tool format --check
   - crystal spec --order random --error-on-warnings
 
 after_success:
