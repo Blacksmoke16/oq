@@ -16,6 +16,8 @@ install:
 before_script:
   - export PATH=/var/lib/snapd/snap/bin/:$PATH
   - ./bin/oq -V
+  - echo $PATH
+  - which jq
 
 script:
   - bin/ameba
