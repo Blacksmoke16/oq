@@ -14,10 +14,8 @@ install:
   - shards build
 
 before_script:
-  - export PATH=/snap/bin/:$PATH
+  - export PATH=/snap/bin:$PATH
   - ./bin/oq -V
-  - echo $PATH
-  - which jq
 
 script:
   - bin/ameba
