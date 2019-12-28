@@ -1,4 +1,10 @@
 language: crystal
+dist: xenial
+addons:
+ snap:
+   - name: jq
+     channel: latest/edge
+
 crystal:
   - latest
   - nightly
