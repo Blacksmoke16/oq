@@ -1,6 +1,15 @@
 module OQ::Converters::Xml
   @@at_root : Bool = true
 
+  private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String, String)
+    {
+      args["indent"],
+      args["xml_prolog"],
+      args["xml_root"],
+      args["xml_item"],
+    }
+  end
+
   def self.deserialize(input : IO, output : IO, **args) : Nil
     builder = JSON::Builder.new output
     xml = XML::Reader.new input
@@ -18,12 +27,7 @@ module OQ::Converters::Xml
           xml.read
         end
 
-        # TODO: clean up after crystal-lang/crystal#8186 is released
-        if node = xml.expand
-          process_element_node node, builder
-        else
-          raise XML::Error.new LibXML.xmlGetLastError
-        end
+        process_element_node xml.expand, builder
       end
     end
   end
@@ -110,15 +114,6 @@ module OQ::Converters::Xml
     builder.end_element unless root.blank?
     builder.end_document if prolog
     builder.flush unless prolog
-  end
-
-  private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String, String)
-    {
-      args["indent"],
-      args["xml_prolog"],
-      args["xml_root"],
-      args["xml_item"],
-    }
   end
 
   private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil

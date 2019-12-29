@@ -13,6 +13,7 @@ module OQ
     Json
     Yaml
     Xml
+    Mxml
 
     # Returns the list of supported formats.
     def self.to_s : String

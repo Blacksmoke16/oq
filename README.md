@@ -7,9 +7,13 @@
 
 A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
-* Compiles to a single binary for easy portability.
-* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
-* Supports XML and YAML as additional input/output formats.
+* Compiles to a single binary for easy portability
+* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format
+* Supports additional input/output (sub)formats
+  * YAML - `yaml`
+  * XML
+    * `xml` - [Goessner's "pragmatic approach"](https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html)
+    * `mxml` - [MicroXML](https://dvcs.w3.org/hg/microxml/raw-file/tip/spec/microxml.html)
 
 ## Installation
 
@@ -74,7 +78,7 @@ numbers:
 ```
 
 ```bash
-oq -i yaml -o xml . data.yaml 
+oq -i yaml -o xml . data.yaml
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <name>Jim</name>
