@@ -239,7 +239,7 @@ describe OQ::Converters::Yaml do
       pending "with a complex sequence key" do
         it "should output correctly" do
           run_binary(COMPLEX_SEQUENCE_KEY, args: ["-i", "yaml", "-c", "."]) do |output|
-            output.should eq %({"[\"Manchester United\", \"Real Madrid\"]":["2001-01-01T00:00:00Z","2002-02-02T00:00:00Z"]}\n)
+            output.should eq %({"["Manchester United", "Real Madrid"]":["2001-01-01T00:00:00Z","2002-02-02T00:00:00Z"]}\n)
           end
         end
       end
