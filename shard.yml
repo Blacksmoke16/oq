@@ -3,7 +3,7 @@ name: oq
 description: |
   A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 
-version: 1.0.0
+version: 1.0.1
 
 authors:
   - Blacksmoke16 <Blacksmoke16@eve.tools>
