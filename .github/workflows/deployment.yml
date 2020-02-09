@@ -1,0 +1,29 @@
+name: Deployment
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  dist_linux:
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal:0.32.1-alpine
+    steps:
+    - uses: actions/checkout@v2
+    - name: Update Libs
+      run: apk add --update --upgrade --no-cache --force-overwrite libxml2-dev yaml-dev
+    - name: Build Binary
+      run: |
+        shards build --production --static --no-debug --link-flags "$(pkg-config libxml-2.0 --libs --static)"
+        strip ./bin/oq
+    - name: Upload Binary
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./bin/oq
+        asset_name: oq-${{ github.event.release.tag_name }}-linux-x86_64
+        asset_content_type: binary/octet-stream
