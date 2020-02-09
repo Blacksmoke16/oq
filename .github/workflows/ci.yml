@@ -13,7 +13,7 @@ jobs:
   check_format:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:0.32.1-alpine
+      image: crystallang/crystal:latest-alpine
     steps:
       - uses: actions/checkout@v2
       - name: Format
@@ -21,7 +21,7 @@ jobs:
   coding_standards:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal
+      image: crystallang/crystal:latest-alpine
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependencies
@@ -31,7 +31,7 @@ jobs:
   test_latest:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal
+      image: crystallang/crystal:latest-alpine
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependencies
@@ -41,7 +41,7 @@ jobs:
   test_nightly:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal:nightly
+      image: crystallang/crystal:nightly-alpine
     steps:
       - uses: actions/checkout@v2
       - name: Install Dependencies
