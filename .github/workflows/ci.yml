@@ -37,7 +37,7 @@ jobs:
       - name: Install Dependencies
         run: apk add --update jq
       - name: Build
-        run: shards build
+        run: shards build --production
       - name: Specs
         run: crystal spec --order random --error-on-warnings
   test_nightly:
@@ -49,6 +49,6 @@ jobs:
       - name: Install Dependencies
         run: apk add --update jq
       - name: Build
-        run: shards build
+        run: shards build --production
       - name: Specs
         run: crystal spec --order random --error-on-warnings
