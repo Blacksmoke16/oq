@@ -4,7 +4,7 @@ require "yaml"
 
 require "./converters/*"
 
-# A performant and portable `jq` wrapper to support formats other than JSON.
+# A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 module OQ
   VERSION = "1.0.1"
 
