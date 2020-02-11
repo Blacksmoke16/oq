@@ -36,7 +36,7 @@ jobs:
       - name: Build
         run: crystal docs
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@2.0.1
+        uses: JamesIves/github-pages-deploy-action@3.0.4
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           BRANCH: gh-pages
