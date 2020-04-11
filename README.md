@@ -108,5 +108,5 @@ oq -i yaml -o xml . data.yaml
 
 ## Contributors
 
-- [George Dietrich](https://github.com/Blacksmoke16) creator, maintainer
-- [Michael Springer](https://github.com/sprngr) contributor
+- [George Dietrich](https://github.com/Blacksmoke16) - creator, maintainer
+- [Michael Springer](https://github.com/sprngr) - contributor
