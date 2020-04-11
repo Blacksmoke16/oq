@@ -1,7 +1,7 @@
 # oq
 
 [![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
-![CI](https://github.com/blacksmoke16/oq/workflows/CI/badge.svg)
+[![CI](https://github.com/blacksmoke16/oq/workflows/CI/badge.svg)](https://github.com/blacksmoke16/oq/actions?query=workflow%3ACI)
 [![Latest release](https://img.shields.io/github/release/blacksmoke16/oq.svg)](https://github.com/blacksmoke16/oq/releases)
 [![oq](https://snapcraft.io/oq/badge.svg)](https://snapcraft.io/oq)
 
@@ -108,5 +108,5 @@ oq -i yaml -o xml . data.yaml
 
 ## Contributors
 
-- [Blacksmoke16](https://github.com/Blacksmoke16) Blacksmoke16 - creator, maintainer
-- [sprngr](https://github.com/sprngr) Michael Springer - contributor
+- [George Dietrich](https://github.com/Blacksmoke16) creator, maintainer
+- [Michael Springer](https://github.com/sprngr) contributor

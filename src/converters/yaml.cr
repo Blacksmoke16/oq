@@ -6,26 +6,26 @@ module OQ::Converters::Yaml
 
   # ameba:disable Metrics/CyclomaticComplexity
   def self.serialize(input : IO, output : IO, **args) : Nil
-    json = JSON::PullParser.new(input)
-    yaml = YAML::Builder.new(output)
+    json = JSON::PullParser.new input
+    yaml = YAML::Builder.new output
 
     yaml.stream do
       yaml.document do
         loop do
           case json.kind
           when .null?
-            yaml.scalar(nil)
+            yaml.scalar nil
           when .bool?
-            yaml.scalar(json.bool_value)
+            yaml.scalar json.bool_value
           when .int?
-            yaml.scalar(json.int_value)
+            yaml.scalar json.int_value
           when .float?
-            yaml.scalar(json.float_value)
+            yaml.scalar json.float_value
           when .string?
-            if YAML::Schema::Core.reserved_string?(json.string_value)
-              yaml.scalar(json.string_value, style: :double_quoted)
+            if YAML::Schema::Core.reserved_string? json.string_value
+              yaml.scalar json.string_value, style: :double_quoted
             else
-              yaml.scalar(json.string_value)
+              yaml.scalar json.string_value
             end
           when .begin_array?
             yaml.start_sequence
