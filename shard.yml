@@ -6,7 +6,7 @@ description: |
 version: 1.0.1
 
 authors:
-  - Blacksmoke16 <Blacksmoke16@eve.tools>
+  - George Dietrich <george@dietrich.app>
 
 crystal: 0.31.0
 
@@ -19,4 +19,4 @@ targets:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.11.0
+    version: ~> 0.12.0

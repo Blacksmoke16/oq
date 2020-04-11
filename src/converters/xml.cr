@@ -127,6 +127,8 @@ module OQ::Converters::Xml
     when .string?, .int?, .float?, .bool? then builder.text get_value json
     when .begin_object?                   then handle_object builder, json, key, array_key, xml_item: xml_item
     when .begin_array?                    then handle_array builder, json, key, array_key, xml_item: xml_item
+    else
+      nil
     end
   end
 
@@ -135,6 +137,10 @@ module OQ::Converters::Xml
     json.read_object do |k|
       if k.starts_with?('@')
         builder.attribute k.lchop('@'), get_value json
+      elsif k.starts_with?('!')
+        builder.element k.lchop('!') do
+          builder.cdata get_value json
+        end
       elsif json.kind.begin_array? || k == "#text"
         emit builder, json, k, k, xml_item: xml_item
       else

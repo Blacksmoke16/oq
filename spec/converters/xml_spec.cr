@@ -431,6 +431,32 @@ describe OQ::Converters::Xml do
           end
         end
       end
+
+      describe "with HTML content" do
+        it "should escape the HTMl content" do
+          run_binary(%({"x":"<p>Hello World!</p>"}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <x>&lt;p&gt;Hello World!&lt;/p&gt;</x>
+              </root>\n
+              XML
+            )
+          end
+        end
+
+        it "should be wrapped in CDATA if the json key starts with '!'" do
+          run_binary(%({"!x":"<p>Hello World!</p>"}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <x><![CDATA[<p>Hello World!</p>]]></x>
+              </root>\n
+              XML
+            )
+          end
+        end
+      end
     end
 
     describe Bool do
