@@ -141,11 +141,66 @@ XML_ALL_EMPTY = <<-XML
   <one> </one>
   <two>
   </two>
+  <three/>
+  <four></four>
 </root>
 XML
 
 describe OQ::Converters::Xml do
   describe ".deserialize" do
+    # See https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html
+    describe "conventions" do
+      describe "an empty element" do
+        it "self closing" do
+          run_binary("<e/>", args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"e":null}\n)
+          end
+        end
+
+        it "non self closing" do
+          run_binary("<e></e>", args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"e":null}\n)
+          end
+        end
+      end
+
+      it "an element with pure text content" do
+        run_binary("<e>text</e>", args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"e":"text"}\n)
+        end
+      end
+
+      it "an empty element with attributes" do
+        run_binary(%(<e name="value" />), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"e":{"@name":"value"}}\n)
+        end
+      end
+
+      it "an element with pure text content and attributes" do
+        run_binary(%(<e name="value">text</e>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"e":{"@name":"value","#text":"text"}}\n)
+        end
+      end
+
+      it "an element containing elements with different names" do
+        run_binary(%(<e> <a>text</a> <b>text</b> </e>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"e":{"a":"text","b":"text"}}\n)
+        end
+      end
+
+      it "an element containing elements with identical names" do
+        run_binary(%(<e> <a>text</a> <a>text</a> </e>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"e":{"a":["text","text"]}}\n)
+        end
+      end
+
+      it "an element containing elements and contiguous text" do
+        run_binary(%(<e>text<a>text</a></e>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"e":{"#text":"text","a":"text"}}\n)
+        end
+      end
+    end
+
     describe "should raise if invalid" do
       it "should output correctly" do
         run_binary(%(<root id="1<child/></root>), args: ["-i", "xml", "-c", "."]) do |_, status, error|
@@ -167,7 +222,7 @@ describe OQ::Converters::Xml do
       describe "that has only empty children elements" do
         it "should output an object with null values" do
           run_binary(XML_ALL_EMPTY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"root":{"one":null,"two":null}}\n)
+            output.should eq %({"root":{"one":" ","two":"\\n  ","three":null,"four":null}}\n)
           end
         end
       end
@@ -221,9 +276,9 @@ describe OQ::Converters::Xml do
       end
 
       describe "with mixed content" do
-        it "should output correctly" do
+        it "with a single #text node" do
           run_binary(%(<root>x<y>z</y></root>), args: ["-i", "xml", "-c", ".root"]) do |output|
-            output.should eq %({"y":"z"}\n)
+            output.should eq %({"#text":"x","y":"z"}\n)
           end
         end
       end
