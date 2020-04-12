@@ -18,19 +18,16 @@ module OQ::Converters::Xml
           xml.read
         end
 
-        # TODO: clean up after crystal-lang/crystal#8186 is released
-        if node = xml.expand
-          process_element_node node, builder
-        else
-          raise XML::Error.new LibXML.xmlGetLastError
-        end
+        process_element_node xml.expand, builder
       end
     end
   end
 
   private def self.process_element_node(node : XML::Node, builder : JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes; just emit a scalar value
-    return builder.field node.name, get_node_value node if !has_nested_elements(node) && node.attributes.empty?
+    if !has_nested_elements(node) && node.attributes.empty?
+      return builder.field node.name, get_node_value node
+    end
 
     # Otherwise process the node as a key/value pair
     builder.field node.name do
@@ -67,7 +64,14 @@ module OQ::Converters::Xml
     # Determine how to process a node's children
     node.children.group_by(&.name).each do |name, children|
       # Skip non significant whitespace; Skip mixed character input
-      next if children.first.text? && has_nested_elements(node)
+      if children.first.text? && has_nested_elements(node)
+        # Only emit text content if there is only one child
+        if children.size == 1
+          builder.field "#text", children.first.content
+        end
+
+        next
+      end
 
       # Array
       if children.size > 1
@@ -89,12 +93,12 @@ module OQ::Converters::Xml
   end
 
   private def self.get_node_value(node : XML::Node) : String?
-    node.children.empty? || node.children.first.content.blank? ? nil : node.children.first.content
+    node.children.empty? ? nil : node.children.first.content
   end
 
   def self.serialize(input : IO, output : IO, **args) : Nil
-    json = JSON::PullParser.new(input)
-    builder = XML::Builder.new(output)
+    json = JSON::PullParser.new input
+    builder = XML::Builder.new output
     indent, prolog, root, xml_item = self.parse_args(args)
 
     builder.indent = indent
