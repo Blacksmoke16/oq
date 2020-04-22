@@ -1,6 +1,4 @@
 module OQ::Converters::Xml
-  @@at_root : Bool = true
-
   def self.deserialize(input : IO, output : IO, **args) : Nil
     builder = JSON::Builder.new output
     xml = XML::Reader.new input
@@ -137,7 +135,6 @@ module OQ::Converters::Xml
   end
 
   private def self.handle_object(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
-    @@at_root = false
     json.read_object do |k|
       if k.starts_with?('@')
         builder.attribute k.lchop('@'), get_value json
@@ -160,7 +157,7 @@ module OQ::Converters::Xml
     array_key = array_key || xml_item
 
     if json.kind.end_array?
-      builder.element(array_key) { } unless @@at_root
+      # If the array is empty don't emit anything
     else
       until json.kind.end_array?
         builder.element array_key do

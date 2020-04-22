@@ -418,9 +418,7 @@ describe OQ::Converters::Xml do
               output.should eq(<<-XML
                 <?xml version="1.0" encoding="UTF-8"?>
                 <root>
-                  <a>
-                    <foo/>
-                  </a>
+                  <a/>
                 </root>\n
                 XML
               )
@@ -584,7 +582,6 @@ describe OQ::Converters::Xml do
             output.should eq(<<-XML
               <?xml version="1.0" encoding="UTF-8"?>
               <root>
-                <a/>
                 <b/>
                 <c/>
               </root>\n
@@ -600,9 +597,7 @@ describe OQ::Converters::Xml do
             output.should eq(<<-XML
               <?xml version="1.0" encoding="UTF-8"?>
               <root>
-                <a>
-                  <item/>
-                </a>
+                <a/>
               </root>\n
               XML
             )
