@@ -34,6 +34,8 @@ module OQ
   end
 
   struct Processor
+    private FILE_SEPARATOR = "---"
+
     # The format that the input data is in.
     property input_format : Format = Format::Json
 
@@ -62,21 +64,25 @@ module OQ
 
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
     def process : Nil
+      # Gather the args to pass to jq
+      @args.concat ARGV.take_while &.!=(FILE_SEPARATOR)
+
+      # Remove the file separator
+      ARGV.delete FILE_SEPARATOR
+
+      # Remove the extracted args from ARGV leaving only the files
       ARGV.replace ARGV - @args
 
       # Add color option if STDOUT is a tty
       # and the output format is JSON
-      # (Since it will go straight to STDOUT and not convertered)
+      # (Since it will go straight to STDOUT and not converted)
       @args.unshift "-C" if STDOUT.tty? && output_format.json?
 
-      # If the -C option was explicially included
+      # If the -C option was explicitly included
       # and the output format is not JSON;
       # remove it from the args to prevent
       # conversion errors
       @args.delete("-C") if !output_format.json?
-
-      # Shift off the filter from ARGV
-      @args.unshift ARGV.shift unless ARGV.empty?
 
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
