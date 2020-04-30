@@ -63,26 +63,34 @@ describe OQ do
     end
   end
 
-  describe "with a file input" do
-    it "should return the correct output" do
-      run_binary(input: "", args: [".", "spec/assets/data1.json"]) do |output|
-        output.should eq "#{SIMPLE_JSON_OBJECT}\n"
+  describe "files" do
+    describe "with a file input" do
+      it "should return the correct output" do
+        run_binary(input: "", args: [".", "---", "spec/assets/data1.json"]) do |output|
+          output.should eq "#{SIMPLE_JSON_OBJECT}\n"
+        end
       end
     end
-  end
 
-  describe "with multiple JSON file input" do
-    it "should return the correct output" do
-      run_binary(input: "", args: ["-c", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
-        output.should eq %({"name":"Jim"}\n{"name":"Bob"}\n)
+    describe "with multiple JSON file input" do
+      it "should return the correct output" do
+        run_binary(input: "", args: ["-c", ".", "---", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
+          output.should eq %({"name":"Jim"}\n{"name":"Bob"}\n)
+        end
       end
     end
-  end
 
-  describe "with multiple JSON file input and slurp" do
-    it "should return the correct output" do
-      run_binary(input: "", args: ["-c", "--slurp", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
-        output.should eq %([{"name":"Jim"},{"name":"Bob"}]\n)
+    describe "with multiple JSON file input and slurp" do
+      it "should return the correct output" do
+        run_binary(input: "", args: ["-c", "--slurp", ".", "---", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
+          output.should eq %([{"name":"Jim"},{"name":"Bob"}]\n)
+        end
+      end
+    end
+
+    it "with multiple --arg" do
+      run_binary(input: "", args: ["-c", "-r", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version", "---", "spec/assets/data1.json"]) do |output|
+        output.should eq %(1.5.10\n)
       end
     end
   end
@@ -176,10 +184,22 @@ describe OQ do
     end
   end
 
-  describe "with the --arg option" do
-    it "should be passed correctly" do
+  describe "--arg" do
+    it "single arg" do
       run_binary(input: %({}), args: ["-c", "--arg", "foo", "bar", %({"name":$foo})]) do |output|
         output.should eq %({"name":"bar"}\n)
+      end
+    end
+
+    it "multiple arg" do
+      run_binary(input: %("a: b"), args: ["-c", "-r", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version"]) do |output|
+        output.should eq %(1.5.10\n)
+      end
+    end
+
+    it "different option in between args" do
+      run_binary(input: %("a: b"), args: ["-c", "--arg", "chart", "stolon", "-r", "--arg", "version", "1.5.10", "$version"]) do |output|
+        output.should eq %(1.5.10\n)
       end
     end
   end
