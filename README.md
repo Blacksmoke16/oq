@@ -37,7 +37,7 @@ Requires Crystal to be installed, see the [installation documentation](https://c
 ```bash
 git clone https://github.com/Blacksmoke16/oq.git
 cd oq/
-shards build --production
+shards build --production --release
 ```
 
 The built binary will be available as `./bin/oq`.  This can be relocated elsewhere on your machine; be sure it is in your `PATH` to access it as `oq`.
