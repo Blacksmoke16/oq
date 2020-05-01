@@ -66,7 +66,7 @@ describe OQ do
   describe "files" do
     describe "with a file input" do
       it "should return the correct output" do
-        run_binary(input: "", args: [".", "spec/assets/data1.json"]) do |output|
+        run_binary(args: [".", "spec/assets/data1.json"]) do |output|
           output.should eq "#{SIMPLE_JSON_OBJECT}\n"
         end
       end
@@ -74,7 +74,7 @@ describe OQ do
 
     describe "with multiple JSON file input" do
       it "should return the correct output" do
-        run_binary(input: "", args: ["-c", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
+        run_binary(args: ["-c", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
           output.should eq %({"name":"Jim"}\n{"name":"Bob"}\n)
         end
       end
@@ -82,14 +82,14 @@ describe OQ do
 
     describe "with multiple JSON file input and slurp" do
       it "should return the correct output" do
-        run_binary(input: "", args: ["-c", "--slurp", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
+        run_binary(args: ["-c", "--slurp", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
           output.should eq %([{"name":"Jim"},{"name":"Bob"}]\n)
         end
       end
     end
 
     it "with multiple --arg" do
-      run_binary(input: "", args: ["-c", "-r", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version", "spec/assets/data1.json"]) do |output|
+      run_binary(args: ["-c", "-r", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version", "spec/assets/data1.json"]) do |output|
         output.should eq %(1.5.10\n)
       end
     end
