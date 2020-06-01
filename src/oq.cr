@@ -16,7 +16,7 @@ module OQ
 
     # Returns the list of supported formats.
     def self.to_s(io : IO) : Nil
-      self.names.join(io, ", ") { |str, io| str.downcase io }
+      self.names.join(io, ", ") { |str, join_io| str.downcase join_io }
     end
 
     # Maps a given format to its converter.
