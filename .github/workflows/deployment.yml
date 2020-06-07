@@ -16,7 +16,7 @@ jobs:
       run: apk add --update --upgrade --no-cache --force-overwrite libxml2-dev yaml-dev
     - name: Build
       run: |
-        shards build --production --release --static --no-debug --link-flags "$(pkg-config libxml-2.0 --libs --static)"
+        shards build --production --release --static --no-debug
         strip ./bin/oq
     - name: Upload
       uses: actions/upload-release-asset@v1.0.1
