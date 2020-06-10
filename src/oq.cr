@@ -15,8 +15,8 @@ module OQ
     Xml
 
     # Returns the list of supported formats.
-    def self.to_s : String
-      names.map(&.downcase).join(", ")
+    def self.to_s(io : IO) : Nil
+      self.names.join(io, ", ") { |str, join_io| str.downcase join_io }
     end
 
     # Maps a given format to its converter.
@@ -24,10 +24,8 @@ module OQ
       {% begin %}
         case self
           {% for format in @type.constants %}
-            when .{{format.downcase.id}}? then OQ::Converters::{{format.id}}
+            in .{{format.downcase.id}}? then OQ::Converters::{{format.id}}
           {% end %}
-        else
-          raise "Unsupported format: '#{self}'."
         end
       {% end %}
     end
