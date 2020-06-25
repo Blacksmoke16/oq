@@ -71,12 +71,6 @@ bar: &bar
   age: 20
 YAML
 
-# Used to conditionally add the document end marker after some scalar strings based on the libyaml version.
-private def build_expected_yaml_string(expected : String) : String
-  expected += "...\n" if YAML.libyaml_version < SemanticVersion.new(0, 2, 1)
-  expected
-end
-
 describe OQ::Converters::Yaml do
   describe ".deserialize" do
     describe String do
@@ -287,8 +281,8 @@ describe OQ::Converters::Yaml do
       describe "not blank" do
         it "should output correctly" do
           run_binary(%("Jim"), args: ["-o", "yaml", "."]) do |output|
-            output.should eq build_expected_yaml_string <<-YAML
-            --- Jim\n
+            output.should start_with <<-YAML
+            --- Jim
             YAML
           end
         end
@@ -309,8 +303,8 @@ describe OQ::Converters::Yaml do
     describe Bool do
       it "should output correctly" do
         run_binary(%(true), args: ["-o", "yaml", "."]) do |output|
-          output.should eq build_expected_yaml_string <<-YAML
-            --- true\n
+          output.should start_with <<-YAML
+            --- true
             YAML
         end
       end
@@ -330,7 +324,7 @@ describe OQ::Converters::Yaml do
     describe Nil do
       it "should output correctly" do
         run_binary("null", args: ["-o", "yaml", "."]) do |output|
-          output.should eq build_expected_yaml_string "--- \n"
+          output.should start_with "---"
         end
       end
     end
@@ -363,13 +357,12 @@ describe OQ::Converters::Yaml do
       describe "object with empty array/values" do
         it "should emit self closing tags for each" do
           run_binary(%({"a":[],"b":{},"c":null}), args: ["-o", "yaml", "."]) do |output|
-            output.should eq(<<-YAML
+            output.should start_with <<-YAML
               ---
               a: []
               b: {}
-              c: \n
+              c:
               YAML
-            )
           end
         end
       end
