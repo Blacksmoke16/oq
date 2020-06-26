@@ -24,7 +24,6 @@ snap install oq
 ### MacOS
 
 ```bash
-brew tap blacksmoke16/tap
 brew install oq
 ```
 
@@ -67,7 +66,7 @@ Use the `oq` binary, with a few optional custom arguments, see `oq --help`.  All
 #### Consume JSON and output XML
 
 ```bash
-echo '{"name": "Jim"}' | oq -o xml .
+$ echo '{"name": "Jim"}' | oq -o xml .
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <name>Jim</name>
@@ -88,7 +87,7 @@ numbers:
 ```
 
 ```bash
-oq -i yaml -o xml . data.yaml 
+$ oq -i yaml -o xml . data.yaml 
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <name>Jim</name>
