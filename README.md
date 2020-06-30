@@ -50,7 +50,10 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 ARG OQ_VERSION=1.1.2
 
 # Grab the binary from the latest Github release and make it executable; placing it within /usr/local/bin.  Can also put it elsewhere if you so desire.
-RUN wget https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-${OQ_VERSION}-linux-x86_64 -O /usr/local/bin/oq && chmod +x /usr/local/bin/oq
+RUN wget https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-v${OQ_VERSION}-linux-x86_64 -O /usr/local/bin/oq && chmod +x /usr/local/bin/oq
+
+# Or using curl (needs to follow Github's redirect):
+RUN curl -L -o /usr/local/bin/oq https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-v${OQ_VERSION}-linux-x86_64 && chmod +x /usr/local/bin/oq
 
 # Also be sure to install jq if it is not already!
 ```
