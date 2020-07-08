@@ -11,6 +11,9 @@ base: core18
 apps:
   oq:
     command: bin/oq
+    plugs:
+      - home
+      - removable-media
 
 parts:
   oq:
