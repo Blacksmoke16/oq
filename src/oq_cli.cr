@@ -35,5 +35,12 @@ module OQ
     parser.invalid_option { }
   end
 
-  processor.process
+  begin
+    processor.process
+  rescue ex : RuntimeError
+    # ignore jq errors as it writes directly to error output.
+    exit 1
+  rescue ex
+    abort "oq error: #{ex.message}"
+  end
 end

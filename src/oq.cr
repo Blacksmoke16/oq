@@ -62,22 +62,22 @@ module OQ
     @tmp_files = Set(File).new
 
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
-    def process : Nil
+    def process(input_args : Array(String) = ARGV, input : IO = ARGF, output : IO = STDOUT, error : IO = STDERR) : Nil
       # Register an at_exit handler to cleanup temp files.
       at_exit { @tmp_files.each &.delete }
 
       # Parse out --rawfile, --argfile, --slurpfile, and -f/--from-file before processing additional args
       # since these options use a file that should not be used as input.
-      self.consume_file_args "--rawfile", "--argfile", "--slurpfile"
-      self.consume_file_args "-f", "--from-file", count: 1
+      self.consume_file_args input_args, "--rawfile", "--argfile", "--slurpfile"
+      self.consume_file_args input_args, "-f", "--from-file", count: 1
 
       # Extract `jq` arguments from `ARGV`.
-      self.extract_args
+      self.extract_args input_args, output
 
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
 
-      channel = Channel(Bool).new
+      channel = Channel(Bool | Exception).new
 
       # If the input format is not JSON and there is more than 1 file in ARGV,
       # convert each file to JSON from the `#input_format` and save it to a temp file.
@@ -98,18 +98,19 @@ module OQ
       end
 
       spawn do
-        @input_format.converter.deserialize(ARGF, input_write)
+        @input_format.converter.deserialize(input, input_write)
         input_write.close
         channel.send true
       rescue ex
-        handle_error ex
+        input_write.close
+        channel.send ex
       end
 
       spawn do
         output_write.close
         @output_format.converter.serialize(
           output_read,
-          STDOUT,
+          output,
           indent: ((@tab ? "\t" : " ")*@indent),
           xml_root: @xml_root,
           xml_prolog: @xml_prolog,
@@ -117,7 +118,7 @@ module OQ
         )
         channel.send true
       rescue ex
-        handle_error ex
+        channel.send ex
       end
 
       run = Process.run(
@@ -125,37 +126,35 @@ module OQ
         args,
         input: input_read,
         output: output_write,
-        error: STDERR
+        error: error
       )
 
-      exit 1 unless run.success?
+      unless run.success?
+        raise RuntimeError.new
+      end
 
       2.times do
-        channel.receive
+        case (v = channel.receive)
+        when Exception then raise v
+        end
       end
-    rescue ex
-      handle_error ex
     end
 
-    private def handle_error(ex : Exception)
-      abort "oq error: #{ex.message}"
-    end
-
-    # Parses `ARGV`, extracting `jq` arguments while leaving files
-    private def extract_args : Nil
-      # Add color option if STDOUT is a tty
+    # Parses the *input_args*, extracting `jq` arguments while leaving files
+    private def extract_args(input_args : Array(String), output : IO) : Nil
+      # Add color option if *output* is a tty
       # and the output format is JSON
-      # (Since it will go straight to STDOUT and not converted)
-      ARGV.unshift "-C" if STDOUT.tty? && @output_format.json? && !ARGV.includes? "-C"
+      # (Since it will go straight to *output* and not converted)
+      input_args.unshift "-C" if output.tty? && @output_format.json? && !input_args.includes? "-C"
 
       # If the -C option was explicitly included
       # and the output format is not JSON;
-      # remove it from the args to prevent
+      # remove it from the input_args to prevent
       # conversion errors
-      ARGV.delete("-C") if !@output_format.json?
+      input_args.delete("-C") if !@output_format.json?
 
-      # If there are any files within ARGV, ignore "." as it's both a valid file and filter
-      idx = if first_file_idx = ARGV.index { |arg| arg != "." && File.exists? arg }
+      # If there are any files within the *input_args*, ignore "." as it's both a valid file and filter
+      idx = if first_file_idx = input_args.index { |a| a != "." && File.exists? a }
               # extract everything else
               first_file_idx - 1
             else
@@ -163,17 +162,17 @@ module OQ
               -1
             end
 
-      @args.concat ARGV.delete_at 0..idx
+      @args.concat input_args.delete_at 0..idx
     end
 
     # Extracts the provided *arg_name* from `ARGV` if it exists;
     # concatenating the result to the internal arg array.
-    private def consume_file_arg(arg_name : String, count : Int32 = 2) : Nil
-      ARGV.index(arg_name).try { |idx| @args.concat ARGV.delete_at idx..(idx + count) }
+    private def consume_file_arg(input_args : Array(String), arg_name : String, count : Int32 = 2) : Nil
+      input_args.index(arg_name).try { |idx| @args.concat input_args.delete_at idx..(idx + count) }
     end
 
-    private def consume_file_args(*arg_names : String, count : Int32 = 2) : Nil
-      arg_names.each { |name| consume_file_arg name, count }
+    private def consume_file_args(input_args : Array(String), *arg_names : String, count : Int32 = 2) : Nil
+      arg_names.each { |name| consume_file_arg input_args, name, count }
     end
   end
 end
