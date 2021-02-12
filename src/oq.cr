@@ -61,7 +61,10 @@ module OQ
     # Keep a reference to the created temp files in order to delete them later.
     @tmp_files = Set(File).new
 
-    # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
+    # Consumes `#input_format` data from the provided *input* `IO`, along with any *input_args*.
+    # The data is then converted to `JSON`, passed to `jq`, and then converted to `#output_format`
+    # while being written to the *output* `IO`.
+    # Any errors are written to the *error* `IO`.
     def process(input_args : Array(String) = ARGV, input : IO = ARGF, output : IO = STDOUT, error : IO = STDERR) : Nil
       # Register an at_exit handler to cleanup temp files.
       at_exit { @tmp_files.each &.delete }
@@ -130,6 +133,8 @@ module OQ
       )
 
       unless run.success?
+        # Raise this to represent a jq error.
+        # It writes its errors directly to the *error* IO so no need to include a message.
         raise RuntimeError.new
       end
 
@@ -149,7 +154,7 @@ module OQ
 
       # If the -C option was explicitly included
       # and the output format is not JSON;
-      # remove it from the input_args to prevent
+      # remove it from *input_args* to prevent
       # conversion errors
       input_args.delete("-C") if !@output_format.json?
 
@@ -165,7 +170,7 @@ module OQ
       @args.concat input_args.delete_at 0..idx
     end
 
-    # Extracts the provided *arg_name* from `ARGV` if it exists;
+    # Extracts *arg_name* from the provided *input_args* if it exists;
     # concatenating the result to the internal arg array.
     private def consume_file_arg(input_args : Array(String), arg_name : String, count : Int32 = 2) : Nil
       input_args.index(arg_name).try { |idx| @args.concat input_args.delete_at idx..(idx + count) }
