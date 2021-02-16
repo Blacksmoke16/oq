@@ -33,37 +33,50 @@ module OQ
 
   class Processor
     # The format that the input data is in.
-    setter input_format : Format = Format::Json
+    property input_format : Format
 
     # The format that the output should be transcoded into.
-    setter output_format : Format = Format::Json
-
-    # The args passed to the program.
-    #
-    # Non `oq` args are passed to `jq`.
-    getter args : Array(String) = [] of String
+    property output_format : Format
 
     # The root of the XML document when transcoding to XML.
-    setter xml_root : String = "root"
+    property xml_root : String
 
     # If the XML prolog should be emitted.
-    setter xml_prolog : Bool = true
+    property xml_prolog : Bool
 
     # The name for XML array elements without keys.
-    setter xml_item : String = "item"
+    property xml_item : String
 
     # The number of spaces to use for indentation.
-    setter indent : Int32 = 2
+    property indent : Int32
 
-    # If a tab for each indentation level instead of two spaces.
-    setter tab : Bool = false
+    # If a tab for each indentation level instead of spaces.
+    property tab : Bool
+
+    # The args that'll be passed to `jq`.
+    @args : Array(String) = [] of String
+
+    def initialize(
+      @input_format : Format = Format::Json,
+      @output_format : Format = Format::Json,
+      @xml_root : String = "root",
+      @xml_prolog : Bool = true,
+      @xml_item : String = "item",
+      @indent : Int32 = 2,
+      @tab : Bool = false
+    )
+    end
+
+    # Adds the provided *value* to the internal args array.
+    def add_arg(value : String) : Nil
+      @args << value
+    end
 
     # Keep a reference to the created temp files in order to delete them later.
     @tmp_files = Set(File).new
 
     # Consumes `#input_format` data from the provided *input* `IO`, along with any *input_args*.
-    # The data is then converted to `JSON`, passed to `jq`, and then converted to `#output_format`
-    # while being written to the *output* `IO`.
+    # The data is then converted to `JSON`, passed to `jq`, and then converted to `#output_format` while being written to the *output* `IO`.
     # Any errors are written to the *error* `IO`.
     def process(input_args : Array(String) = ARGV, input : IO = ARGF, output : IO = STDOUT, error : IO = STDERR) : Nil
       # Register an at_exit handler to cleanup temp files.
@@ -101,7 +114,7 @@ module OQ
       end
 
       spawn do
-        @input_format.converter.deserialize(input, input_write)
+        @input_format.converter.deserialize input, input_write
         input_write.close
         channel.send true
       rescue ex
@@ -126,7 +139,7 @@ module OQ
 
       run = Process.run(
         "jq",
-        args,
+        @args,
         input: input_read,
         output: output_write,
         error: error
@@ -134,7 +147,7 @@ module OQ
 
       unless run.success?
         # Raise this to represent a jq error.
-        # It writes its errors directly to the *error* IO so no need to include a message.
+        # jq writes its errors directly to the *error* IO so no need to include a message.
         raise RuntimeError.new
       end
 
