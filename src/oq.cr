@@ -88,13 +88,13 @@ module OQ
       # Then replace ARGV with the temp files.
       if !@input_format.json? && ARGV.size > 1
         ARGV.replace(ARGV.map do |file_name|
-          tmp_file = File.tempfile do |tmp_file|
+          File.tempfile do |tmp_file|
             File.open(file_name) do |file|
               @input_format.converter.deserialize file, tmp_file
             end
           end
-          @tmp_files << tmp_file
-          tmp_file.path
+            .tap { |tf| @tmp_files << tf }
+            .path
         end)
 
         # Conversion has already been completed by this point, so reset input format back to JSON.
