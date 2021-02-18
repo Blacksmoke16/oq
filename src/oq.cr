@@ -64,11 +64,7 @@ module OQ
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
     def process : Nil
       # Register an at_exit handler to cleanup temp files.
-      at_exit do
-        @tmp_files.each do |tmp_file|
-          tmp_file.delete
-        end
-      end
+      at_exit { @tmp_files.each &.delete }
 
       # Parse out --rawfile, --argfile, --slurpfile, and -f/--from-file before processing additional args
       # since these options use a file that should not be used as input
@@ -88,8 +84,8 @@ module OQ
       # Then replace ARGV with the temp files.
       if !@input_format.json? && ARGV.size > 1
         ARGV.replace(ARGV.map do |file_name|
-          File.tempfile do |tmp_file|
-            File.open(file_name) do |file|
+          File.tempfile ".#{File.basename(file_name)}" do |tmp_file|
+            File.open file_name do |file|
               @input_format.converter.deserialize file, tmp_file
             end
           end
