@@ -67,11 +67,11 @@ module OQ
       at_exit { @tmp_files.each &.delete }
 
       # Parse out --rawfile, --argfile, --slurpfile, and -f/--from-file before processing additional args
-      # since these options use a file that should not be used as input
+      # since these options use a file that should not be used as input.
       self.consume_file_args "--rawfile", "--argfile", "--slurpfile"
       self.consume_file_args "-f", "--from-file", count: 1
 
-      # Extract `jq` arguments from `ARGV`
+      # Extract `jq` arguments from `ARGV`.
       self.extract_args
 
       input_read, input_write = IO.pipe
@@ -84,7 +84,7 @@ module OQ
       # Then replace ARGV with the temp files.
       if !@input_format.json? && ARGV.size > 1
         ARGV.replace(ARGV.map do |file_name|
-          File.tempfile ".#{File.basename(file_name)}" do |tmp_file|
+          File.tempfile ".#{File.basename file_name}" do |tmp_file|
             File.open file_name do |file|
               @input_format.converter.deserialize file, tmp_file
             end

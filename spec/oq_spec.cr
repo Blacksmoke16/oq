@@ -1,16 +1,16 @@
 require "./spec_helper"
 
-SIMPLE_JSON_OBJECT = <<-JSON
+private SIMPLE_JSON_OBJECT = <<-JSON
 {
   "name": "Jim"
 }
 JSON
 
-NESTED_JSON_OBJECT = <<-JSON
+private NESTED_JSON_OBJECT = <<-JSON
 {"foo":{"bar":{"baz":5}}}
 JSON
 
-ARRAY_JSON_OBJECT = <<-JSON
+private ARRAY_JSON_OBJECT = <<-JSON
 {"names":[1,2,3]}
 JSON
 
