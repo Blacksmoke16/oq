@@ -1,13 +1,14 @@
-module OQ::Converters::Xml
+# Converter for the `OQ::Format::XML` format.
+module OQ::Converters::XML
   def self.deserialize(input : IO, output : IO, **args) : Nil
-    builder = JSON::Builder.new output
-    xml = XML::Reader.new input
+    builder = ::JSON::Builder.new output
+    xml = ::XML::Reader.new input
 
     # Set reader to first element
     xml.read
 
     # Raise an error if the document is invalid and could not be read
-    raise XML::Error.new LibXML.xmlGetLastError if xml.node_type.none?
+    raise ::XML::Error.new LibXML.xmlGetLastError if xml.node_type.none?
 
     builder.document do
       builder.object do
@@ -21,7 +22,7 @@ module OQ::Converters::Xml
     end
   end
 
-  private def self.process_element_node(node : XML::Node, builder : JSON::Builder) : Nil
+  private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes; just emit a scalar value
     if !has_nested_elements(node) && node.attributes.empty?
       return builder.field node.name, get_node_value node
@@ -35,7 +36,7 @@ module OQ::Converters::Xml
     end
   end
 
-  private def self.process_array_node(name : String, children : Array(XML::Node), builder : JSON::Builder) : Nil
+  private def self.process_array_node(name : String, children : Array(::XML::Node), builder : ::JSON::Builder) : Nil
     builder.field name do
       builder.array do
         children.each do |node|
@@ -53,7 +54,7 @@ module OQ::Converters::Xml
     end
   end
 
-  private def self.process_children(node : XML::Node, builder : JSON::Builder) : Nil
+  private def self.process_children(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # Process node attributes
     node.attributes.each do |attr|
       builder.field "@#{attr.name}", attr.content
@@ -86,17 +87,17 @@ module OQ::Converters::Xml
     end
   end
 
-  private def self.has_nested_elements(node : XML::Node) : Bool
+  private def self.has_nested_elements(node : ::XML::Node) : Bool
     node.children.any? { |child| !child.text? && !child.cdata? }
   end
 
-  private def self.get_node_value(node : XML::Node) : String?
+  private def self.get_node_value(node : ::XML::Node) : String?
     node.children.empty? ? nil : node.children.first.content
   end
 
   def self.serialize(input : IO, output : IO, **args) : Nil
-    json = JSON::PullParser.new input
-    builder = XML::Builder.new output
+    json = ::JSON::PullParser.new input
+    builder = ::XML::Builder.new output
     indent, prolog, root, xml_item = self.parse_args(args)
 
     builder.indent = indent
@@ -123,7 +124,7 @@ module OQ::Converters::Xml
     }
   end
 
-  private def self.emit(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+  private def self.emit(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
     case json.kind
     when .null?                           then json.read_null
     when .string?, .int?, .float?, .bool? then builder.text get_value json
@@ -134,7 +135,7 @@ module OQ::Converters::Xml
     end
   end
 
-  private def self.handle_object(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+  private def self.handle_object(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
     json.read_object do |k|
       if k.starts_with?('@')
         builder.attribute k.lchop('@'), get_value json
@@ -152,7 +153,7 @@ module OQ::Converters::Xml
     end
   end
 
-  private def self.handle_array(builder : XML::Builder, json : JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+  private def self.handle_array(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
     json.read_begin_array
     array_key = array_key || xml_item
 
@@ -169,7 +170,7 @@ module OQ::Converters::Xml
     json.read_end_array
   end
 
-  private def self.get_value(json : JSON::PullParser) : String
+  private def self.get_value(json : ::JSON::PullParser) : String
     case json.kind
     when .string? then json.read_string
     when .int?    then json.read_int

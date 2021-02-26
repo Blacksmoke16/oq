@@ -146,7 +146,7 @@ XML_ALL_EMPTY = <<-XML
 </root>
 XML
 
-describe OQ::Converters::Xml do
+describe OQ::Converters::XML do
   describe ".deserialize" do
     # See https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html
     describe "conventions" do

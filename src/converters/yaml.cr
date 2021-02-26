@@ -1,13 +1,15 @@
-module OQ::Converters::Yaml
-  # OPTIMIZE: Figure out a way to handle aliases/anchors while streaming.
-  def self.deserialize(input : IO, output : IO, **args) : Nil
-    YAML.parse(input).to_json output
+# Converter for the `OQ::Format::YAML` format.
+module OQ::Converters::YAML
+  extend self
+
+  def deserialize(input : IO, output : IO, **args) : Nil
+    ::YAML.parse(input).to_json output
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  def self.serialize(input : IO, output : IO, **args) : Nil
-    json = JSON::PullParser.new input
-    yaml = YAML::Builder.new output
+  def serialize(input : IO, output : IO, **args) : Nil
+    json = ::JSON::PullParser.new input
+    yaml = ::YAML::Builder.new output
 
     yaml.stream do
       yaml.document do
@@ -22,7 +24,7 @@ module OQ::Converters::Yaml
           when .float?
             yaml.scalar json.float_value
           when .string?
-            if YAML::Schema::Core.reserved_string? json.string_value
+            if ::YAML::Schema::Core.reserved_string? json.string_value
               yaml.scalar json.string_value, style: :double_quoted
             else
               yaml.scalar json.string_value
