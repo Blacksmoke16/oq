@@ -1,3 +1,4 @@
+# Converter for the `OQ::Format::XML` format.
 module OQ::Converters::XML
   def self.deserialize(input : IO, output : IO, **args) : Nil
     builder = ::JSON::Builder.new output

@@ -1,3 +1,4 @@
+# Converter for the `OQ::Format::JSON` format.
 module OQ::Converters::JSON
   def self.deserialize(input : IO, output : IO, **args) : Nil
     IO.copy input, output

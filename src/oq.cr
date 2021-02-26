@@ -13,13 +13,17 @@ module OQ
     # The [JSON](https://www.json.org/) format.
     JSON
 
-    # The [YAML](https://yaml.org/) format.
-    YAML
+    # Same as `YAML`, but does not support [anchors or aliases](https://yaml.org/spec/1.2/spec.html#id2765878);
+    # thus allowing for the input conversion to be streamed, reducing the memory usage for large inputs.
+    SimpleYAML
 
     # The [XML](https://en.wikipedia.org/wiki/XML) format.
     #
     # NOTE: Conversion two and from `JSON` uses [this](https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html) spec.
     XML
+
+    # The [YAML](https://yaml.org/) format.
+    YAML
 
     # Returns the list of supported formats.
     def self.to_s(io : IO) : Nil
@@ -31,7 +35,7 @@ module OQ
       {% begin %}
         case self
           {% for format in @type.constants %}
-            in .{{format.downcase.id}}? then OQ::Converters::{{format.id}}
+            in .{{format.underscore.downcase.id}}? then OQ::Converters::{{format.id}}
           {% end %}
         end
       {% end %}

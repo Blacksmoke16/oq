@@ -1,11 +1,13 @@
+# Converter for the `OQ::Format::YAML` format.
 module OQ::Converters::YAML
-  # OPTIMIZE: Figure out a way to handle aliases/anchors while streaming.
-  def self.deserialize(input : IO, output : IO, **args) : Nil
+  extend self
+
+  def deserialize(input : IO, output : IO, **args) : Nil
     ::YAML.parse(input).to_json output
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  def self.serialize(input : IO, output : IO, **args) : Nil
+  def serialize(input : IO, output : IO, **args) : Nil
     json = ::JSON::PullParser.new input
     yaml = ::YAML::Builder.new output
 

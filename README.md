@@ -9,7 +9,7 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 
 * Compiles to a single binary for easy portability.
 * Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
-* Supports XML and YAML as additional input/output formats.
+* Supports various other input/output [formats](https://blacksmoke16.github.io/oq/OQ/Format.html), such as `XML` and `YAML`.
 * Can be used as a dependency within other Crystal projects.
 
 ## Installation
