@@ -30,14 +30,17 @@ jobs:
   deploy_docs:
     runs-on: ubuntu-latest
     container:
-      image: crystallang/crystal
+      image: crystallang/crystal:latest-alpine
     steps:
-      - uses: actions/checkout@v1
+      - name: Install Build Dependencies
+        run: apk add --update rsync
+      - uses: actions/checkout@v2
       - name: Build
         run: crystal docs
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@2.0.3
-        env:
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
           FOLDER: docs
+          SINGLE_COMMIT: true
