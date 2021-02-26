@@ -90,6 +90,10 @@ module OQ
       # Extract `jq` arguments from `ARGV`.
       self.extract_args input_args, output
 
+      # Replace the *input* with a fake `ARGF` `IO` to handle both file and `IO` inputs
+      # in case `ARGV` is not being used for the input arguments.
+      input = IO::ARGF.new input_args, input
+
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
 
@@ -98,8 +102,8 @@ module OQ
       # If the input format is not JSON and there is more than 1 file in ARGV,
       # convert each file to JSON from the `#input_format` and save it to a temp file.
       # Then replace ARGV with the temp files.
-      if !@input_format.json? && ARGV.size > 1
-        ARGV.replace(ARGV.map do |file_name|
+      if !@input_format.json? && input_args.size > 1
+        input_args.replace(input_args.map do |file_name|
           File.tempfile ".#{File.basename file_name}" do |tmp_file|
             File.open file_name do |file|
               @input_format.converter.deserialize file, tmp_file
