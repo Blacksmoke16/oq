@@ -23,27 +23,21 @@ describe OQ do
     end
   end
 
-  describe "with a simple filter" do
-    it "should return the correct output" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: [".name"]) do |output|
-        output.should eq %("Jim"\n)
-      end
+  it "with a simple filter" do
+    run_binary(input: SIMPLE_JSON_OBJECT, args: [".name"]) do |output|
+      output.should eq %("Jim"\n)
     end
   end
 
-  describe "with a filter to get nested values" do
-    it "should return the correct output" do
-      run_binary(input: NESTED_JSON_OBJECT, args: [".foo.bar.baz"]) do |output|
-        output.should eq "5\n"
-      end
+  it "with a filter to get nested values" do
+    run_binary(input: NESTED_JSON_OBJECT, args: [".foo.bar.baz"]) do |output|
+      output.should eq "5\n"
     end
   end
 
-  describe "with the -C option" do
-    it "should colorize the output" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-c", "-C", "."]) do |output|
-        output.should eq %(\e[1;39m{\e[0m\e[34;1m"name"\e[0m\e[1;39m:\e[0m\e[0;32m"Jim"\e[0m\e[1;39m\e[1;39m}\e[0m\n)
-      end
+  it "should colorize the output with the -C option" do
+    run_binary(input: SIMPLE_JSON_OBJECT, args: ["-c", "-C", "."]) do |output|
+      output.should eq %(\e[1;39m{\e[0m\e[34;1m"name"\e[0m\e[1;39m:\e[0m\e[0;32m"Jim"\e[0m\e[1;39m\e[1;39m}\e[0m\n)
     end
   end
 
@@ -107,28 +101,24 @@ describe OQ do
     end
   end
 
-  describe "with the -c options" do
-    it "should return the correct output" do
-      run_binary(input: NESTED_JSON_OBJECT, args: ["-c", "."]) do |output|
-        output.should eq %({"foo":{"bar":{"baz":5}}}\n)
-      end
+  it "should minify the output with the -c option" do
+    run_binary(input: NESTED_JSON_OBJECT, args: ["-c", "."]) do |output|
+      output.should eq %({"foo":{"bar":{"baz":5}}}\n)
     end
   end
 
-  describe "without the -c options" do
-    it "should return the correct output" do
-      run_binary(input: NESTED_JSON_OBJECT, args: ["."]) do |output|
-        output.should eq(<<-JSON
-          {
-            "foo": {
-              "bar": {
-                "baz": 5
-              }
+  it "should format the output without the -c option" do
+    run_binary(input: NESTED_JSON_OBJECT, args: ["."]) do |output|
+      output.should eq(<<-JSON
+        {
+          "foo": {
+            "bar": {
+              "baz": 5
             }
-          }\n
-          JSON
-        )
-      end
+          }
+        }\n
+        JSON
+      )
     end
   end
 
