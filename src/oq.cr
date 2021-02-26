@@ -31,7 +31,7 @@ module OQ
     end
   end
 
-  struct Processor
+  class Processor
     # The format that the input data is in.
     setter input_format : Format = Format::Json
 
@@ -58,20 +58,44 @@ module OQ
     # If a tab for each indentation level instead of two spaces.
     setter tab : Bool = false
 
+    # Keep a reference to the created temp files in order to delete them later.
+    @tmp_files = Set(File).new
+
     # Consume the input, convert the input to JSON if needed, pass the input/args to `jq`, then convert the output if needed.
     def process : Nil
+      # Register an at_exit handler to cleanup temp files.
+      at_exit { @tmp_files.each &.delete }
+
       # Parse out --rawfile, --argfile, --slurpfile, and -f/--from-file before processing additional args
-      # since these options use a file that should not be used as input
+      # since these options use a file that should not be used as input.
       self.consume_file_args "--rawfile", "--argfile", "--slurpfile"
       self.consume_file_args "-f", "--from-file", count: 1
 
-      # Extract `jq` arguments from `ARGV`
+      # Extract `jq` arguments from `ARGV`.
       self.extract_args
 
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe
 
       channel = Channel(Bool).new
+
+      # If the input format is not JSON and there is more than 1 file in ARGV,
+      # convert each file to JSON from the `#input_format` and save it to a temp file.
+      # Then replace ARGV with the temp files.
+      if !@input_format.json? && ARGV.size > 1
+        ARGV.replace(ARGV.map do |file_name|
+          File.tempfile ".#{File.basename file_name}" do |tmp_file|
+            File.open file_name do |file|
+              @input_format.converter.deserialize file, tmp_file
+            end
+          end
+            .tap { |tf| @tmp_files << tf }
+            .path
+        end)
+
+        # Conversion has already been completed by this point, so reset input format back to JSON.
+        @input_format = :json
+      end
 
       spawn do
         @input_format.converter.deserialize(ARGF, input_write)

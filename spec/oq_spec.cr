@@ -1,16 +1,16 @@
 require "./spec_helper"
 
-SIMPLE_JSON_OBJECT = <<-JSON
+private SIMPLE_JSON_OBJECT = <<-JSON
 {
   "name": "Jim"
 }
 JSON
 
-NESTED_JSON_OBJECT = <<-JSON
+private NESTED_JSON_OBJECT = <<-JSON
 {"foo":{"bar":{"baz":5}}}
 JSON
 
-ARRAY_JSON_OBJECT = <<-JSON
+private ARRAY_JSON_OBJECT = <<-JSON
 {"names":[1,2,3]}
 JSON
 
@@ -73,17 +73,29 @@ describe OQ do
     end
 
     describe "with multiple JSON file input" do
-      it "should return the correct output" do
+      it "raw data" do
         run_binary(args: ["-c", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
           output.should eq %({"name":"Jim"}\n{"name":"Bob"}\n)
         end
       end
-    end
 
-    describe "with multiple JSON file input and slurp" do
-      it "should return the correct output" do
+      it "--slurp" do
         run_binary(args: ["-c", "--slurp", ".", "spec/assets/data1.json", "spec/assets/data2.json"]) do |output|
           output.should eq %([{"name":"Jim"},{"name":"Bob"}]\n)
+        end
+      end
+    end
+
+    describe "with multiple non JSON file input" do
+      it "raw data" do
+        run_binary(args: ["-i", "yaml", "-c", ".", "spec/assets/data1.yml", "spec/assets/data2.yml"]) do |output|
+          output.should eq %({"name":"Jim"}\n{"age":17,"name":"Fred"}\n)
+        end
+      end
+
+      it "--slurp" do
+        run_binary(args: ["-i", "yaml", "-c", "--slurp", ".", "spec/assets/data1.yml", "spec/assets/data2.yml"]) do |output|
+          output.should eq %([{"name":"Jim"},{"age":17,"name":"Fred"}]\n)
         end
       end
     end
