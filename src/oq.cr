@@ -31,6 +31,26 @@ module OQ
     end
   end
 
+  # Handles the logic of converting the input format (if needed),
+  # processing it via [jq](https://stedolan.github.io/jq/),
+  # and converting the output format (if needed).
+  #
+  # ```
+  # require "oq"
+  #
+  # # This could be any `IO`, e.g. an `HTTP` request body, etc.
+  # input_io = IO::Memory.new %({"name":"Jim"})
+  #
+  # # Create a processor, specifying that we want the output format to be `YAML`.
+  # processor = OQ::Processor.new output_format: :yaml
+  #
+  # File.open("./out.yml", "w") do |file|
+  #   # Process the data using our custom input and output IOs.
+  #   # The first argument represents the input arguments;
+  #   # i.g. the filter and/or any other arguments that should be passed to `jq`.
+  #   processor.process ["."], input: input_io, output: file
+  # end
+  # ```
   class Processor
     # The format that the input data is in.
     property input_format : Format

@@ -10,6 +10,7 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 * Compiles to a single binary for easy portability.
 * Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
 * Supports XML and YAML as additional input/output formats.
+* Can be used as a dependency within other Crystal projects.
 
 ## Installation
 
@@ -58,15 +59,30 @@ RUN curl -L -o /usr/local/bin/oq https://github.com/Blacksmoke16/oq/releases/dow
 # Also be sure to install jq if it is not already!
 ```
 
+### Existing Crystal Project
+
+Add the following to your `shard.yml` and run `shards install`.
+
+```yaml
+dependencies:
+  oq:
+    github: blacksmoke16/oq
+    version: ~> 1.0.0
+```
+
 ## Usage
 
 ### CLI
 
 Use the `oq` binary, with a few optional custom arguments, see `oq --help`.  All other arguments get passed to `jq`. See [jq manual](https://stedolan.github.io/jq/manual/) for details.
 
+### Library
+
+Checkout the [API Documentation](https://blacksmoke16.github.io/oq/OQ/Processor.html) for using `oq` within an existing Crystal project.
+
 ### Examples
 
-#### Consume JSON and output XML
+Consume JSON and output XML
 
 ```bash
 $ echo '{"name": "Jim"}' | oq -o xml .
@@ -76,7 +92,7 @@ $ echo '{"name": "Jim"}' | oq -o xml .
 </root>
 ```
 
-#### Consume YAML from a file and output XML
+Consume YAML from a file and output XML
 
 data.yaml
 
@@ -98,6 +114,25 @@ $ oq -i yaml -o xml . data.yaml
   <numbers>2</numbers>
   <numbers>3</numbers>
 </root>
+```
+
+Use `oq` as a library, consuming some raw `JSON` input, convert it to `YAML`, and write the transformed data to a file.
+
+```crystal
+require "oq"
+
+# This could be any `IO`, e.g. an `HTTP` request body, etc.
+input_io = IO::Memory.new %({"name":"Jim"})
+
+# Create a processor, specifying that we want the output format to be `YAML`.
+processor = OQ::Processor.new output_format: :yaml
+
+File.open("./out.yml", "w") do |file|
+  # Process the data using our custom input and output IOs.
+  # The first argument represents the input arguments;
+  # i.g. the filter and/or any other arguments that should be passed to `jq`.
+  processor.process ["."], input: input_io, output: file
+end
 ```
 
 ## Contributing
