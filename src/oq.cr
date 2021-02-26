@@ -10,9 +10,16 @@ module OQ
 
   # The support formats that can be converted to/from.
   enum Format
-    Json
-    Yaml
-    Xml
+    # The [JSON](https://www.json.org/) format.
+    JSON
+
+    # The [YAML](https://yaml.org/) format.
+    YAML
+
+    # The [XML](https://en.wikipedia.org/wiki/XML) format.
+    #
+    # NOTE: Conversion two and from `JSON` uses [this](https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html) spec.
+    XML
 
     # Returns the list of supported formats.
     def self.to_s(io : IO) : Nil
@@ -77,8 +84,8 @@ module OQ
     @args : Array(String) = [] of String
 
     def initialize(
-      @input_format : Format = Format::Json,
-      @output_format : Format = Format::Json,
+      @input_format : Format = Format::JSON,
+      @output_format : Format = Format::JSON,
       @xml_root : String = "root",
       @xml_prolog : Bool = true,
       @xml_item : String = "item",

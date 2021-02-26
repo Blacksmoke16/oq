@@ -71,7 +71,7 @@ bar: &bar
   age: 20
 YAML
 
-describe OQ::Converters::Yaml do
+describe OQ::Converters::YAML do
   describe ".deserialize" do
     describe String do
       describe "not blank" do
