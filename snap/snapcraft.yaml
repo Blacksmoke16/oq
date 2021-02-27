@@ -17,7 +17,9 @@ apps:
 
 parts:
   oq:
-    source: ./
     plugin: crystal
+    crystal-build-options:
+      - '--release'
+    source: ./
     stage-packages:
       - jq
