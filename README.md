@@ -48,7 +48,7 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 
 ```dockerfile
 # Set an arg to store the oq version that should be installed.
-ARG OQ_VERSION=1.1.2
+ARG OQ_VERSION=1.2.0
 
 # Grab the binary from the latest Github release and make it executable; placing it within /usr/local/bin.  Can also put it elsewhere if you so desire.
 RUN wget https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-v${OQ_VERSION}-linux-x86_64 -O /usr/local/bin/oq && chmod +x /usr/local/bin/oq
@@ -67,7 +67,7 @@ Add the following to your `shard.yml` and run `shards install`.
 dependencies:
   oq:
     github: blacksmoke16/oq
-    version: ~> 1.0.0
+    version: ~> 1.2.0
 ```
 
 ## Usage
