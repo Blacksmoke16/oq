@@ -125,20 +125,20 @@ describe OQ do
   describe "with null input option" do
     describe "with a scalar value" do
       it "should return the correct output" do
-        run_binary(input: nil, args: ["-n", "0"]) do |output|
+        run_binary(args: ["-n", "0"]) do |output|
           output.should eq "0\n"
         end
       end
 
       it "should return the correct output" do
-        run_binary(input: nil, args: ["--null-input", "0"]) do |output|
+        run_binary(args: ["--null-input", "0"]) do |output|
           output.should eq "0\n"
         end
       end
 
       describe "with a JSON object string" do
         it "should return the correct output" do
-          run_binary(input: nil, args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
+          run_binary(args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
             output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
           end
         end
@@ -172,7 +172,7 @@ describe OQ do
 
   describe "when using 'input'" do
     it "should return the correct output" do
-      run_binary(args: ["-c", "-n", "-f", "spec/assets/stream-filter", "spec/assets/stream-data.json"]) do |output|
+      run_binary(args: ["-cn", "-f", "spec/assets/stream-filter", "spec/assets/stream-data.json"]) do |output|
         output.should eq %({"possible_victim01":{"total":3,"evildoers":{"evil.com":2,"soevil.com":1}},"possible_victim02":{"total":1,"evildoers":{"bad.com":1}},"possible_victim03":{"total":1,"evildoers":{"soevil.com":1}}}\n)
       end
     end
@@ -188,35 +188,47 @@ describe OQ do
 
   describe "--arg" do
     it "single arg" do
-      run_binary(input: %({}), args: ["-c", "--arg", "foo", "bar", %({"name":$foo})]) do |output|
+      run_binary(args: ["-cn", "--arg", "foo", "bar", %({"name":$foo})]) do |output|
         output.should eq %({"name":"bar"}\n)
       end
     end
 
     it "multiple arg" do
-      run_binary(input: %("a: b"), args: ["-c", "-r", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version"]) do |output|
+      run_binary(args: ["-rcn", "-r", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version"]) do |output|
         output.should eq %(1.5.10\n)
       end
     end
 
     it "different option in between args" do
-      run_binary(input: %("a: b"), args: ["-c", "--arg", "chart", "stolon", "-r", "--arg", "version", "1.5.10", "$version"]) do |output|
+      run_binary(args: ["-rcn", "--arg", "chart", "stolon", "--arg", "version", "1.5.10", "$version"]) do |output|
         output.should eq %(1.5.10\n)
+      end
+    end
+
+    it "when the arg name matches a directory name" do
+      run_binary(args: ["-rcn", "--arg", "spec", "dir", "$spec"]) do |output|
+        output.should eq %(dir\n)
       end
     end
   end
 
   describe "with the --argjson option" do
     it "should be passed correctly" do
-      run_binary(input: %({}), args: ["-c", "--argjson", "foo", "123", %({"id":$foo})]) do |output|
+      run_binary(args: ["-rcn", "--argjson", "foo", "123", %({"id":$foo})]) do |output|
         output.should eq %({"id":123}\n)
+      end
+    end
+
+    it "when the arg name matches a directory name" do
+      run_binary(args: ["-rcn", "--argjson", "spec", "123", "$spec"]) do |output|
+        output.should eq %(123\n)
       end
     end
   end
 
   describe "with the --slurpfile option" do
     it "should be passed correctly" do
-      run_binary(input: %({}), args: ["-c", "--slurpfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
+      run_binary(args: ["-rcn", "--slurpfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
         output.should eq %({"ids":[1,2,3]}\n)
       end
     end
@@ -224,7 +236,7 @@ describe OQ do
 
   describe "with the --rawfile option" do
     it "should be passed correctly" do
-      run_binary(input: %({}), args: ["-c", "--rawfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
+      run_binary(args: ["-rcn", "--rawfile", "ids", "spec/assets/raw.json", %({"ids":$ids})]) do |output|
         output.should eq %({"ids":"1\\n2\\n3\\n"}\n)
       end
     end
@@ -232,7 +244,7 @@ describe OQ do
 
   describe "with the --args option" do
     it "should be passed correctly" do
-      run_binary(input: %({}), args: ["-c", %({"ids":$ARGS.positional}), "--args", "1", "2", "3"]) do |output|
+      run_binary(args: ["-rcn", %({"ids":$ARGS.positional}), "--args", "1", "2", "3"]) do |output|
         output.should eq %({"ids":["1","2","3"]}\n)
       end
     end
@@ -240,7 +252,7 @@ describe OQ do
 
   describe "with the --jsonargs option" do
     it "should be passed correctly" do
-      run_binary(input: %({}), args: ["-c", %({"ids":$ARGS.positional}), "--jsonargs", "1", "2", "3"]) do |output|
+      run_binary(args: ["-rcn", %({"ids":$ARGS.positional}), "--jsonargs", "1", "2", "3"]) do |output|
         output.should eq %({"ids":[1,2,3]}\n)
       end
     end

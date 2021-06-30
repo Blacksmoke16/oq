@@ -6,7 +6,7 @@ require "./converters/*"
 
 # A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 module OQ
-  VERSION = "1.2.0"
+  VERSION = "1.2.1"
 
   # The support formats that can be converted to/from.
   enum Format
@@ -117,6 +117,10 @@ module OQ
       # since these options use a file that should not be used as input.
       self.consume_file_args input_args, "--rawfile", "--argfile", "--slurpfile"
       self.consume_file_args input_args, "-f", "--from-file", count: 1
+
+      # Also parse out --arg, and --argjson as they may include identifiers that also exist as a directory/file
+      # which would result in incorrect arg extraction.
+      self.consume_file_args input_args, "--arg", "--argjson"
 
       # Extract `jq` arguments from `ARGV`.
       self.extract_args input_args, output
