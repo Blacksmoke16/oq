@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Update Libs
-      run: apk add --update --upgrade --no-cache --force-overwrite libxml2-dev yaml-dev
+      run: apk add --update --upgrade --no-cache --force-overwrite libxml2-dev yaml-dev yaml-static
     - name: Build
       run: |
         shards build --production --release --static --no-debug
