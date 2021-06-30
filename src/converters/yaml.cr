@@ -11,6 +11,9 @@ module OQ::Converters::YAML
     json = ::JSON::PullParser.new input
     yaml = ::YAML::Builder.new output
 
+    # Return early is there is no JSON to be read.
+    return if json.kind.eof?
+
     yaml.stream do
       yaml.document do
         loop do
