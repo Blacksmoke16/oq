@@ -413,7 +413,7 @@ describe OQ::Converters::YAML do
       describe "when the jq filter doesn't return data" do
         it "should return an empty string" do
           run_binary(%([{"name":"foo"}]), args: ["-i", "yaml", "-o", "yaml", %<.[] | select(.name != "foo")>]) do |output|
-            output.should eq("")
+            output.should be_empty
           end
         end
       end
