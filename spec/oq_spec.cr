@@ -260,27 +260,24 @@ describe OQ do
 
   describe "when there is a jq error" do
     it "should return the error and correct exit code" do
-      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"]) do |_, status, error|
+      run_binary(input: ARRAY_JSON_OBJECT, args: [".names | .[] | .name"], success: false) do |_, _, error|
         error.should eq %(jq: error (at <stdin>:0): Cannot index number with string "name"\n)
-        status.exit_code.should eq 1
       end
     end
   end
 
   describe "with an invalid input format" do
     it "should return the error and correct exit code" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-i", "foo"]) do |_, status, error|
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-i", "foo"], success: false) do |_, _, error|
         error.should eq %(Invalid input format: 'foo'\n)
-        status.exit_code.should eq 1
       end
     end
   end
 
   describe "with an invalid output format" do
     it "should return the error and correct exit code" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-o", "foo"]) do |_, status, error|
+      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-o", "foo"], success: false) do |_, _, error|
         error.should eq %(Invalid output format: 'foo'\n)
-        status.exit_code.should eq 1
       end
     end
   end

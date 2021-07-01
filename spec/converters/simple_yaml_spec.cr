@@ -333,6 +333,14 @@ describe OQ::Converters::SimpleYAML do
           end
         end
       end
+
+      describe "when the jq filter doesn't return data" do
+        it "should return an empty string" do
+          run_binary(%([{"name":"foo"}]), args: ["-i", "simpleyaml", "-o", "simpleyaml", %<.[] | select(.name != "foo")>]) do |output|
+            output.should be_empty
+          end
+        end
+      end
     end
 
     describe Object do
