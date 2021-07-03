@@ -129,10 +129,8 @@ module OQ
       # in case `ARGV` is not being used for the input arguments.
       input = IO::ARGF.new input_args, input
 
-      input_read, input_write = IO.pipe
-      output_read, output_write = IO.pipe
-
-      channel = Channel(Bool | Exception).new
+      input_buffer = IO::Memory.new
+      output_buffer = IO::Memory.new
 
       # If the input format is not JSON and there is more than 1 file in ARGV,
       # convert each file to JSON from the `#input_format` and save it to a temp file.
@@ -152,35 +150,14 @@ module OQ
         @input_format = :json
       end
 
-      spawn do
-        @input_format.converter.deserialize input, input_write
-        input_write.close
-        channel.send true
-      rescue ex
-        input_write.close
-        channel.send ex
-      end
-
-      spawn do
-        output_write.close
-        @output_format.converter.serialize(
-          output_read,
-          output,
-          indent: ((@tab ? "\t" : " ")*@indent),
-          xml_root: @xml_root,
-          xml_prolog: @xml_prolog,
-          xml_item: @xml_item
-        )
-        channel.send true
-      rescue ex
-        channel.send ex
-      end
+      @input_format.converter.deserialize input, input_buffer
+      input_buffer.rewind
 
       run = Process.run(
         "jq",
         @args,
-        input: input_read,
-        output: output_write,
+        input: input_buffer,
+        output: output_buffer,
         error: error
       )
 
@@ -190,11 +167,15 @@ module OQ
         raise RuntimeError.new
       end
 
-      2.times do
-        case (v = channel.receive)
-        when Exception then raise v
-        end
-      end
+      output_buffer.rewind
+      @output_format.converter.serialize(
+        output_buffer,
+        output,
+        indent: ((@tab ? "\t" : " ")*@indent),
+        xml_root: @xml_root,
+        xml_prolog: @xml_prolog,
+        xml_item: @xml_item
+      )
     end
 
     # Parses the *input_args*, extracting `jq` arguments while leaving files
