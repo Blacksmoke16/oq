@@ -23,13 +23,19 @@ module OQ::Converters::XML
   end
 
   private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
-    # If the node doesn't have nested elements nor attributes; just emit a scalar value
-    if !has_nested_elements(node) && node.attributes.empty?
+    # If the node doesn't have nested elements nor attributes nor a namespace; just emit a scalar value
+    if !has_nested_elements(node) && node.attributes.empty? && node.namespace.nil?
       return builder.field node.name, get_node_value node
     end
 
+    key = if namespace = node.namespace
+            "#{namespace.prefix}:#{node.name}"
+          else
+            node.name
+          end
+
     # Otherwise process the node as a key/value pair
-    builder.field node.name do
+    builder.field key do
       builder.object do
         process_children node, builder
       end
@@ -58,6 +64,11 @@ module OQ::Converters::XML
     # Process node attributes
     node.attributes.each do |attr|
       builder.field "@#{attr.name}", attr.content
+    end
+
+    # Include the namespace declr if present
+    if namespace = node.namespace
+      builder.field "@xmlns:#{namespace.prefix}", namespace.href
     end
 
     # Determine how to process a node's children
