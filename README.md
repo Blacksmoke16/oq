@@ -16,17 +16,35 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 
 ## Installation
 
-### Linux via [snap](https://snapcraft.io/)
+### Linux
+
+A statically linked binary for Linux `x86_64` as available on the [Releases](https://github.com/Blacksmoke16/oq/releases) tab.  Additionally it can also be installed via various package managers.
+
+#### Snap
 
 For more on installing & using `snap` with your Linux distribution, see the [official documentation](https://docs.snapcraft.io/installing-snapd).
 
-```bash
-snap install oq
+```sh
+sudo snap install oq
+```
+
+#### Arch
+
+Using [yay](https://github.com/Jguer/yay):
+
+```sh
+yay -S oq
+```
+
+A pre-compiled version is also available:
+
+```sh
+yay -S oq-bin
 ```
 
 ### MacOS
 
-```bash
+```sh
 brew install oq
 ```
 
@@ -36,7 +54,7 @@ If building from source, `jq` will need to be installed separately. Installation
 
 Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/install).
 
-```bash
+```sh
 git clone https://github.com/Blacksmoke16/oq.git
 cd oq/
 shards build --production --release
@@ -86,7 +104,7 @@ Checkout the [API Documentation](https://blacksmoke16.github.io/oq/OQ/Processor.
 
 Consume JSON and output XML
 
-```bash
+```sh
 $ echo '{"name": "Jim"}' | oq -o xml .
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
@@ -107,7 +125,7 @@ numbers:
   - 3
 ```
 
-```bash
+```sh
 $ oq -i yaml -o xml . data.yaml 
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
