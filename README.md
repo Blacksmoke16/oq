@@ -1,9 +1,11 @@
 # oq
 
-[![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?style=flat-square)](https://crystal-lang.org/)
+[![Built with Crystal](https://img.shields.io/badge/built%20with-crystal-000000.svg?logo=crystal)](https://crystal-lang.org/)
 [![CI](https://github.com/blacksmoke16/oq/workflows/CI/badge.svg)](https://github.com/blacksmoke16/oq/actions?query=workflow%3ACI)
-[![Latest release](https://img.shields.io/github/release/blacksmoke16/oq.svg)](https://github.com/blacksmoke16/oq/releases)
+[![Latest release](https://img.shields.io/github/release/blacksmoke16/oq.svg?color=teal&logo=github)](https://github.com/blacksmoke16/oq/releases)
 [![oq](https://snapcraft.io/oq/badge.svg)](https://snapcraft.io/oq)
+[![oq](https://img.shields.io/aur/version/oq?label=oq&logo=arch-linux)](https://aur.archlinux.org/packages/oq/)
+[![oq-bin](https://img.shields.io/aur/version/oq-bin?label=oq-bin&logo=arch-linux)](https://aur.archlinux.org/packages/oq-bin/)
 
 A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
@@ -14,17 +16,35 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 
 ## Installation
 
-### Linux via [snap](https://snapcraft.io/)
+### Linux
+
+A statically linked binary for Linux `x86_64` as available on the [Releases](https://github.com/Blacksmoke16/oq/releases) tab.  Additionally it can also be installed via various package managers.
+
+#### Snap
 
 For more on installing & using `snap` with your Linux distribution, see the [official documentation](https://docs.snapcraft.io/installing-snapd).
 
-```bash
-snap install oq
+```sh
+sudo snap install oq
+```
+
+#### Arch
+
+Using [yay](https://github.com/Jguer/yay):
+
+```sh
+yay -S oq
+```
+
+A pre-compiled version is also available:
+
+```sh
+yay -S oq-bin
 ```
 
 ### MacOS
 
-```bash
+```sh
 brew install oq
 ```
 
@@ -34,7 +54,7 @@ If building from source, `jq` will need to be installed separately. Installation
 
 Requires Crystal to be installed, see the [installation documentation](https://crystal-lang.org/install).
 
-```bash
+```sh
 git clone https://github.com/Blacksmoke16/oq.git
 cd oq/
 shards build --production --release
@@ -84,7 +104,7 @@ Checkout the [API Documentation](https://blacksmoke16.github.io/oq/OQ/Processor.
 
 Consume JSON and output XML
 
-```bash
+```sh
 $ echo '{"name": "Jim"}' | oq -o xml .
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
@@ -105,7 +125,7 @@ numbers:
   - 3
 ```
 
-```bash
+```sh
 $ oq -i yaml -o xml . data.yaml 
 <?xml version="1.0" encoding="UTF-8"?>
 <root>

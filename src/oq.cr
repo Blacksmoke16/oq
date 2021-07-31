@@ -19,7 +19,7 @@ module OQ
 
     # The [XML](https://en.wikipedia.org/wiki/XML) format.
     #
-    # NOTE: Conversion two and from `JSON` uses [this](https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html) spec.
+    # NOTE: Conversion to and from `JSON` uses [this](https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html) spec.
     XML
 
     # The [YAML](https://yaml.org/) format.
