@@ -31,14 +31,13 @@ module OQ
     end
 
     # Maps a given format to its converter.
-    def converter
-      {% begin %}
-        case self
-          {% for format in @type.constants %}
-            in .{{format.underscore.downcase.id}}? then OQ::Converters::{{format.id}}
-          {% end %}
-        end
-      {% end %}
+    def converter(processor : OQ::Processor)
+      case self
+      in .json?        then OQ::Converters::JSON
+      in .simple_yaml? then OQ::Converters::SimpleYAML
+      in .xml?         then OQ::Converters::XML
+      in .yaml?        then OQ::Converters::YAML
+      end.tap { |converter| converter.processor = processor if converter.is_a? OQ::Converters::ProcessorAware }
     end
   end
 
@@ -144,7 +143,7 @@ module OQ
         input_args.replace(input_args.map do |file_name|
           File.tempfile ".#{File.basename file_name}" do |tmp_file|
             File.open file_name do |file|
-              @input_format.converter.deserialize file, tmp_file, xmlns: @xmlns
+              @input_format.converter(self).deserialize file, tmp_file
             end
           end
             .tap { |tf| @tmp_files << tf }
@@ -156,7 +155,7 @@ module OQ
       end
 
       spawn do
-        @input_format.converter.deserialize input, input_write, xmlns: @xmlns
+        @input_format.converter(self).deserialize input, input_write
         input_write.close
         channel.send true
       rescue ex
@@ -166,14 +165,7 @@ module OQ
 
       spawn do
         output_write.close
-        @output_format.converter.serialize(
-          output_read,
-          output,
-          indent: ((@tab ? "\t" : " ")*@indent),
-          xml_root: @xml_root,
-          xml_prolog: @xml_prolog,
-          xml_item: @xml_item
-        )
+        @output_format.converter(self).serialize output_read, output
         channel.send true
       rescue ex
         channel.send ex

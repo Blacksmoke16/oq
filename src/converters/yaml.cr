@@ -2,12 +2,12 @@
 module OQ::Converters::YAML
   extend self
 
-  def deserialize(input : IO, output : IO, **args) : Nil
+  def deserialize(input : IO, output : IO) : Nil
     ::YAML.parse(input).to_json output
   end
 
   # ameba:disable Metrics/CyclomaticComplexity
-  def serialize(input : IO, output : IO, **args) : Nil
+  def serialize(input : IO, output : IO) : Nil
     json = ::JSON::PullParser.new input
     yaml = ::YAML::Builder.new output
 

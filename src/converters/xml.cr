@@ -1,3 +1,4 @@
+# TODO: Remove this after https://github.com/crystal-lang/crystal/issues/11037 is released.
 class ::XML::Node
   def namespace_definitions : Array(Namespace)
     namespaces = [] of Namespace
@@ -15,11 +16,11 @@ end
 
 # Converter for the `OQ::Format::XML` format.
 module OQ::Converters::XML
-  def self.deserialize(input : IO, output : IO, **args) : Nil
+  extend OQ::Converters::ProcessorAware
+
+  def self.deserialize(input : IO, output : IO) : Nil
     builder = ::JSON::Builder.new output
     xml = ::XML::Reader.new input
-
-    xmlns = self.parse_deserialize_args args
 
     # Set reader to first element
     xml.read
@@ -34,27 +35,27 @@ module OQ::Converters::XML
           xml.read
         end
 
-        process_element_node xml.expand, builder, xmlns: xmlns
+        process_element_node xml.expand, builder
       end
     end
   end
 
-  private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder, *, xmlns : Bool) : Nil
+  private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes nor a namespace; just emit a scalar value
     # TODO: Make checking for namespaces the default behavior in oq 2.x
-    if (!has_nested_elements(node) && node.attributes.empty?) || (xmlns && node.namespace_definitions.empty?)
+    if (!has_nested_elements(node) && node.attributes.empty?) && ((self.processor.xmlns? && !node.namespace_definitions.empty?) || !self.processor.xmlns?)
       return builder.field self.normalize_node_name(node), get_node_value node
     end
 
     # Otherwise process the node as a key/value pair
     builder.field self.normalize_node_name node do
       builder.object do
-        process_children node, builder, xmlns: xmlns
+        process_children node, builder
       end
     end
   end
 
-  private def self.process_array_node(name : String, children : Array(::XML::Node), builder : ::JSON::Builder, *, xmlns : Bool) : Nil
+  private def self.process_array_node(name : String, children : Array(::XML::Node), builder : ::JSON::Builder) : Nil
     builder.field name do
       builder.array do
         children.each do |node|
@@ -64,7 +65,7 @@ module OQ::Converters::XML
           else
             # Otherwise process the node within an object
             builder.object do
-              process_children node, builder, xmlns: xmlns
+              process_children node, builder
             end
           end
         end
@@ -72,7 +73,7 @@ module OQ::Converters::XML
     end
   end
 
-  private def self.process_children(node : ::XML::Node, builder : ::JSON::Builder, *, xmlns : Bool) : Nil
+  private def self.process_children(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # Process node attributes
     node.attributes.each do |attr|
       builder.field "@#{attr.name}", attr.content
@@ -80,7 +81,7 @@ module OQ::Converters::XML
 
     # Include attributes for namespaces defined on this node
     # TODO: Make this the default behavior in oq 2.x
-    if xmlns
+    if self.processor.xmlns?
       node.namespace_definitions.each do |ns|
         key = ns.prefix ? "xmlns:#{ns.prefix}" : "xmlns"
         builder.field "@#{key}", ns.href
@@ -101,14 +102,14 @@ module OQ::Converters::XML
 
       # Array
       if children.size > 1
-        process_array_node name, children, builder, xmlns: xmlns
+        process_array_node name, children, builder
       else
         if children.first.text?
           # node content in attribute object
           builder.field "#text", children.first.content
         else
           # Element
-          process_element_node children.first, builder, xmlns: xmlns
+          process_element_node children.first, builder
         end
       end
     end
@@ -130,47 +131,43 @@ module OQ::Converters::XML
     args["xmlns"]
   end
 
-  def self.serialize(input : IO, output : IO, **args) : Nil
+  def self.serialize(input : IO, output : IO) : Nil
     json = ::JSON::PullParser.new input
     builder = ::XML::Builder.new output
-    indent, prolog, root, xml_item = self.parse_serialize_args args
 
-    builder.indent = indent
+    builder.indent = ((self.processor.tab ? "\t" : " ")*self.processor.indent)
 
-    builder.start_document "1.0", "UTF-8" if prolog
-    builder.start_element root unless root.blank?
+    builder.start_document "1.0", "UTF-8" if self.processor.xml_prolog
+
+    if root = self.processor.xml_root.presence
+      builder.start_element root
+    end
 
     loop do
-      emit builder, json, xml_item: xml_item
+      emit builder, json
       break if json.kind.eof?
     end
 
-    builder.end_element unless root.blank?
-    builder.end_document if prolog
-    builder.flush unless prolog
+    if self.processor.xml_root.presence
+      builder.end_element
+    end
+
+    builder.end_document if self.processor.xml_prolog
+    builder.flush unless self.processor.xml_prolog
   end
 
-  private def self.parse_serialize_args(args : NamedTuple) : Tuple(String, Bool, String, String)
-    {
-      args["indent"],
-      args["xml_prolog"],
-      args["xml_root"],
-      args["xml_item"],
-    }
-  end
-
-  private def self.emit(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+  private def self.emit(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil) : Nil
     case json.kind
     when .null?                           then json.read_null
     when .string?, .int?, .float?, .bool? then builder.text get_value json
-    when .begin_object?                   then handle_object builder, json, key, array_key, xml_item: xml_item
-    when .begin_array?                    then handle_array builder, json, key, array_key, xml_item: xml_item
+    when .begin_object?                   then handle_object builder, json, key, array_key
+    when .begin_array?                    then handle_array builder, json, key, array_key
     else
       nil
     end
   end
 
-  private def self.handle_object(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+  private def self.handle_object(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil) : Nil
     json.read_object do |k|
       if k.starts_with?('@')
         builder.attribute k.lchop('@'), get_value json
@@ -179,25 +176,25 @@ module OQ::Converters::XML
           builder.cdata get_value json
         end
       elsif json.kind.begin_array? || k == "#text"
-        emit builder, json, k, k, xml_item: xml_item
+        emit builder, json, k, k
       else
         builder.element k do
-          emit builder, json, k, xml_item: xml_item
+          emit builder, json, k
         end
       end
     end
   end
 
-  private def self.handle_array(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil, *, xml_item : String) : Nil
+  private def self.handle_array(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil) : Nil
     json.read_begin_array
-    array_key = array_key || xml_item
+    array_key = array_key || self.processor.xml_item
 
     if json.kind.end_array?
       # If the array is empty don't emit anything
     else
       until json.kind.end_array?
         builder.element array_key do
-          emit builder, json, key, xml_item: xml_item
+          emit builder, json, key
         end
       end
     end

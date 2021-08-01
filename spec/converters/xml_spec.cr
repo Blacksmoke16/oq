@@ -442,66 +442,66 @@ describe OQ::Converters::XML do
           end
         end
       end
+    end
 
-      describe "it allows changing the array item name" do
-        describe "with a single nesting level" do
-          it "should emit item tags for non empty values" do
-            run_binary(%(["x",{}]), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
-              output.should eq(<<-XML
+    describe "it allows changing the array item name" do
+      describe "with a single nesting level" do
+        it "should emit item tags for non empty values" do
+          run_binary(%(["x",{}]), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
+            output.should eq(<<-XML
                 <?xml version="1.0" encoding="UTF-8"?>
                 <root>
                   <foo>x</foo>
                   <foo/>
                 </root>\n
                 XML
-              )
-            end
+            )
           end
         end
+      end
 
-        describe "with a larger nesting level" do
-          it "should emit item tags for non empty values" do
-            run_binary(%({"a":[[]]}), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
-              output.should eq(<<-XML
+      describe "with a larger nesting level" do
+        it "should emit item tags for non empty values" do
+          run_binary(%({"a":[[]]}), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
+            output.should eq(<<-XML
                 <?xml version="1.0" encoding="UTF-8"?>
                 <root>
                   <a/>
                 </root>\n
                 XML
-              )
-            end
+            )
           end
         end
       end
+    end
 
-      describe "it allows changing the indent" do
-        describe "more spaces" do
-          it "should emit the extra spaces" do
-            run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "4", "."]) do |output|
-              output.should eq(<<-XML
+    describe "it allows changing the indent" do
+      describe "more spaces" do
+        it "should emit the extra spaces" do
+          run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "4", "."]) do |output|
+            output.should eq(<<-XML
                 <?xml version="1.0" encoding="UTF-8"?>
                 <root>
                     <name>Jim</name>
                     <age>12</age>
                 </root>\n
                 XML
-              )
-            end
+            )
           end
         end
+      end
 
-        describe "to tabs" do
-          it "should emit the indent as tabs" do
-            run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "3", "--tab", "."]) do |output|
-              output.should eq(<<-XML
+      describe "to tabs" do
+        it "should emit the indent as tabs" do
+          run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "3", "--tab", "."]) do |output|
+            output.should eq(<<-XML
                 <?xml version="1.0" encoding="UTF-8"?>
                 <root>
                 \t\t\t<name>Jim</name>
                 \t\t\t<age>12</age>
                 </root>\n
                 XML
-              )
-            end
+            )
           end
         end
       end
