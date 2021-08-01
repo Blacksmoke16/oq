@@ -43,7 +43,7 @@ module OQ::Converters::XML
   private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes nor a namespace; just emit a scalar value
     # TODO: Make checking for namespaces the default behavior in oq 2.x
-    if (!has_nested_elements(node) && node.attributes.empty?) && ((self.processor.xmlns? && !node.namespace_definitions.empty?) || !self.processor.xmlns?)
+    if (!has_nested_elements(node) && node.attributes.empty?) && ((self.processor.xmlns? && node.namespace_definitions.empty?) || !self.processor.xmlns?)
       return builder.field self.normalize_node_name(node), get_node_value node
     end
 
@@ -125,10 +125,6 @@ module OQ::Converters::XML
 
   private def self.normalize_node_name(node : ::XML::Node) : String
     (namespace = node.namespace) && (prefix = namespace.prefix.presence) ? "#{prefix}:#{node.name}" : node.name
-  end
-
-  private def self.parse_deserialize_args(args : NamedTuple) : Bool
-    args["xmlns"]
   end
 
   def self.serialize(input : IO, output : IO) : Nil
