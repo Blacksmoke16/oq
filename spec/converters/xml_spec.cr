@@ -321,27 +321,27 @@ describe OQ::Converters::XML do
       end
 
       describe "with namespaces" do
-        it "strips prefixes and namespace declarations of a prefixed namespace" do
+        it "retains prefixes but strips namespace declarations of a prefixed namespace" do
           run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="http://www.w3.org/1999/xhtml">bar</a:foo>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"foo":"bar"}\n)
+            output.should eq %({"a:foo":"bar"}\n)
           end
         end
 
-        it "strips prefixes and namespace declarations of a multiple namespaces" do
+        it "does not add pefix if none was already present but strips namespace declarations" do
           run_binary(%(<?xml version="1.0"?><foo xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:a="http://www.w3.org/1999/xhtml">bar</foo>), args: ["-i", "xml", "-c", "."]) do |output|
             output.should eq %({"foo":"bar"}\n)
           end
         end
 
-        it "skips prefixed elements that cause mixed content" do
+        it "treats prefixed & unprefixed elements as unique elements" do
           run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"root":{"foo":{"bar":{"baz":null}}}}\n)
+            output.should eq %({"root":{"a:foo":"herp","foo":{"bar":{"baz":null}}}}\n)
           end
         end
 
-        it "strips prefixes of elements" do
+        it "retains prefixes of scalar value elements" do
           run_binary(XML_NAMESPACE_PREFIXES, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"root":{"foo":"foo","bar":"bar"}}\n)
+            output.should eq %({"root":{"foo":"foo","a:bar":"bar"}}\n)
           end
         end
       end
@@ -399,7 +399,7 @@ describe OQ::Converters::XML do
       end
 
       describe "with namespaces" do
-        it "strips prefixes and namespace declarations" do
+        it "treats prefixed & unprefixed elements as unique elements" do
           run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
             output.should eq %({"items":{"n:number":["1","2"],"number":"3"}}\n)
           end
