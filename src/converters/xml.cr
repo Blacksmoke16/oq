@@ -25,11 +25,11 @@ module OQ::Converters::XML
   private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes; just emit a scalar value
     if !has_nested_elements(node) && node.attributes.empty?
-      return builder.field node.name, get_node_value node
+      return builder.field self.normalize_node_name(node), get_node_value node
     end
 
     # Otherwise process the node as a key/value pair
-    builder.field node.name do
+    builder.field self.normalize_node_name node do
       builder.object do
         process_children node, builder
       end
@@ -61,7 +61,7 @@ module OQ::Converters::XML
     end
 
     # Determine how to process a node's children
-    node.children.group_by(&.name).each do |name, children|
+    node.children.group_by(&->normalize_node_name(::XML::Node)).each do |name, children|
       # Skip non significant whitespace; Skip mixed character input
       if children.first.text? && has_nested_elements(node)
         # Only emit text content if there is only one child
@@ -93,6 +93,10 @@ module OQ::Converters::XML
 
   private def self.get_node_value(node : ::XML::Node) : String?
     node.children.empty? ? nil : node.children.first.content
+  end
+
+  private def self.normalize_node_name(node : ::XML::Node) : String
+    (namespace = node.namespace) && (prefix = namespace.prefix.presence) ? "#{prefix}:#{node.name}" : node.name
   end
 
   def self.serialize(input : IO, output : IO, **args) : Nil

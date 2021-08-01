@@ -98,6 +98,15 @@ XML_INLINE_ARRAY_WITHIN_ARRAY = <<-XML
 </articles>
 XML
 
+XML_NAMESPACE_ARRAY = <<-XML
+<?xml version="1.0" encoding="utf-8"?>
+<items xmlns:n="http://n">
+  <n:number>1</n:number>
+  <n:number>2</n:number>
+  <number xmlns="http://default">3</number>
+</items>
+XML
+
 XML_DOCTYPE = <<-XML
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE dblp SYSTEM "dblp.dtd">
@@ -143,6 +152,26 @@ XML_ALL_EMPTY = <<-XML
   </two>
   <three/>
   <four></four>
+</root>
+XML
+
+XML_NAMESPACE_PREFIXES = <<-XML
+<?xml version="1.0" ?>
+<root xmlns:a="https://a">
+  <foo>foo</foo>
+  <a:bar>bar</a:bar>
+</root>
+XML
+
+XML_NESTED_NAMESPACES = <<-XML
+<?xml version="1.0" ?>
+<root xmlns:a="https://a" xmlns="https://b">
+  <a:foo>herp</a:foo>
+  <foo>
+    <bar xmlns="https://c">
+      <baz xmlns="https://d"/>
+    </bar>
+  </foo>
 </root>
 XML
 
@@ -210,11 +239,9 @@ describe OQ::Converters::XML do
     end
 
     describe Object do
-      describe "a key/value pair" do
-        it "should output correctly" do
-          run_binary(%(<person>Fred</person>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"person":"Fred"}\n)
-          end
+      it "a key/value pair" do
+        run_binary(%(<person>Fred</person>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"person":"Fred"}\n)
         end
       end
 
@@ -226,82 +253,94 @@ describe OQ::Converters::XML do
         end
       end
 
-      describe "with whitespace" do
-        it "should output correctly" do
-          run_binary(WITH_WHITESPACE, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"item":{"flagID":"0","itemID":"0","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"}}\n)
-          end
+      it "with whitespace" do
+        run_binary(WITH_WHITESPACE, args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"item":{"flagID":"0","itemID":"0","locationID":"0","ownerID":"0","quantity":"-1","typeID":"0"}}\n)
         end
       end
 
-      describe "with the prolog" do
-        it "should output correctly" do
-          run_binary(%(<?xml version="1.0" encoding="utf-8"?><item><typeID>0</typeID></item>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"item":{"typeID":"0"}}\n)
-          end
+      it "with the prolog" do
+        run_binary(%(<?xml version="1.0" encoding="utf-8"?><item><typeID>0</typeID></item>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"item":{"typeID":"0"}}\n)
         end
       end
 
-      describe "a simple object" do
-        it "should output correctly" do
-          run_binary(%(<person><firstname>Jane</firstname><lastname>Doe</lastname></person>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"person":{"firstname":"Jane","lastname":"Doe"}}\n)
-          end
+      it "a simple object" do
+        run_binary(%(<person><firstname>Jane</firstname><lastname>Doe</lastname></person>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"person":{"firstname":"Jane","lastname":"Doe"}}\n)
         end
       end
 
-      describe "attributes" do
-        it "should output correctly" do
-          run_binary(%(<person id="1" foo="bar"><firstname>Jane</firstname><lastname>Doe</lastname></person>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"person":{"@id":"1","@foo":"bar","firstname":"Jane","lastname":"Doe"}}\n)
-          end
+      it "attributes" do
+        run_binary(%(<person id="1" foo="bar"><firstname>Jane</firstname><lastname>Doe</lastname></person>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"person":{"@id":"1","@foo":"bar","firstname":"Jane","lastname":"Doe"}}\n)
         end
       end
 
-      describe "nested objects" do
-        it "should output correctly" do
-          run_binary(%(<person><firstname>Jane</firstname><lastname>Doe</lastname><location><zip>15061</zip><address>123 Foo Street</address></location></person>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"person":{"firstname":"Jane","lastname":"Doe","location":{"zip":"15061","address":"123 Foo Street"}}}\n)
-          end
+      it "nested objects" do
+        run_binary(%(<person><firstname>Jane</firstname><lastname>Doe</lastname><location><zip>15061</zip><address>123 Foo Street</address></location></person>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"person":{"firstname":"Jane","lastname":"Doe","location":{"zip":"15061","address":"123 Foo Street"}}}\n)
         end
       end
 
-      describe "complex object" do
-        it "should output correctly" do
-          run_binary(%(<root><x a="1"><a>2</a></x><y b="3">4</y></root>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"root":{"x":{"@a":"1","a":"2"},"y":{"@b":"3","#text":"4"}}}\n)
-          end
+      it "complex object" do
+        run_binary(%(<root><x a="1"><a>2</a></x><y b="3">4</y></root>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"root":{"x":{"@a":"1","a":"2"},"y":{"@b":"3","#text":"4"}}}\n)
         end
       end
 
-      describe "with mixed content" do
-        it "with a single #text node" do
-          run_binary(%(<root>x<y>z</y></root>), args: ["-i", "xml", "-c", ".root"]) do |output|
-            output.should eq %({"#text":"x","y":"z"}\n)
-          end
+      it "with mixed content" do
+        run_binary(%(<root>x<y>z</y></root>), args: ["-i", "xml", "-c", ".root"]) do |output|
+          output.should eq %({"#text":"x","y":"z"}\n)
         end
       end
 
-      describe "with an inline array" do
-        it "should output correctly" do
-          run_binary(XML_INLINE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"article":{"@key":"tr/ibm/RJ2144","author":["E. F. Codd","Robert S. Arnold","Jean-Marc Cadiou","Chin-Liang Chang","Nick Roussopoulos"],"title":"RENDEZVOUS Version 1: An Experimental English Language Query Formulation System for Casual Users of Relational Data Bases.","journal":"IBM Research Report","volume":"RJ2144","month":"January","year":"1978","ee":"db/labs/ibm/RJ2144.html","cdrom":"ibmTR/rj2144.pdf"}}\n)
-          end
+      it "with an inline array" do
+        run_binary(XML_INLINE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"article":{"@key":"tr/ibm/RJ2144","author":["E. F. Codd","Robert S. Arnold","Jean-Marc Cadiou","Chin-Liang Chang","Nick Roussopoulos"],"title":"RENDEZVOUS Version 1: An Experimental English Language Query Formulation System for Casual Users of Relational Data Bases.","journal":"IBM Research Report","volume":"RJ2144","month":"January","year":"1978","ee":"db/labs/ibm/RJ2144.html","cdrom":"ibmTR/rj2144.pdf"}}\n)
         end
       end
 
-      describe "with a doctype" do
-        it "should output correctly" do
-          run_binary(XML_DOCTYPE, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"dblp":{"mastersthesis":{"@key":"ms/Brown92","author":"Kurt P. Brown","title":"PRPL: A Database Workload Specification Language, v1.3.","year":"1992","school":"Univ. of Wisconsin-Madison"}}}\n)
-          end
+      it "with a doctype" do
+        run_binary(XML_DOCTYPE, args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"dblp":{"mastersthesis":{"@key":"ms/Brown92","author":"Kurt P. Brown","title":"PRPL: A Database Workload Specification Language, v1.3.","year":"1992","school":"Univ. of Wisconsin-Madison"}}}\n)
         end
       end
 
-      describe "with CDATA" do
-        it "should output correctly" do
-          run_binary(XML_CDATA, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"desc":"<message>Some Description</message>"}\n)
+      it "with CDATA" do
+        run_binary(XML_CDATA, args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"desc":"<message>Some Description</message>"}\n)
+        end
+      end
+
+      it "with a prefixed key" do
+        run_binary(%(<?xml version="1.0"?><a:foo>bar</a:foo>), args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"a:foo":"bar"}\n)
+        end
+      end
+
+      describe "with namespaces" do
+        it "retains prefixes but strips namespace declarations of a prefixed namespace" do
+          run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="http://www.w3.org/1999/xhtml">bar</a:foo>), args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"a:foo":"bar"}\n)
+          end
+        end
+
+        it "does not add pefix if none was already present but strips namespace declarations" do
+          run_binary(%(<?xml version="1.0"?><foo xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:a="http://www.w3.org/1999/xhtml">bar</foo>), args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"foo":"bar"}\n)
+          end
+        end
+
+        it "treats prefixed & unprefixed elements as unique elements" do
+          run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"root":{"a:foo":"herp","foo":{"bar":{"baz":null}}}}\n)
+          end
+        end
+
+        it "retains prefixes of scalar value elements" do
+          run_binary(XML_NAMESPACE_PREFIXES, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"root":{"foo":"foo","a:bar":"bar"}}\n)
           end
         end
       end
@@ -354,6 +393,14 @@ describe OQ::Converters::XML do
         it "should output correctly" do
           run_binary(XML_ATTRIBUTE_IN_ARRAY_ROOT_ELEMENT, args: ["-i", "xml", "-c", "."]) do |output|
             output.should eq %({"dblp":{"mastersthesis":[{"@key":"ms/Brown92","author":"Kurt P. Brown"},{"@key":"ms/Yurek97","author":"Tolga Yurek"}]}}\n)
+          end
+        end
+      end
+
+      describe "with namespaces" do
+        it "treats prefixed & unprefixed elements as unique elements" do
+          run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"items":{"n:number":["1","2"],"number":"3"}}\n)
           end
         end
       end
@@ -604,132 +651,128 @@ describe OQ::Converters::XML do
         end
       end
 
-      describe "object value mixed/nested array values" do
-        it "should emit correctly" do
-          run_binary(%({"x":[1,[2,[3]]]}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <x>1</x>
-                <x>
-                  <item>2</item>
-                  <item>
-                    <item>3</item>
-                  </item>
-                </x>
-              </root>\n
-              XML
-            )
-          end
+      it "object value mixed/nested array values" do
+        run_binary(%({"x":[1,[2,[3]]]}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <x>1</x>
+              <x>
+                <item>2</item>
+                <item>
+                  <item>3</item>
+                </item>
+              </x>
+            </root>\n
+            XML
+          )
         end
       end
 
-      describe "object value array primitive values" do
-        it "should emit correctly" do
-          run_binary(%({"x":[1,2,3]}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <x>1</x>
-                <x>2</x>
-                <x>3</x>
-              </root>\n
-              XML
-            )
-          end
+      it "object value array primitive values" do
+        run_binary(%({"x":[1,2,3]}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <x>1</x>
+              <x>2</x>
+              <x>3</x>
+            </root>\n
+            XML
+          )
         end
       end
     end
 
     describe Object do
-      describe "simple key/value" do
-        it "should output correctly" do
-          run_binary(%({"name":"Jim"}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <name>Jim</name>
-              </root>\n
-              XML
-            )
-          end
+      it "simple key/value" do
+        run_binary(%({"name":"Jim"}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <name>Jim</name>
+            </root>\n
+            XML
+          )
         end
       end
 
-      describe "nested object" do
-        it "should output correctly" do
-          run_binary(%({"name":"Jim", "city": {"street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <name>Jim</name>
-                <city>
-                  <street>forbs</street>
-                </city>
-              </root>\n
-              XML
-            )
-          end
+      it "nested object" do
+        run_binary(%({"name":"Jim", "city": {"street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <name>Jim</name>
+              <city>
+                <street>forbs</street>
+              </city>
+            </root>\n
+            XML
+          )
         end
       end
 
-      describe "with an attribute" do
-        it "should output correctly" do
-          run_binary(%({"name":"Jim", "city": {"@street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <name>Jim</name>
-                <city street="forbs"/>
-              </root>\n
-              XML
-            )
-          end
+      it "with an attribute" do
+        run_binary(%({"name":"Jim", "city": {"@street":"forbs"}}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <name>Jim</name>
+              <city street="forbs"/>
+            </root>\n
+            XML
+          )
         end
       end
 
-      describe "with an attribute and #text" do
-        it "should output correctly" do
-          run_binary(%({"name":"Jim", "city": {"@street":"forbs", "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <name>Jim</name>
-                <city street="forbs">Atlantic</city>
-              </root>\n
-              XML
-            )
-          end
+      it "with an attribute and #text" do
+        run_binary(%({"name":"Jim", "city": {"@street":"forbs", "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <name>Jim</name>
+              <city street="forbs">Atlantic</city>
+            </root>\n
+            XML
+          )
         end
       end
 
-      describe "with attributes" do
-        it "should output correctly" do
-          run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123}}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <name>Jim</name>
-                <city street="forbs" post="123"/>
-              </root>\n
-              XML
-            )
-          end
+      it "with attributes" do
+        run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123}}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <name>Jim</name>
+              <city street="forbs" post="123"/>
+            </root>\n
+            XML
+          )
         end
       end
 
-      describe "with attributes and #text" do
-        it "should output correctly" do
-          run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123, "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
-            output.should eq(<<-XML
-              <?xml version="1.0" encoding="UTF-8"?>
-              <root>
-                <name>Jim</name>
-                <city street="forbs" post="123">Atlantic</city>
-              </root>\n
-              XML
-            )
-          end
+      it "with attributes and #text" do
+        run_binary(%({"name":"Jim", "city": {"@street":"forbs", "@post": 123, "#text": "Atlantic"}}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <name>Jim</name>
+              <city street="forbs" post="123">Atlantic</city>
+            </root>\n
+            XML
+          )
+        end
+      end
+
+      it "with a prefixed key" do
+        run_binary(%({"foo:name":"Jim"}), args: ["-o", "xml", "."]) do |output|
+          output.should eq(<<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <root>
+              <foo:name>Jim</foo:name>
+            </root>\n
+            XML
+          )
         end
       end
     end
