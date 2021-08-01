@@ -20,6 +20,15 @@ XML_SCALAR_ARRAY = <<-XML
 </items>
 XML
 
+XML_SCALAR_ARRAY_WITH_ATTRIBUTE = <<-XML
+<?xml version="1.0" encoding="utf-8"?>
+<items>
+  <number>1</number>
+  <number>2</number>
+  <number foo="bar">3</number>
+</items>
+XML
+
 XML_CDATA = <<-XML
 <desc><![CDATA[<message>Some Description</message>]]></desc>
 XML
@@ -98,15 +107,6 @@ XML_INLINE_ARRAY_WITHIN_ARRAY = <<-XML
 </articles>
 XML
 
-XML_NAMESPACE_ARRAY = <<-XML
-<?xml version="1.0" encoding="utf-8"?>
-<items xmlns:n="http://n">
-  <n:number>1</n:number>
-  <n:number>2</n:number>
-  <number xmlns="http://default">3</number>
-</items>
-XML
-
 XML_DOCTYPE = <<-XML
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!DOCTYPE dblp SYSTEM "dblp.dtd">
@@ -153,6 +153,24 @@ XML_ALL_EMPTY = <<-XML
   <three/>
   <four></four>
 </root>
+XML
+
+XML_NAMESPACE_ARRAY = <<-XML
+<?xml version="1.0" encoding="utf-8"?>
+<items xmlns:n="http://n">
+  <n:number>1</n:number>
+  <n:number>2</n:number>
+  <number xmlns="http://default">3</number>
+</items>
+XML
+
+XML_NAMESPACE_ARRAY_SCALAR_VALUE_PREFIX = <<-XML
+<?xml version="1.0" encoding="utf-8"?>
+<items xmlns:n="http://n">
+  <n:number>1</n:number>
+  <n:number>2</n:number>
+  <n:number xmlns="http://default">3</n:number>
+</items>
 XML
 
 XML_NAMESPACE_PREFIXES = <<-XML
@@ -321,38 +339,70 @@ describe OQ::Converters::XML do
       end
 
       describe "with namespaces" do
-        it "retains prefixes but strips namespace declarations of a prefixed namespace" do
-          run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="http://www.w3.org/1999/xhtml">bar</a:foo>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"a:foo":"bar"}\n)
+        describe "without --xmlns" do
+          it "retains prefixes but strips namespace declarations of a prefixed namespace" do
+            run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="http://www.w3.org/1999/xhtml">bar</a:foo>), args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"a:foo":"bar"}\n)
+            end
+          end
+
+          it "does not add pefix if none was already present but strips namespace declarations" do
+            run_binary(%(<?xml version="1.0"?><foo xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:a="http://www.w3.org/1999/xhtml">bar</foo>), args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"foo":"bar"}\n)
+            end
+          end
+
+          it "adds namespace attribute properties only to declaring element and handles differentiating prefixed elements" do
+            run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"root":{"a:foo":"herp","foo":{"bar":{"baz":null}}}}\n)
+            end
+          end
+
+          it "retains prefixes of scalar value elements" do
+            run_binary(XML_NAMESPACE_PREFIXES, args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"root":{"foo":"foo","a:bar":"bar"}}\n)
+            end
           end
         end
 
-        it "does not add pefix if none was already present but strips namespace declarations" do
-          run_binary(%(<?xml version="1.0"?><foo xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:a="http://www.w3.org/1999/xhtml">bar</foo>), args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"foo":"bar"}\n)
+        describe "with --xmlns" do
+          it "creates a namespace attribute property" do
+            run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="http://www.w3.org/1999/xhtml">bar</a:foo>), args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
+              output.should eq %({"a:foo":{"@xmlns:a":"http://www.w3.org/1999/xhtml","#text":"bar"}}\n)
+            end
           end
-        end
 
-        it "treats prefixed & unprefixed elements as unique elements" do
-          run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"root":{"a:foo":"herp","foo":{"bar":{"baz":null}}}}\n)
+          it "does not add pefix if none was already present and creates multiple namespace attribute properties" do
+            run_binary(%(<?xml version="1.0"?><foo xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:a="http://www.w3.org/1999/xhtml">bar</foo>), args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
+              output.should eq %({"foo":{"@xmlns":"urn:oasis:names:tc:SAML:2.0:metadata","@xmlns:a":"http://www.w3.org/1999/xhtml","#text":"bar"}}\n)
+            end
           end
-        end
 
-        it "retains prefixes of scalar value elements" do
-          run_binary(XML_NAMESPACE_PREFIXES, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"root":{"foo":"foo","a:bar":"bar"}}\n)
+          it "treats prefixed & unprefixed elements as unique elements" do
+            run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
+              output.should eq %({"root":{"@xmlns:a":"https://a","@xmlns":"https://b","a:foo":"herp","foo":{"bar":{"@xmlns":"https://c","baz":{"@xmlns":"https://d"}}}}}\n)
+            end
+          end
+
+          it "retains prefixes of scalar value elements and adds a namespace attribute property" do
+            run_binary(XML_NAMESPACE_PREFIXES, args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
+              output.should eq %({"root":{"@xmlns:a":"https://a","foo":"foo","a:bar":"bar"}}\n)
+            end
           end
         end
       end
     end
 
     describe Array do
-      describe "of scalar values" do
-        it "should output correctly" do
-          run_binary(XML_SCALAR_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"items":{"number":["1","2","3"]}}\n)
-          end
+      it "of scalar values" do
+        run_binary(XML_SCALAR_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"items":{"number":["1","2","3"]}}\n)
+        end
+      end
+
+      it "of scalar values with attribute" do
+        run_binary(XML_SCALAR_ARRAY_WITH_ATTRIBUTE, args: ["-i", "xml", "-c", "."]) do |output|
+          output.should eq %({"items":{"number":["1","2",{"@foo":"bar","#text":"3"}]}}\n)
         end
       end
 
@@ -399,9 +449,31 @@ describe OQ::Converters::XML do
       end
 
       describe "with namespaces" do
-        it "treats prefixed & unprefixed elements as unique elements" do
-          run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
-            output.should eq %({"items":{"n:number":["1","2"],"number":"3"}}\n)
+        describe "without --xmlns" do
+          it "treats prefixed & unprefixed elements as unique elements" do
+            run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"items":{"n:number":["1","2"],"number":"3"}}\n)
+            end
+          end
+
+          it "ignores the namespace declaration" do
+            run_binary(XML_NAMESPACE_ARRAY_SCALAR_VALUE_PREFIX, args: ["-i", "xml", "-c", "."]) do |output|
+              output.should eq %({"items":{"n:number":["1","2","3"]}}\n)
+            end
+          end
+        end
+
+        describe "with --xmlns" do
+          it "treats prefixed & unprefixed elements as unique elements, adding namespace attribute property as needed" do
+            run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
+              output.should eq %({"items":{"@xmlns:n":"http://n","n:number":["1","2"],"number":{"@xmlns":"http://default","#text":"3"}}}\n)
+            end
+          end
+
+          it "expands the scalar value to include a namespace attribute property" do
+            run_binary(XML_NAMESPACE_ARRAY_SCALAR_VALUE_PREFIX, args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
+              output.should eq %({"items":{"@xmlns:n":"http://n","n:number":["1","2",{"@xmlns":"http://default","#text":"3"}]}}\n)
+            end
           end
         end
       end

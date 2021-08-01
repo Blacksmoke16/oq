@@ -41,9 +41,8 @@ module OQ::Converters::XML
   end
 
   private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
-    # If the node doesn't have nested elements nor attributes nor a namespace; just emit a scalar value
-    # TODO: Make checking for namespaces the default behavior in oq 2.x
-    if (!has_nested_elements(node) && node.attributes.empty?) && ((self.processor.xmlns? && node.namespace_definitions.empty?) || !self.processor.xmlns?)
+    # If the node doesn't have nested elements nor attributes nor a namespace (with --xmlns); just emit a scalar value
+    if self.is_scalar_node? node
       return builder.field self.normalize_node_name(node), get_node_value node
     end
 
@@ -59,8 +58,8 @@ module OQ::Converters::XML
     builder.field name do
       builder.array do
         children.each do |node|
-          # If the node doesn't have nested elements nor attributes; just emit a scalar value
-          if !has_nested_elements(node) && node.attributes.empty?
+          # If the node doesn't have nested elements nor attributes nor a namespace (with --xmlns); just emit a scalar value
+          if self.is_scalar_node? node
             builder.scalar get_node_value node
           else
             # Otherwise process the node within an object
@@ -91,7 +90,7 @@ module OQ::Converters::XML
     # Determine how to process a node's children
     node.children.group_by(&->normalize_node_name(::XML::Node)).each do |name, children|
       # Skip non significant whitespace; Skip mixed character input
-      if children.first.text? && has_nested_elements(node)
+      if children.first.text? && has_nested_elements?(node)
         # Only emit text content if there is only one child
         if children.size == 1
           builder.field "#text", children.first.content
@@ -115,8 +114,13 @@ module OQ::Converters::XML
     end
   end
 
-  private def self.has_nested_elements(node : ::XML::Node) : Bool
+  private def self.has_nested_elements?(node : ::XML::Node) : Bool
     node.children.any? { |child| !child.text? && !child.cdata? }
+  end
+
+  # TODO: Make checking for namespaces the default behavior in oq 2.x
+  private def self.is_scalar_node?(node : ::XML::Node) : Bool
+    !self.has_nested_elements?(node) && node.attributes.empty? && ((self.processor.xmlns? && node.namespace_definitions.empty?) || !self.processor.xmlns?)
   end
 
   private def self.get_node_value(node : ::XML::Node) : String?
