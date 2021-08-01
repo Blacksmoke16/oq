@@ -25,7 +25,7 @@ module OQ::Converters::XML
   private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes; just emit a scalar value
     if !has_nested_elements(node) && node.attributes.empty?
-      return builder.field node.name, get_node_value node
+      return builder.field self.normalize_node_name(node), get_node_value node
     end
 
     # Otherwise process the node as a key/value pair
