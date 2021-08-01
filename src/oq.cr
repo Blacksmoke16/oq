@@ -84,6 +84,8 @@ module OQ
     # If a tab for each indentation level instead of spaces.
     property tab : Bool
 
+    property? xmlns : Bool
+
     # The args that'll be passed to `jq`.
     @args : Array(String) = [] of String
 
@@ -94,7 +96,8 @@ module OQ
       @xml_prolog : Bool = true,
       @xml_item : String = "item",
       @indent : Int32 = 2,
-      @tab : Bool = false
+      @tab : Bool = false,
+      @xmlns : Bool = false
     )
     end
 
@@ -141,7 +144,7 @@ module OQ
         input_args.replace(input_args.map do |file_name|
           File.tempfile ".#{File.basename file_name}" do |tmp_file|
             File.open file_name do |file|
-              @input_format.converter.deserialize file, tmp_file
+              @input_format.converter.deserialize file, tmp_file, xmlns: @xmlns
             end
           end
             .tap { |tf| @tmp_files << tf }
@@ -153,7 +156,7 @@ module OQ
       end
 
       spawn do
-        @input_format.converter.deserialize input, input_write
+        @input_format.converter.deserialize input, input_write, xmlns: @xmlns
         input_write.close
         channel.send true
       rescue ex

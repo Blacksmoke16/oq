@@ -1,8 +1,25 @@
+class ::XML::Node
+  def namespace_definitions : Array(Namespace)
+    namespaces = [] of Namespace
+
+    return namespaces unless (ns = @node.value.ns_def)
+
+    while ns
+      namespaces << Namespace.new(document, ns)
+      ns = ns.value.next
+    end
+
+    namespaces
+  end
+end
+
 # Converter for the `OQ::Format::XML` format.
 module OQ::Converters::XML
   def self.deserialize(input : IO, output : IO, **args) : Nil
     builder = ::JSON::Builder.new output
     xml = ::XML::Reader.new input
+
+    xmlns = self.parse_deserialize_args args
 
     # Set reader to first element
     xml.read
@@ -17,26 +34,27 @@ module OQ::Converters::XML
           xml.read
         end
 
-        process_element_node xml.expand, builder
+        process_element_node xml.expand, builder, xmlns: xmlns
       end
     end
   end
 
-  private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
-    # If the node doesn't have nested elements nor attributes; just emit a scalar value
-    if !has_nested_elements(node) && node.attributes.empty?
+  private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder, *, xmlns : Bool) : Nil
+    # If the node doesn't have nested elements nor attributes nor a namespace; just emit a scalar value
+    # TODO: Make checking for namespaces the default behavior in oq 2.x
+    if (!has_nested_elements(node) && node.attributes.empty?) || (xmlns && node.namespace_definitions.empty?)
       return builder.field self.normalize_node_name(node), get_node_value node
     end
 
     # Otherwise process the node as a key/value pair
     builder.field self.normalize_node_name node do
       builder.object do
-        process_children node, builder
+        process_children node, builder, xmlns: xmlns
       end
     end
   end
 
-  private def self.process_array_node(name : String, children : Array(::XML::Node), builder : ::JSON::Builder) : Nil
+  private def self.process_array_node(name : String, children : Array(::XML::Node), builder : ::JSON::Builder, *, xmlns : Bool) : Nil
     builder.field name do
       builder.array do
         children.each do |node|
@@ -46,7 +64,7 @@ module OQ::Converters::XML
           else
             # Otherwise process the node within an object
             builder.object do
-              process_children node, builder
+              process_children node, builder, xmlns: xmlns
             end
           end
         end
@@ -54,10 +72,19 @@ module OQ::Converters::XML
     end
   end
 
-  private def self.process_children(node : ::XML::Node, builder : ::JSON::Builder) : Nil
+  private def self.process_children(node : ::XML::Node, builder : ::JSON::Builder, *, xmlns : Bool) : Nil
     # Process node attributes
     node.attributes.each do |attr|
       builder.field "@#{attr.name}", attr.content
+    end
+
+    # Include attributes for namespaces defined on this node
+    # TODO: Make this the default behavior in oq 2.x
+    if xmlns
+      node.namespace_definitions.each do |ns|
+        key = ns.prefix ? "xmlns:#{ns.prefix}" : "xmlns"
+        builder.field "@#{key}", ns.href
+      end
     end
 
     # Determine how to process a node's children
@@ -74,14 +101,14 @@ module OQ::Converters::XML
 
       # Array
       if children.size > 1
-        process_array_node name, children, builder
+        process_array_node name, children, builder, xmlns: xmlns
       else
         if children.first.text?
           # node content in attribute object
           builder.field "#text", children.first.content
         else
           # Element
-          process_element_node children.first, builder
+          process_element_node children.first, builder, xmlns: xmlns
         end
       end
     end
@@ -99,10 +126,14 @@ module OQ::Converters::XML
     (namespace = node.namespace) && (prefix = namespace.prefix.presence) ? "#{prefix}:#{node.name}" : node.name
   end
 
+  private def self.parse_deserialize_args(args : NamedTuple) : Bool
+    args["xmlns"]
+  end
+
   def self.serialize(input : IO, output : IO, **args) : Nil
     json = ::JSON::PullParser.new input
     builder = ::XML::Builder.new output
-    indent, prolog, root, xml_item = self.parse_args(args)
+    indent, prolog, root, xml_item = self.parse_serialize_args args
 
     builder.indent = indent
 
@@ -119,7 +150,7 @@ module OQ::Converters::XML
     builder.flush unless prolog
   end
 
-  private def self.parse_args(args : NamedTuple) : Tuple(String, Bool, String, String)
+  private def self.parse_serialize_args(args : NamedTuple) : Tuple(String, Bool, String, String)
     {
       args["indent"],
       args["xml_prolog"],
