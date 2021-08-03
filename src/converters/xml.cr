@@ -82,8 +82,7 @@ module OQ::Converters::XML
     # TODO: Make this the default behavior in oq 2.x
     if self.processor.xmlns?
       node.namespace_definitions.each do |ns|
-        key = ns.prefix ? "xmlns:#{ns.prefix}" : "xmlns"
-        builder.field "@#{key}", ns.href
+        builder.field "@#{self.normalize_namespace_prefix ns}", ns.href
       end
     end
 
@@ -128,7 +127,12 @@ module OQ::Converters::XML
   end
 
   private def self.normalize_node_name(node : ::XML::Node) : String
-    (namespace = node.namespace) && (prefix = namespace.prefix.presence) ? "#{prefix}:#{node.name}" : node.name
+    return node.name unless (namespace = node.namespace)
+    (prefix = (self.processor.xml_namespaces[namespace.href]? || namespace.prefix).presence) ? "#{prefix}:#{node.name}" : node.name
+  end
+
+  private def self.normalize_namespace_prefix(namespace : ::XML::Namespace) : String
+    (prefix = (self.processor.xml_namespaces[namespace.href]? || namespace.prefix).presence) ? "xmlns:#{prefix}" : "xmlns"
   end
 
   def self.serialize(input : IO, output : IO) : Nil

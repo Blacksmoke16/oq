@@ -85,6 +85,8 @@ module OQ
 
     property? xmlns : Bool
 
+    protected getter xml_namespaces = Hash(String, String).new
+
     # The args that'll be passed to `jq`.
     @args : Array(String) = [] of String
 
@@ -103,6 +105,10 @@ module OQ
     # Adds the provided *value* to the internal args array.
     def add_arg(value : String) : Nil
       @args << value
+    end
+
+    def add_xml_namespace(prefix : String, href : String) : Nil
+      @xml_namespaces[href] = prefix
     end
 
     # Keep a reference to the created temp files in order to delete them later.
