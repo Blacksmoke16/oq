@@ -133,6 +133,10 @@ module OQ
       # Extract `jq` arguments from `ARGV`.
       self.extract_args input_args, output
 
+      # The --namespace-alias option must be used with the --xmlns option.
+      # TODO: Remove this in oq 2.x
+      raise ArgumentError.new "The `--namespace-alias` option must be used with the `--xmlns` option." if !@xmlns && !@xml_namespaces.empty?
+
       # Replace the *input* with a fake `ARGF` `IO` to handle both file and `IO` inputs
       # in case `ARGV` is not being used for the input arguments.
       input = IO::ARGF.new input_args, input

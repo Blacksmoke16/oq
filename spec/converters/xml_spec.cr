@@ -362,6 +362,14 @@ describe OQ::Converters::XML do
               output.should eq %({"root":{"foo":"foo","a:bar":"bar"}}\n)
             end
           end
+
+          describe "with --namespace-alias" do
+            it "should error" do
+              run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="https://a-namespace">bar</a:foo>), args: ["-i", "xml", "-c", "--namespace-alias", "aa=https://a-namespace", "."], success: false) do |_, _, error|
+                error.should start_with "oq error:"
+              end
+            end
+          end
         end
 
         describe "with --xmlns" do
