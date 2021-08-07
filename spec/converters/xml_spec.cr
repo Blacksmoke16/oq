@@ -388,6 +388,26 @@ describe OQ::Converters::XML do
               output.should eq %({"root":{"@xmlns:a":"https://a","foo":"foo","a:bar":"bar"}}\n)
             end
           end
+
+          describe "with --namespace-alias" do
+            it "normalizes the provided namespace" do
+              run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="https://a-namespace">bar</a:foo>), args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "aa=https://a-namespace", "."]) do |output|
+                output.should eq %({"aa:foo":{"@xmlns:aa":"https://a-namespace","#text":"bar"}}\n)
+              end
+            end
+
+            it "normalizes the default namespace" do
+              run_binary(%(<?xml version="1.0"?><foo xmlns="https://a-namespace">bar</foo>), args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "aa=https://a-namespace", "."]) do |output|
+                output.should eq %({"aa:foo":{"@xmlns:aa":"https://a-namespace","#text":"bar"}}\n)
+              end
+            end
+
+            it "normalizes multiple namespaces" do
+              run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "=https://a", "--namespace-alias", "bb=https://b", "."]) do |output|
+                output.should eq %({"bb:root":{"@xmlns":"https://a","@xmlns:bb":"https://b","foo":"herp","bb:foo":{"bar":{"@xmlns":"https://c","baz":{"@xmlns":"https://d"}}}}}\n)
+              end
+            end
+          end
         end
       end
     end
@@ -472,6 +492,20 @@ describe OQ::Converters::XML do
           it "expands the scalar value to include a namespace attribute property" do
             run_binary(XML_NAMESPACE_ARRAY_SCALAR_VALUE_PREFIX, args: ["-i", "xml", "-c", "--xmlns", "."]) do |output|
               output.should eq %({"items":{"@xmlns:n":"http://n","n:number":["1","2",{"@xmlns":"http://default","#text":"3"}]}}\n)
+            end
+          end
+
+          describe "with --namespace-alias" do
+            it do
+              run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "num=http://n", "."]) do |output|
+                output.should eq %({"items":{"@xmlns:num":"http://n","num:number":["1","2"],"number":{"@xmlns":"http://default","#text":"3"}}}\n)
+              end
+            end
+
+            it do
+              run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "=http://n", "--namespace-alias", "d=http://default", "."]) do |output|
+                output.should eq %({"items":{"@xmlns":"http://n","number":["1","2"],"d:number":{"@xmlns:d":"http://default","#text":"3"}}}\n)
+              end
             end
           end
         end
