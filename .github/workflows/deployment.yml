@@ -30,8 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: snapcore/action-build@v1
-        with:
-          snapcraft-channel: candidate # Crystal plugin fix was released as part of 5.0.0 which isn't in stable yet
       - uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}
