@@ -15,9 +15,7 @@ jobs:
     - name: Update Libs
       run: apk add --update --upgrade --no-cache --force-overwrite libxml2-dev yaml-dev yaml-static
     - name: Build
-      run: |
-        shards build --production --release --static --no-debug
-        strip ./bin/oq
+      run: shards build --production --release --static --no-debug --link-flags="-s -Wl,-z,relro,-z,now"
     - name: Upload
       uses: actions/upload-release-asset@v1.0.1
       env:
@@ -27,6 +25,17 @@ jobs:
         asset_path: ./bin/oq
         asset_name: oq-${{ github.event.release.tag_name }}-linux-x86_64
         asset_content_type: binary/octet-stream
+  dist_snap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: snapcore/action-build@v1
+        id: build
+      - uses: snapcore/action-publish@v1
+        with:
+          store_login: ${{ secrets.STORE_LOGIN }}
+          snap: ${{ steps.build.outputs.snap }}
+          release: stable
   deploy_docs:
     runs-on: ubuntu-latest
     container:

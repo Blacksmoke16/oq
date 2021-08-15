@@ -4,6 +4,11 @@ summary: A performant, and portable jq wrapper to support formats other than JSO
 description: |
   A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 
+contact: george@dietrich.app
+issues: https://github.com/Blacksmoke16/oq/issues
+website: https://github.com/Blacksmoke16/oq
+license: MIT
+
 grade: stable
 confinement: strict
 base: core18
@@ -19,7 +24,9 @@ parts:
   oq:
     plugin: crystal
     crystal-build-options:
-      - '--release'
+      - --release
+      - --no-debug
+      - '--link-flags=-s -Wl,-z,relro,-z,now'
     source: ./
     stage-packages:
       - jq
