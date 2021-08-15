@@ -31,14 +31,13 @@ module OQ
     end
 
     # Maps a given format to its converter.
-    def converter
-      {% begin %}
-        case self
-          {% for format in @type.constants %}
-            in .{{format.underscore.downcase.id}}? then OQ::Converters::{{format.id}}
-          {% end %}
-        end
-      {% end %}
+    def converter(processor : OQ::Processor)
+      case self
+      in .json?        then OQ::Converters::JSON
+      in .simple_yaml? then OQ::Converters::SimpleYAML
+      in .xml?         then OQ::Converters::XML
+      in .yaml?        then OQ::Converters::YAML
+      end.tap { |converter| converter.processor = processor if converter.is_a? OQ::Converters::ProcessorAware }
     end
   end
 
@@ -84,6 +83,13 @@ module OQ
     # If a tab for each indentation level instead of spaces.
     property tab : Bool
 
+    # If XML namespaces should be parsed as well.
+    # TODO: Remove this in oq 2.0 as it'll becomethe default.
+    property? xmlns : Bool
+
+    # Mapping to namespace aliases to their related namespace.
+    protected getter xml_namespaces = Hash(String, String).new
+
     # The args that'll be passed to `jq`.
     @args : Array(String) = [] of String
 
@@ -94,13 +100,18 @@ module OQ
       @xml_prolog : Bool = true,
       @xml_item : String = "item",
       @indent : Int32 = 2,
-      @tab : Bool = false
+      @tab : Bool = false,
+      @xmlns : Bool = false
     )
     end
 
     # Adds the provided *value* to the internal args array.
     def add_arg(value : String) : Nil
       @args << value
+    end
+
+    def add_xml_namespace(prefix : String, href : String) : Nil
+      @xml_namespaces[href] = prefix
     end
 
     # Keep a reference to the created temp files in order to delete them later.
@@ -125,6 +136,10 @@ module OQ
       # Extract `jq` arguments from `ARGV`.
       self.extract_args input_args, output
 
+      # The --namespace-alias option must be used with the --xmlns option.
+      # TODO: Remove this in oq 2.x
+      raise ArgumentError.new "The `--namespace-alias` option must be used with the `--xmlns` option." if !@xmlns && !@xml_namespaces.empty?
+
       # Replace the *input* with a fake `ARGF` `IO` to handle both file and `IO` inputs
       # in case `ARGV` is not being used for the input arguments.
       input = IO::ARGF.new input_args, input
@@ -141,7 +156,7 @@ module OQ
         input_args.replace(input_args.map do |file_name|
           File.tempfile ".#{File.basename file_name}" do |tmp_file|
             File.open file_name do |file|
-              @input_format.converter.deserialize file, tmp_file
+              @input_format.converter(self).deserialize file, tmp_file
             end
           end
             .tap { |tf| @tmp_files << tf }
@@ -153,7 +168,7 @@ module OQ
       end
 
       spawn do
-        @input_format.converter.deserialize input, input_write
+        @input_format.converter(self).deserialize input, input_write
         input_write.close
         channel.send true
       rescue ex
@@ -163,14 +178,7 @@ module OQ
 
       spawn do
         output_write.close
-        @output_format.converter.serialize(
-          output_read,
-          output,
-          indent: ((@tab ? "\t" : " ")*@indent),
-          xml_root: @xml_root,
-          xml_prolog: @xml_prolog,
-          xml_item: @xml_item
-        )
+        @output_format.converter(self).serialize output_read, output
         channel.send true
       rescue ex
         channel.send ex

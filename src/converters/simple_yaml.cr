@@ -6,7 +6,7 @@ module OQ::Converters::SimpleYAML
   extend self
 
   # ameba:disable Metrics/CyclomaticComplexity
-  def deserialize(input : IO, output : IO, **args) : Nil
+  def deserialize(input : IO, output : IO) : Nil
     yaml = ::YAML::PullParser.new(input)
     json = ::JSON::Builder.new(output)
 
