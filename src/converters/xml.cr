@@ -139,9 +139,9 @@ module OQ::Converters::XML
     json = ::JSON::PullParser.new input
     builder = ::XML::Builder.new output
 
-    builder.indent = ((self.processor.tab ? "\t" : " ")*self.processor.indent)
+    builder.indent = ((self.processor.tab? ? "\t" : " ")*self.processor.indent)
 
-    builder.start_document "1.0", "UTF-8" if self.processor.xml_prolog
+    builder.start_document "1.0", "UTF-8" if self.processor.xml_prolog?
 
     if root = self.processor.xml_root.presence
       builder.start_element root
@@ -156,8 +156,8 @@ module OQ::Converters::XML
       builder.end_element
     end
 
-    builder.end_document if self.processor.xml_prolog
-    builder.flush unless self.processor.xml_prolog
+    builder.end_document if self.processor.xml_prolog?
+    builder.flush unless self.processor.xml_prolog?
   end
 
   private def self.emit(builder : ::XML::Builder, json : ::JSON::PullParser, key : String? = nil, array_key : String? = nil) : Nil

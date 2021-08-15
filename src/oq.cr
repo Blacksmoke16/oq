@@ -72,7 +72,7 @@ module OQ
     property xml_root : String
 
     # If the XML prolog should be emitted.
-    property xml_prolog : Bool
+    property? xml_prolog : Bool
 
     # The name for XML array elements without keys.
     property xml_item : String
@@ -81,7 +81,7 @@ module OQ
     property indent : Int32
 
     # If a tab for each indentation level instead of spaces.
-    property tab : Bool
+    property? tab : Bool
 
     # If XML namespaces should be parsed as well.
     # TODO: Remove this in oq 2.0 as it'll becomethe default.
@@ -103,6 +103,16 @@ module OQ
       @tab : Bool = false,
       @xmlns : Bool = false
     )
+    end
+
+    @[Deprecated("Use `Processor#tab?` instead.")]
+    def tab : Bool
+      self.tab?
+    end
+
+    @[Deprecated("Use `Processor#xml_prolog?` instead.")]
+    def xml_prolog : Bool
+      self.xml_prolog?
     end
 
     # Adds the provided *value* to the internal args array.
