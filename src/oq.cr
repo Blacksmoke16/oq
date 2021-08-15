@@ -83,8 +83,11 @@ module OQ
     # If a tab for each indentation level instead of spaces.
     property tab : Bool
 
+    # If XML namespaces should be parsed as well.
+    # TODO: Remove this in oq 2.0 as it'll becomethe default.
     property? xmlns : Bool
 
+    # Mapping to namespace aliases to their related namespace.
     protected getter xml_namespaces = Hash(String, String).new
 
     # The args that'll be passed to `jq`.
