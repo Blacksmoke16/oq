@@ -31,7 +31,8 @@ OptionParser.parse do |parser|
   parser.on("--no-prolog", "Whether the XML prolog should be emitted if converting to XML.") { processor.xml_prolog = false }
   parser.on("--xml-item NAME", "The name for XML array elements without keys.") { |i| processor.xml_item = i }
   parser.on("--xmlns", "If XML namespaces should be parsed.  NOTE: This will become the default in oq 2.x.") { processor.xmlns = true }
-  parser.on("--namespace-alias NS", "Value should be in the form of: `key=namespace`. Elements within the provided namespace are normalized to the provided key.  NOTE: Requires the `--xmlns` option to be passed as well.") { |ns| k, v = ns.split('=', 2); processor.add_xml_namespace k, v }
+  parser.on("--xml-force-array NAME", "Forces an element with the provided name to be parsed as an array even if it only contains one item.") { |n| processor.add_forced_array n }
+  parser.on("--xml-namespace-alias ALIAS", "Value should be in the form of: `key=namespace`. Elements within the provided namespace are normalized to the provided key.  NOTE: Requires the `--xmlns` option to be passed as well.") { |a| k, v = a.split('=', 2); processor.add_xml_namespace k, v }
   parser.on("--xml-root ROOT", "Name of the root XML element if converting to XML.") { |r| processor.xml_root = r }
   parser.invalid_option { }
 end

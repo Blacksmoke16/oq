@@ -363,9 +363,9 @@ describe OQ::Converters::XML do
             end
           end
 
-          describe "with --namespace-alias" do
+          describe "with --xml-namespace-alias" do
             it "should error" do
-              run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="https://a-namespace">bar</a:foo>), args: ["-i", "xml", "-c", "--namespace-alias", "aa=https://a-namespace", "."], success: false) do |_, _, error|
+              run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="https://a-namespace">bar</a:foo>), args: ["-i", "xml", "-c", "--xml-namespace-alias", "aa=https://a-namespace", "."], success: false) do |_, _, error|
                 error.should start_with "oq error:"
               end
             end
@@ -397,21 +397,21 @@ describe OQ::Converters::XML do
             end
           end
 
-          describe "with --namespace-alias" do
+          describe "with --xml-namespace-alias" do
             it "normalizes the provided namespace" do
-              run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="https://a-namespace">bar</a:foo>), args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "aa=https://a-namespace", "."]) do |output|
+              run_binary(%(<?xml version="1.0"?><a:foo xmlns:a="https://a-namespace">bar</a:foo>), args: ["-i", "xml", "-c", "--xmlns", "--xml-namespace-alias", "aa=https://a-namespace", "."]) do |output|
                 output.should eq %({"aa:foo":{"@xmlns:aa":"https://a-namespace","#text":"bar"}}\n)
               end
             end
 
             it "normalizes the default namespace" do
-              run_binary(%(<?xml version="1.0"?><foo xmlns="https://a-namespace">bar</foo>), args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "aa=https://a-namespace", "."]) do |output|
+              run_binary(%(<?xml version="1.0"?><foo xmlns="https://a-namespace">bar</foo>), args: ["-i", "xml", "-c", "--xmlns", "--xml-namespace-alias", "aa=https://a-namespace", "."]) do |output|
                 output.should eq %({"aa:foo":{"@xmlns:aa":"https://a-namespace","#text":"bar"}}\n)
               end
             end
 
             it "normalizes multiple namespaces" do
-              run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "=https://a", "--namespace-alias", "bb=https://b", "."]) do |output|
+              run_binary(XML_NESTED_NAMESPACES, args: ["-i", "xml", "-c", "--xmlns", "--xml-namespace-alias", "=https://a", "--xml-namespace-alias", "bb=https://b", "."]) do |output|
                 output.should eq %({"bb:root":{"@xmlns":"https://a","@xmlns:bb":"https://b","foo":"herp","bb:foo":{"bar":{"@xmlns":"https://c","baz":{"@xmlns":"https://d"}}}}}\n)
               end
             end
@@ -503,17 +503,51 @@ describe OQ::Converters::XML do
             end
           end
 
-          describe "with --namespace-alias" do
+          describe "with --xml-namespace-alias" do
             it do
-              run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "num=http://n", "."]) do |output|
+              run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "--xml-namespace-alias", "num=http://n", "."]) do |output|
                 output.should eq %({"items":{"@xmlns:num":"http://n","num:number":["1","2"],"number":{"@xmlns":"http://default","#text":"3"}}}\n)
               end
             end
 
             it do
-              run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "--namespace-alias", "=http://n", "--namespace-alias", "d=http://default", "."]) do |output|
+              run_binary(XML_NAMESPACE_ARRAY, args: ["-i", "xml", "-c", "--xmlns", "--xml-namespace-alias", "=http://n", "--xml-namespace-alias", "d=http://default", "."]) do |output|
                 output.should eq %({"items":{"@xmlns":"http://n","number":["1","2"],"d:number":{"@xmlns:d":"http://default","#text":"3"}}}\n)
               end
+            end
+          end
+        end
+      end
+
+      describe "with a single element" do
+        it "without --xml-force-array" do
+          run_binary(%(<foo><item/></foo>), args: ["-i", "xml", "-c", "."]) do |output|
+            output.should eq %({"foo":{"item":null}}\n)
+          end
+        end
+
+        describe "with --xml-force-array" do
+          it "force parses it as an array" do
+            run_binary(%(<foo><item/></foo>), args: ["-i", "xml", "--xml-force-array", "item", "-c", "."]) do |output|
+              output.should eq %({"foo":{"item":[null]}}\n)
+            end
+          end
+
+          it "with an attribute" do
+            run_binary(%(<foo><item id="1"/></foo>), args: ["-i", "xml", "--xml-force-array", "item", "-c", "."]) do |output|
+              output.should eq %({"foo":{"item":[{"@id":"1"}]}}\n)
+            end
+          end
+
+          it "with a namespace" do
+            run_binary(%(<foo><item xmlns="https://ns"/></foo>), args: ["-i", "xml", "--xmlns", "--xml-force-array", "item", "-c", "."]) do |output|
+              output.should eq %({"foo":{"item":[{"@xmlns":"https://ns"}]}}\n)
+            end
+          end
+
+          it "with an aliased namespace" do
+            run_binary(%(<foo><i:item xmlns:i="https://ns"/></foo>), args: ["-i", "xml", "--xmlns", "--xml-force-array", "item:item", "--xml-namespace-alias", "item=https://ns", "-c", "."]) do |output|
+              output.should eq %({"foo":{"item:item":[{"@xmlns:item":"https://ns"}]}}\n)
             end
           end
         end

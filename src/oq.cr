@@ -90,8 +90,14 @@ module OQ
     # Mapping to namespace aliases to their related namespace.
     protected getter xml_namespaces = Hash(String, String).new
 
+    # Set of elements who should be force expanded to an array.
+    protected getter xml_forced_arrays = Set(String).new
+
     # The args that'll be passed to `jq`.
     @args : Array(String) = [] of String
+
+    # Keep a reference to the created temp files in order to delete them later.
+    @tmp_files = Set(File).new
 
     def initialize(
       @input_format : Format = Format::JSON,
@@ -124,8 +130,9 @@ module OQ
       @xml_namespaces[href] = prefix
     end
 
-    # Keep a reference to the created temp files in order to delete them later.
-    @tmp_files = Set(File).new
+    def add_forced_array(name : String) : Nil
+      xml_forced_arrays << name
+    end
 
     # Consumes `#input_format` data from the provided *input* `IO`, along with any *input_args*.
     # The data is then converted to `JSON`, passed to `jq`, and then converted to `#output_format` while being written to the *output* `IO`.
@@ -146,9 +153,9 @@ module OQ
       # Extract `jq` arguments from `ARGV`.
       self.extract_args input_args, output
 
-      # The --namespace-alias option must be used with the --xmlns option.
+      # The --xml-namespace-alias option must be used with the --xmlns option.
       # TODO: Remove this in oq 2.x
-      raise ArgumentError.new "The `--namespace-alias` option must be used with the `--xmlns` option." if !@xmlns && !@xml_namespaces.empty?
+      raise ArgumentError.new "The `--xml-namespace-alias` option must be used with the `--xmlns` option." if !@xmlns && !@xml_namespaces.empty?
 
       # Replace the *input* with a fake `ARGF` `IO` to handle both file and `IO` inputs
       # in case `ARGV` is not being used for the input arguments.

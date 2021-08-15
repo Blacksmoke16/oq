@@ -99,7 +99,7 @@ module OQ::Converters::XML
       end
 
       # Array
-      if children.size > 1
+      if children.size > 1 || self.processor.xml_forced_arrays.includes? name
         process_array_node name, children, builder
       else
         if children.first.text?
