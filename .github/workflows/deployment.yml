@@ -30,6 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: snapcore/action-build@v1
+        id: build
       - uses: snapcore/action-publish@v1
         with:
           store_login: ${{ secrets.STORE_LOGIN }}
