@@ -1,19 +1,3 @@
-# TODO: Remove this after https://github.com/crystal-lang/crystal/issues/11037 is released.
-class ::XML::Node
-  def namespace_definitions : Array(Namespace)
-    namespaces = [] of Namespace
-
-    return namespaces unless (ns = @node.value.ns_def)
-
-    while ns
-      namespaces << Namespace.new(document, ns)
-      ns = ns.value.next
-    end
-
-    namespaces
-  end
-end
-
 # Converter for the `OQ::Format::XML` format.
 module OQ::Converters::XML
   extend OQ::Converters::ProcessorAware

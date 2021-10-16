@@ -8,18 +8,7 @@ module OQ::Converters::YAML
 
   # ameba:disable Metrics/CyclomaticComplexity
   def serialize(input : IO, output : IO) : Nil
-    # TODO: Remove this in favor of the .eof? check after
-    # https://github.com/crystal-lang/crystal/pull/10864 is released.
-    begin
-      json = ::JSON::PullParser.new input
-    rescue ex : ::JSON::ParseException
-      if (message = ex.message) && (message.includes? "Unexpected token: <EOF>")
-        return
-      end
-
-      raise ex
-    end
-
+    json = ::JSON::PullParser.new input
     yaml = ::YAML::Builder.new output
 
     # Return early is there is no JSON to be read.
