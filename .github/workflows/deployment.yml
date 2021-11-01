@@ -50,18 +50,15 @@ jobs:
           formulae: oq
   deploy_docs:
     runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:latest-alpine
     steps:
-      - name: Install Build Dependencies
-        run: apk add --update rsync
       - uses: actions/checkout@v2
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
       - name: Build
         run: crystal docs
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.7.1
+        uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: docs
-          SINGLE_COMMIT: true
+          branch: gh-pages
+          folder: docs
+          single-commit: true
