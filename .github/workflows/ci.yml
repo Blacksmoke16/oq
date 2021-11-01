@@ -43,8 +43,6 @@ jobs:
         uses: crystal-lang/install-crystal@v1
         with:
           crystal: ${{ matrix.crystal }}
-      - name: Install jq
-        run: apk add --update jq
       - name: Build
         run: shards build --production
       - name: Specs
