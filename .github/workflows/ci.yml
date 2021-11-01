@@ -26,27 +26,24 @@ jobs:
         run: shards install
       - name: Ameba
         run: ./bin/ameba
-  test_latest:
-    runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:latest-alpine
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        crystal:
+          - latest
+          - nightly
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: apk add --update jq
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
       - name: Build
         run: shards build --production
       - name: Specs
-        run: crystal spec --order random --error-on-warnings
-  test_nightly:
-    runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:nightly-alpine
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: apk add --update jq
-      - name: Build
-        run: shards build --production
-      - name: Specs
-        run: crystal spec --order random --error-on-warnings
+        run: crystal spec --order=random --error-on-warnings
