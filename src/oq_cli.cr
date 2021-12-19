@@ -28,6 +28,7 @@ OptionParser.parse do |parser|
   parser.on("-o FORMAT", "--output FORMAT", "Format of the output data. Supported formats: #{OQ::Format}") { |format| (f = OQ::Format.parse?(format)) ? processor.output_format = f : abort "Invalid output format: '#{format}'" }
   parser.on("--indent NUMBER", "Use the given number of spaces for indentation (JSON/XML only).") { |n| processor.indent = n.to_i; processor.add_arg "--indent"; processor.add_arg n }
   parser.on("--tab", "Use a tab for each indentation level instead of two spaces.") { processor.tab = true; processor.add_arg "--tab" }
+  parser.on("-n", "--null-input", "Don't read any input at all, running the filter once using `null` as the input.") { processor.null = true; processor.add_arg "--null-input" }
   parser.on("--no-prolog", "Whether the XML prolog should be emitted if converting to XML.") { processor.xml_prolog = false }
   parser.on("--xml-item NAME", "The name for XML array elements without keys.") { |i| processor.xml_item = i }
   parser.on("--xmlns", "If XML namespaces should be parsed.  NOTE: This will become the default in oq 2.x.") { processor.xmlns = true }

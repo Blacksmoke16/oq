@@ -83,6 +83,9 @@ module OQ
     # If a tab for each indentation level instead of spaces.
     property? tab : Bool
 
+    # Do not read any input, using `null` as the singular input value.
+    property? null : Bool
+
     # If XML namespaces should be parsed as well.
     # TODO: Remove this in oq 2.0 as it'll becomethe default.
     property? xmlns : Bool
@@ -107,6 +110,7 @@ module OQ
       @xml_item : String = "item",
       @indent : Int32 = 2,
       @tab : Bool = false,
+      @null : Bool = false,
       @xmlns : Bool = false
     )
     end
@@ -157,9 +161,10 @@ module OQ
       # TODO: Remove this in oq 2.x
       raise ArgumentError.new "The `--xml-namespace-alias` option must be used with the `--xmlns` option." if !@xmlns && !@xml_namespaces.empty?
 
-      # Replace the *input* with a fake `ARGF` `IO` to handle both file and `IO` inputs
-      # in case `ARGV` is not being used for the input arguments.
-      input = IO::ARGF.new input_args, input
+      # Replace the *input* with a fake `ARGF` `IO` to handle both file and `IO` inputs in case `ARGV` is not being used for the input arguments.
+      #
+      # If using `null` input, set the input to an empty memory `IO` to essentially consume nothing.
+      input = @null ? IO::Memory.new : IO::ARGF.new input_args, input
 
       input_read, input_write = IO.pipe
       output_read, output_write = IO.pipe

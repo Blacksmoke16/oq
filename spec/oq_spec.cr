@@ -135,21 +135,27 @@ describe OQ do
           output.should eq "0\n"
         end
       end
+    end
 
-      describe "with a JSON object string" do
-        it "should return the correct output" do
-          run_binary(args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
-            output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
-          end
+    describe "with a JSON object string" do
+      it "should return the correct output" do
+        run_binary(args: ["-cn", %([{"foo":"bar"},{"foo":"baz"}])]) do |output|
+          output.should eq %([{"foo":"bar"},{"foo":"baz"}]\n)
         end
       end
+    end
 
-      describe "with input from STDIN" do
-        it "should return the correct output" do
-          run_binary(input: "foo", args: ["-n", "."]) do |output|
-            output.should eq "null\n"
-          end
+    describe "with input from STDIN" do
+      it "should return the correct output" do
+        run_binary(input: "foo", args: ["-n", "."]) do |output|
+          output.should eq "null\n"
         end
+      end
+    end
+
+    it "should not block waiting for input" do
+      run_binary(input: Process::Redirect::Inherit, args: ["-n", "."]) do |output|
+        output.should eq "null\n"
       end
     end
   end
