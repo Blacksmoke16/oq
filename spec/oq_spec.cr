@@ -185,9 +185,15 @@ describe OQ do
   end
 
   describe "with the -L option" do
-    it "should be passed correctly" do
-      run_binary(input: SIMPLE_JSON_OBJECT, args: ["-L", "'/home/'", "."]) do |output|
-        output.should eq %({\n  "name": "Jim"\n}\n)
+    it "should be passed correctly without a space" do
+      run_binary(args: ["-n", "-L#{__DIR__}/assets", %(import "test" as test; 9 | test::increment)]) do |output|
+        output.should eq %(10\n)
+      end
+    end
+
+    it "should be passed correctly with a space" do
+      run_binary(args: ["-n", "-L", "#{__DIR__}/assets", %(import "test" as test; 9 | test::increment)]) do |output|
+        output.should eq %(10\n)
       end
     end
   end

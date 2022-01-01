@@ -17,9 +17,9 @@ def run_binary(input : String | Process::Redirect | Nil = nil, name : String = "
   status = Process.run(name, args, output: buffer_io, input: input_io, error: error_io)
 
   if success
-    status.success?.should be_true, file: file, line: line
+    status.success?.should be_true, file: file, line: line, failure_message: error_io.to_s
   else
-    status.success?.should_not be_true, file: file, line: line
+    status.success?.should_not be_true, file: file, line: line, failure_message: error_io.to_s
   end
 
   yield buffer_io.to_s, status, error_io.to_s
