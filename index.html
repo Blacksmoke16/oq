@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.1.1">
+<meta name="crystal_docs.project_version" content="1.3.2">
+<meta name="crystal_docs.project_name" content="oq">
+
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+  <meta name="repository-name" content="oq">
+  <title>oq 1.3.2</title>
+  <script type="text/javascript">
+  CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          oq
+        </a>
+      </h1>
+
+      <span class="project-version">
+        1.3.2
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent " data-id="oq/OQ" data-name="oq">
+      <a href="OQ.html">OQ</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="oq/OQ/Converters" data-name="oq::converters">
+      <a href="OQ/Converters.html">Converters</a>
+      
+        <ul>
+  
+  <li class=" " data-id="oq/OQ/Converters/JSON" data-name="oq::converters::json">
+      <a href="OQ/Converters/JSON.html">JSON</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/SimpleYAML" data-name="oq::converters::simpleyaml">
+      <a href="OQ/Converters/SimpleYAML.html">SimpleYAML</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/XML" data-name="oq::converters::xml">
+      <a href="OQ/Converters/XML.html">XML</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/YAML" data-name="oq::converters::yaml">
+      <a href="OQ/Converters/YAML.html">YAML</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Format" data-name="oq::format">
+      <a href="OQ/Format.html">Format</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Processor" data-name="oq::processor">
+      <a href="OQ/Processor.html">Processor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1><a id="oq" class="anchor" href="#oq">  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>oq</h1>
+<p><a href="https://crystal-lang.org/"><img src="https://img.shields.io/badge/built%20with-crystal-000000.svg?logo=crystal" alt="Built with Crystal" /></a>
+<a href="https://github.com/blacksmoke16/oq/actions?query=workflow:CI"><img src="https://github.com/blacksmoke16/oq/workflows/CI/badge.svg" alt="CI" /></a>
+<a href="https://github.com/blacksmoke16/oq/releases"><img src="https://img.shields.io/github/release/blacksmoke16/oq.svg?color=teal&amp;logo=github" alt="Latest release" /></a>
+<a href="https://snapcraft.io/oq"><img src="https://snapcraft.io/oq/badge.svg" alt="oq" /></a>
+<a href="https://aur.archlinux.org/packages/oq/"><img src="https://img.shields.io/aur/version/oq?label=oq&amp;logo=arch-linux" alt="oq" /></a>
+<a href="https://aur.archlinux.org/packages/oq-bin/"><img src="https://img.shields.io/aur/version/oq-bin?label=oq-bin&amp;logo=arch-linux" alt="oq-bin" /></a></p>
+<p>A performant, portable <a href="https://github.com/stedolan/jq/">jq</a> wrapper thats facilitates the consumption and output of formats other than JSON; using <code>jq</code> filters to transform the data.</p>
+<ul>
+<li>Compiles to a single binary for easy portability.</li>
+<li>Performant, similar performance with JSON data compared to <code>jq</code>.  Slightly longer execution time when going to/from a non-JSON format.</li>
+<li>Supports various other input/output <a href="https://blacksmoke16.github.io/oq/OQ/Format.html">formats</a>, such as <code>XML</code> and <code>YAML</code>.</li>
+<li>Can be used as a dependency within other Crystal projects.</li>
+</ul>
+<h2><a id="installation" class="anchor" href="#installation">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Installation</h2>
+<h3><a id="linux" class="anchor" href="#linux">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Linux</h3>
+<p>A statically linked binary for Linux <code>x86_64</code> as available on the <a href="https://github.com/Blacksmoke16/oq/releases">Releases</a> tab.  Additionally it can also be installed via various package managers.</p>
+<h4><a id="snap" class="anchor" href="#snap">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Snap</h4>
+<p>For more on installing &amp; using <code>snap</code> with your Linux distribution, see the <a href="https://docs.snapcraft.io/installing-snapd">official documentation</a>.</p>
+<pre><code class="language-sh">sudo snap install oq</code></pre>
+<h4><a id="arch" class="anchor" href="#arch">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Arch</h4>
+<p>Using <a href="https://github.com/Jguer/yay">yay</a>:</p>
+<pre><code class="language-sh">yay -S oq</code></pre>
+<p>A pre-compiled version is also available:</p>
+<pre><code class="language-sh">yay -S oq-bin</code></pre>
+<h3><a id="mac-os" class="anchor" href="#mac-os">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>MacOS</h3>
+<pre><code class="language-sh">brew install oq</code></pre>
+<h3><a id="from-source" class="anchor" href="#from-source">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>From Source</h3>
+<p>If building from source, <code>jq</code> will need to be installed separately. Installation instructions can be found in the <a href="https://stedolan.github.io/jq/">official documentation</a>.</p>
+<p>Requires Crystal to be installed, see the <a href="https://crystal-lang.org/install">installation documentation</a>.</p>
+<pre><code class="language-sh">git clone https://github.com/Blacksmoke16/oq.git
+cd oq/
+shards build --production --release</code></pre>
+<p>The built binary will be available as <code>./bin/oq</code>.  This can be relocated elsewhere on your machine; be sure it is in your <code>PATH</code> to access it as <code>oq</code>.</p>
+<h3><a id="docker" class="anchor" href="#docker">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Docker</h3>
+<p><code>oq</code> can easily be included into a Docker image by fetching the static binary from Github for the version of <code>oq</code> that you want.</p>
+<pre><code class="language-dockerfile"># Set an arg to store the oq version that should be installed.
+ARG OQ_VERSION=1.3.2
+
+# Grab the binary from the latest Github release and make it executable; placing it within /usr/local/bin.  Can also put it elsewhere if you so desire.
+RUN wget https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-v${OQ_VERSION}-linux-x86_64 -O /usr/local/bin/oq &amp;&amp; chmod +x /usr/local/bin/oq
+
+# Or using curl (needs to follow Github's redirect):
+RUN curl -L -o /usr/local/bin/oq https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-v${OQ_VERSION}-linux-x86_64 &amp;&amp; chmod +x /usr/local/bin/oq
+
+# Also be sure to install jq if it is not already!</code></pre>
+<h3><a id="existing-crystal-project" class="anchor" href="#existing-crystal-project">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Existing Crystal Project</h3>
+<p>Add the following to your <code>shard.yml</code> and run <code>shards install</code>.</p>
+<pre><code class="language-yaml">dependencies:
+  oq:
+    github: blacksmoke16/oq
+    version: ~&gt; 1.3.0</code></pre>
+<h2><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage</h2>
+<h3><a id="cli" class="anchor" href="#cli">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>CLI</h3>
+<p>Use the <code>oq</code> binary, with a few optional custom arguments, see <code>oq --help</code>.  All other arguments get passed to <code>jq</code>. See <a href="https://stedolan.github.io/jq/manual/">jq manual</a> for details.</p>
+<h3><a id="library" class="anchor" href="#library">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Library</h3>
+<p>Checkout the <a href="https://blacksmoke16.github.io/oq/OQ/Processor.html">API Documentation</a> for using <code>oq</code> within an existing Crystal project.</p>
+<h3><a id="examples" class="anchor" href="#examples">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Examples</h3>
+<p>Consume JSON and output XML</p>
+<pre><code class="language-sh">$ echo '{&quot;name&quot;: &quot;Jim&quot;}' | oq -o xml .
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;root&gt;
+  &lt;name&gt;Jim&lt;/name&gt;
+&lt;/root&gt;</code></pre>
+<p>Consume YAML from a file and output XML</p>
+<p>data.yaml</p>
+<pre><code class="language-yaml">---
+name: Jim
+numbers:
+  - 1
+  - 2
+  - 3</code></pre>
+<pre><code class="language-sh">$ oq -i yaml -o xml . data.yaml 
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;root&gt;
+  &lt;name&gt;Jim&lt;/name&gt;
+  &lt;numbers&gt;1&lt;/numbers&gt;
+  &lt;numbers&gt;2&lt;/numbers&gt;
+  &lt;numbers&gt;3&lt;/numbers&gt;
+&lt;/root&gt;</code></pre>
+<p>Use <code>oq</code> as a library, consuming some raw <code>JSON</code> input, convert it to <code>YAML</code>, and write the transformed data to a file.</p>
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;oq&quot;</span>
+
+<span class="c"># This could be any `IO`, e.g. an `HTTP` request body, etc.</span>
+input_io <span class="o">=</span> <span class="t">IO</span><span class="t">::</span><span class="t">Memory</span>.<span class="k">new</span> <span class="s">%({&quot;name&quot;:&quot;Jim&quot;})</span>
+
+<span class="c"># Create a processor, specifying that we want the output format to be `YAML`.</span>
+processor <span class="o">=</span> <span class="t">OQ</span><span class="t">::</span><span class="t">Processor</span>.<span class="k">new</span> output_format: <span class="n">:yaml</span>
+
+<span class="t">File</span>.open(<span class="s">&quot;./out.yml&quot;</span>, <span class="s">&quot;w&quot;</span>) <span class="k">do</span> <span class="o">|</span>file<span class="o">|</span>
+  <span class="c"># Process the data using our custom input and output IOs.</span>
+  <span class="c"># The first argument represents the input arguments;</span>
+  <span class="c"># i.g. the filter and/or any other arguments that should be passed to `jq`.</span>
+  processor.process [<span class="s">&quot;.&quot;</span>], input: input_io, output: file
+<span class="k">end</span></code></pre>
+<h2><a id="contributing" class="anchor" href="#contributing">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributing</h2>
+<ol>
+<li>Fork it (<a href="https://github.com/Blacksmoke16/oq/fork">https://github.com/Blacksmoke16/oq/fork</a>)</li>
+<li>Create your feature branch (<code>git checkout -b my-new-feature</code>)</li>
+<li>Commit your changes (<code>git commit -am 'Add some feature'</code>)</li>
+<li>Push to the branch (<code>git push origin my-new-feature</code>)</li>
+<li>Create a new Pull Request</li>
+</ol>
+<h2><a id="contributors" class="anchor" href="#contributors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributors</h2>
+<ul>
+<li><a href="https://github.com/Blacksmoke16">George Dietrich</a> - creator, maintainer</li>
+<li><a href="https://github.com/sprngr">Michael Springer</a> - contributor</li>
+</ul>
+</div>
+</body>
+</html>

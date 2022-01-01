@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.1.1">
+<meta name="crystal_docs.project_version" content="1.3.2">
+<meta name="crystal_docs.project_name" content="oq">
+
+
+
+<link href="../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../js/doc.js"></script>
+
+  <meta name="repository-name" content="oq">
+  <title>OQ::Format - oq 1.3.2</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../index.html">
+          oq
+        </a>
+      </h1>
+
+      <span class="project-version">
+        1.3.2
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="oq/OQ" data-name="oq">
+      <a href="../OQ.html">OQ</a>
+      
+        <ul>
+  
+  <li class="parent " data-id="oq/OQ/Converters" data-name="oq::converters">
+      <a href="../OQ/Converters.html">Converters</a>
+      
+        <ul>
+  
+  <li class=" " data-id="oq/OQ/Converters/JSON" data-name="oq::converters::json">
+      <a href="../OQ/Converters/JSON.html">JSON</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/SimpleYAML" data-name="oq::converters::simpleyaml">
+      <a href="../OQ/Converters/SimpleYAML.html">SimpleYAML</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/XML" data-name="oq::converters::xml">
+      <a href="../OQ/Converters/XML.html">XML</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/YAML" data-name="oq::converters::yaml">
+      <a href="../OQ/Converters/YAML.html">YAML</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" current" data-id="oq/OQ/Format" data-name="oq::format">
+      <a href="../OQ/Format.html">Format</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Processor" data-name="oq::processor">
+      <a href="../OQ/Processor.html">Processor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">enum</span> OQ::Format
+
+</h1>
+
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>The support formats that can be converted to/from.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L12" target="_blank">
+        oq.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+  
+    <h2>
+      <a id="enum-members" class="anchor" href="#enum-members">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+      Enum Members
+    </h2>
+  
+  <dl>
+    
+      <dt class="entry-const" id="JSON">
+        <strong>JSON</strong> = <code><span class="n">0</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The <a href="https://www.json.org/">JSON</a> format.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="SimpleYAML">
+        <strong>SimpleYAML</strong> = <code><span class="n">1</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>Same as <code><a href="../OQ/Format.html#YAML">YAML</a></code>, but does not support <a href="https://yaml.org/spec/1.2/spec.html#id2765878">anchors or aliases</a>;
+thus allowing for the input conversion to be streamed, reducing the memory usage for large inputs.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="XML">
+        <strong>XML</strong> = <code><span class="n">2</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The <a href="https://en.wikipedia.org/wiki/XML">XML</a> format.</p>
+<p><span class="flag purple">NOTE</span>  Conversion to and from <code><a href="../OQ/Format.html#JSON">JSON</a></code> uses <a href="https://www.xml.com/pub/a/2006/05/31/converting-between-xml-and-json.html">this</a> spec.</p>
+      </dd>
+      
+    
+      <dt class="entry-const" id="YAML">
+        <strong>YAML</strong> = <code><span class="n">3</span></code>
+      </dt>
+      
+      <dd class="entry-const-doc">
+        <p>The <a href="https://yaml.org/">YAML</a> format.</p>
+      </dd>
+      
+    
+  </dl>
+
+
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#to_s%28io%3AIO%29%3ANil-class-method" class="signature"><strong>.to_s</strong>(io : IO) : Nil</a>
+        
+          <div class="summary"><p>Returns the list of supported formats.</p></div>
+        
+      </li>
+    
+  </ul>
+
+
+
+  <h2>
+    <a id="instance-method-summary" class="anchor" href="#instance-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#converter%28processor%3AOQ%3A%3AProcessor%29-instance-method" class="signature"><strong>#converter</strong>(processor : OQ::Processor)</a>
+        
+          <div class="summary"><p>Maps a given format to its converter.</p></div>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#json%3F-instance-method" class="signature"><strong>#json?</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#simple_yaml%3F-instance-method" class="signature"><strong>#simple_yaml?</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#xml%3F-instance-method" class="signature"><strong>#xml?</strong></a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#yaml%3F-instance-method" class="signature"><strong>#yaml?</strong></a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+<div class="methods-inherited">
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+    
+
+
+    
+
+
+    
+
+
+  
+</div>
+
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="to_s(io:IO):Nil-class-method">
+      <div class="signature">
+        
+        def self.<strong>to_s</strong>(io : IO) : Nil
+
+        <a class="method-permalink" href="#to_s%28io%3AIO%29%3ANil-class-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Returns the list of supported formats.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L29" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+  <h2>
+    <a id="instance-method-detail" class="anchor" href="#instance-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Instance Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="converter(processor:OQ::Processor)-instance-method">
+      <div class="signature">
+        
+        def <strong>converter</strong>(processor : <a href="../OQ/Processor.html">OQ::Processor</a>)
+
+        <a class="method-permalink" href="#converter%28processor%3AOQ%3A%3AProcessor%29-instance-method">#</a>
+      </div>
+      
+        <div class="doc">
+          
+          <p>Maps a given format to its converter.</p>
+        </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L34" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="json?-instance-method">
+      <div class="signature">
+        
+        def <strong>json?</strong>
+
+        <a class="method-permalink" href="#json%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L14" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="simple_yaml?-instance-method">
+      <div class="signature">
+        
+        def <strong>simple_yaml?</strong>
+
+        <a class="method-permalink" href="#simple_yaml%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L18" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="xml?-instance-method">
+      <div class="signature">
+        
+        def <strong>xml?</strong>
+
+        <a class="method-permalink" href="#xml%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L23" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="yaml?-instance-method">
+      <div class="signature">
+        
+        def <strong>yaml?</strong>
+
+        <a class="method-permalink" href="#yaml%3F-instance-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/oq.cr#L26" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+</div>
+
+</body>
+</html>

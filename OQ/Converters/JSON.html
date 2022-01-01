@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 1.1.1">
+<meta name="crystal_docs.project_version" content="1.3.2">
+<meta name="crystal_docs.project_name" content="oq">
+
+
+
+<link href="../../css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/doc.js"></script>
+
+  <meta name="repository-name" content="oq">
+  <title>OQ::Converters::JSON - oq 1.3.2</title>
+  <script type="text/javascript">
+    CrystalDocs.base_path = "../../";
+  </script>
+</head>
+<body>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="../../index.html">
+          oq
+        </a>
+      </h1>
+
+      <span class="project-version">
+        1.3.2
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent open current" data-id="oq/OQ" data-name="oq">
+      <a href="../../OQ.html">OQ</a>
+      
+        <ul>
+  
+  <li class="parent open current" data-id="oq/OQ/Converters" data-name="oq::converters">
+      <a href="../../OQ/Converters.html">Converters</a>
+      
+        <ul>
+  
+  <li class=" current" data-id="oq/OQ/Converters/JSON" data-name="oq::converters::json">
+      <a href="../../OQ/Converters/JSON.html">JSON</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/SimpleYAML" data-name="oq::converters::simpleyaml">
+      <a href="../../OQ/Converters/SimpleYAML.html">SimpleYAML</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/XML" data-name="oq::converters::xml">
+      <a href="../../OQ/Converters/XML.html">XML</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Converters/YAML" data-name="oq::converters::yaml">
+      <a href="../../OQ/Converters/YAML.html">YAML</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Format" data-name="oq::format">
+      <a href="../../OQ/Format.html">Format</a>
+      
+    </li>
+  
+  <li class=" " data-id="oq/OQ/Processor" data-name="oq::processor">
+      <a href="../../OQ/Processor.html">Processor</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1 class="type-name">
+
+  <span class="kind">module</span> OQ::Converters::JSON
+
+</h1>
+
+
+
+
+
+  <h2>
+    <a id="overview" class="anchor" href="#overview">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Overview
+  </h2>
+
+  <p>Converter for the <code><a href="../../OQ/Format.html#JSON">OQ::Format::JSON</a></code> format.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <h2>
+    <a id="defined-in" class="anchor" href="#defined-in">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Defined in:
+  </h2>
+  
+    
+      <a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/converters/json.cr#L2" target="_blank">
+        converters/json.cr
+      </a>
+    
+    <br/>
+  
+
+
+
+
+
+
+
+  <h2>
+    <a id="class-method-summary" class="anchor" href="#class-method-summary">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Summary
+  </h2>
+  <ul class="list-summary">
+    
+      <li class="entry-summary">
+        <a href="#deserialize%28input%3AIO%2Coutput%3AIO%29%3ANil-class-method" class="signature"><strong>.deserialize</strong>(input : IO, output : IO) : Nil</a>
+        
+      </li>
+    
+      <li class="entry-summary">
+        <a href="#serialize%28input%3AIO%2Coutput%3AIO%29%3ANil-class-method" class="signature"><strong>.serialize</strong>(input : IO, output : IO) : Nil</a>
+        
+      </li>
+    
+  </ul>
+
+
+
+
+
+
+
+<div class="methods-inherited">
+  
+</div>
+
+
+
+
+  <h2>
+    <a id="class-method-detail" class="anchor" href="#class-method-detail">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>
+    Class Method Detail
+  </h2>
+  
+    <div class="entry-detail" id="deserialize(input:IO,output:IO):Nil-class-method">
+      <div class="signature">
+        
+        def self.<strong>deserialize</strong>(input : IO, output : IO) : Nil
+
+        <a class="method-permalink" href="#deserialize%28input%3AIO%2Coutput%3AIO%29%3ANil-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/converters/json.cr#L3" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+    <div class="entry-detail" id="serialize(input:IO,output:IO):Nil-class-method">
+      <div class="signature">
+        
+        def self.<strong>serialize</strong>(input : IO, output : IO) : Nil
+
+        <a class="method-permalink" href="#serialize%28input%3AIO%2Coutput%3AIO%29%3ANil-class-method">#</a>
+      </div>
+      
+      <br/>
+      <div>
+        
+          [<a href="https://github.com/Blacksmoke16/oq/blob/v1.3.2/src/converters/json.cr#L7" target="_blank">View source</a>]
+        
+      </div>
+    </div>
+  
+
+
+
+
+
+
+</div>
+
+</body>
+</html>
