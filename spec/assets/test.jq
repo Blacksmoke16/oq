@@ -1,0 +1,1 @@
+def increment: . + 1;
