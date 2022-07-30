@@ -20,7 +20,7 @@ A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facil
 
 A statically linked binary for Linux `x86_64` as available on the [Releases](https://github.com/Blacksmoke16/oq/releases) tab.  Additionally it can also be installed via various package managers.
 
-#### Snap
+#### Snapcraft
 
 For more on installing & using `snap` with your Linux distribution, see the [official documentation](https://docs.snapcraft.io/installing-snapd).
 
@@ -28,7 +28,7 @@ For more on installing & using `snap` with your Linux distribution, see the [off
 sudo snap install oq
 ```
 
-#### Arch
+#### Arch Linux
 
 Using [yay](https://github.com/Jguer/yay):
 
@@ -42,7 +42,7 @@ A pre-compiled version is also available:
 yay -S oq-bin
 ```
 
-### MacOS
+### macOS
 
 ```sh
 brew install oq
@@ -150,7 +150,7 @@ processor = OQ::Processor.new output_format: :yaml
 File.open("./out.yml", "w") do |file|
   # Process the data using our custom input and output IOs.
   # The first argument represents the input arguments;
-  # i.g. the filter and/or any other arguments that should be passed to `jq`.
+  # i.e. the filter and/or any other arguments that should be passed to `jq`.
   processor.process ["."], input: input_io, output: file
 end
 ```

@@ -57,7 +57,7 @@ module OQ
   # File.open("./out.yml", "w") do |file|
   #   # Process the data using our custom input and output IOs.
   #   # The first argument represents the input arguments;
-  #   # i.g. the filter and/or any other arguments that should be passed to `jq`.
+  #   # i.e. the filter and/or any other arguments that should be passed to `jq`.
   #   processor.process ["."], input: input_io, output: file
   # end
   # ```
