@@ -1,7 +1,7 @@
 require "spec"
 require "../src/oq"
 
-# Runs the the binary with the given *name* and *args*.
+# Runs the binary with the given *name* and *args*.
 def run_binary(input : String | Process::Redirect | Nil = nil, name : String = "bin/oq", args : Array(String) = [] of String, *, success : Bool = true, file = __FILE__, line = __LINE__, & : String, Process::Status, String -> Nil)
   buffer_io = IO::Memory.new
   error_io = IO::Memory.new
