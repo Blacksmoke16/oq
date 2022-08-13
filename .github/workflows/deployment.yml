@@ -5,11 +5,6 @@ on:
     types:
       - created
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 jobs:
   dist_linux:
     runs-on: ubuntu-latest
@@ -58,6 +53,10 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
