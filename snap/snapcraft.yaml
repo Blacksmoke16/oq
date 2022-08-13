@@ -7,11 +7,13 @@ description: |
 contact: george@dietrich.app
 issues: https://github.com/Blacksmoke16/oq/issues
 website: https://github.com/Blacksmoke16/oq
+source-code: https://github.com/Blacksmoke16/oq.git
 license: MIT
 
 grade: stable
 confinement: strict
-base: core18
+base: core20
+type: app
 
 apps:
   oq:
@@ -30,3 +32,6 @@ parts:
     source: ./
     stage-packages:
       - jq
+    override-pull: |
+      snapcraftctl pull
+      rm -rf $SNAPCRAFT_PART_SRC/lib $SNAPCRAFT_PART_SRC/bin

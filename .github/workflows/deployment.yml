@@ -5,6 +5,11 @@ on:
     types:
       - created
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   dist_linux:
     runs-on: ubuntu-latest
@@ -34,8 +39,9 @@ jobs:
         id: build
       - name: Publish Snap
         uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
-          store_login: ${{ secrets.STORE_LOGIN }}
           snap: ${{ steps.build.outputs.snap }}
           release: stable
   dist_homebrew:
@@ -49,16 +55,22 @@ jobs:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           formulae: oq
   deploy_docs:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
       - name: Build
         run: crystal docs
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+      - name: Setup Pages
+        uses: actions/configure-pages@v1
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          branch: gh-pages
-          folder: docs
-          single-commit: true
+          path: 'docs/'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
