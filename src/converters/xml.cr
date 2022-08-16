@@ -196,6 +196,7 @@ module OQ::Converters::XML
     when .int?    then json.read_int
     when .float?  then json.read_float
     when .bool?   then json.read_bool
+    when .null?   then json.read_null
     else
       ""
     end.to_s

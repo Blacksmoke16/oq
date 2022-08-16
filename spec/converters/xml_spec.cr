@@ -703,6 +703,18 @@ describe OQ::Converters::XML do
             )
           end
         end
+
+        it "should produce an empty CDATA if the json key starts with '!' and the value is null" do
+          run_binary(%({"!x":null}), args: ["-o", "xml", "."]) do |output|
+            output.should eq(<<-XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <x><![CDATA[]]></x>
+              </root>\n
+              XML
+            )
+          end
+        end
       end
     end
 
