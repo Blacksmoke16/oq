@@ -11,7 +11,7 @@ jobs:
     container:
       image: crystallang/crystal:latest-alpine
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Update Libs
       run: apk add --update --upgrade --no-cache --force-overwrite libxml2-dev yaml-dev yaml-static
     - name: Build
@@ -28,7 +28,7 @@ jobs:
   dist_snap:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build Snap
         uses: snapcore/action-build@v1
         id: build
