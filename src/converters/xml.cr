@@ -26,7 +26,7 @@ module OQ::Converters::XML
 
   private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
     # If the node doesn't have nested elements nor attributes nor a namespace (with --xmlns); just emit a scalar value
-    if self.is_scalar_node? node
+    if self.scalar_node? node
       return builder.field self.normalize_node_name(node), get_node_value node
     end
 
@@ -43,7 +43,7 @@ module OQ::Converters::XML
       builder.array do
         children.each do |node|
           # If the node doesn't have nested elements nor attributes nor a namespace (with --xmlns); just emit a scalar value
-          if self.is_scalar_node? node
+          if self.scalar_node? node
             builder.scalar get_node_value node
           else
             # Otherwise process the node within an object
@@ -102,7 +102,7 @@ module OQ::Converters::XML
   end
 
   # TODO: Make checking for namespaces the default behavior in oq 2.x
-  private def self.is_scalar_node?(node : ::XML::Node) : Bool
+  private def self.scalar_node?(node : ::XML::Node) : Bool
     !self.has_nested_elements?(node) && node.attributes.empty? && ((self.processor.xmlns? && node.namespace_definitions.empty?) || !self.processor.xmlns?)
   end
 
