@@ -2,7 +2,7 @@ name: oq
 version: '1.3.4'
 summary: A performant, and portable jq wrapper to support formats other than JSON
 description: |
-  A performant, and portable jq wrapper thats facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
+  A performant, and portable jq wrapper that facilitates the consumption and output of formats other than JSON; using jq filters to transform the data.
 
 contact: george@dietrich.app
 issues: https://github.com/Blacksmoke16/oq/issues
