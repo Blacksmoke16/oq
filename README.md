@@ -7,7 +7,7 @@
 [![oq](https://img.shields.io/aur/version/oq?label=oq&logo=arch-linux)](https://aur.archlinux.org/packages/oq/)
 [![oq-bin](https://img.shields.io/aur/version/oq-bin?label=oq-bin&logo=arch-linux)](https://aur.archlinux.org/packages/oq-bin/)
 
-A performant, portable [jq](https://github.com/stedolan/jq/) wrapper thats facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
+A performant, portable [jq](https://github.com/stedolan/jq/) wrapper that facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
 * Compiles to a single binary for easy portability.
 * Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
