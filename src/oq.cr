@@ -221,7 +221,7 @@ module OQ
       end
 
       2.times do
-        case (v = channel.receive)
+        case v = channel.receive
         when Exception then raise v
         end
       end

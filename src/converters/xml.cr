@@ -111,7 +111,7 @@ module OQ::Converters::XML
   end
 
   private def self.normalize_node_name(node : ::XML::Node) : String
-    return node.name unless (namespace = node.namespace)
+    return node.name unless namespace = node.namespace
     (prefix = (self.processor.xml_namespaces[namespace.href]? || namespace.prefix).presence) ? "#{prefix}:#{node.name}" : node.name
   end
 
