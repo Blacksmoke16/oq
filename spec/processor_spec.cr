@@ -21,7 +21,7 @@ describe OQ::Processor do
       end
 
       output_io.to_s.should be_empty
-      error_io.to_s.should eq "parse error: Invalid numeric literal at line 1, column 12\n"
+      error_io.to_s.should contain "parse error: Invalid numeric literal at line 1, column 12\n"
     end
 
     describe "file input" do

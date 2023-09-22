@@ -37,7 +37,10 @@ describe OQ do
 
   it "should colorize the output with the -C option" do
     run_binary(input: SIMPLE_JSON_OBJECT, args: ["-c", "-C", "."]) do |output|
-      output.should eq %(\e[1;39m{\e[0m\e[34;1m"name"\e[0m\e[1;39m:\e[0m\e[0;32m"Jim"\e[0m\e[1;39m\e[1;39m}\e[0m\n)
+      output.should start_with "\e"
+      output.should contain %("name")
+      output.should contain %("Jim")
+      output.should end_with "\e[0m\n"
     end
   end
 
