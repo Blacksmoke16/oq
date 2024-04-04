@@ -10,7 +10,7 @@
 A performant, portable [jq](https://github.com/stedolan/jq/) wrapper that facilitates the consumption and output of formats other than JSON; using `jq` filters to transform the data.
 
 * Compiles to a single binary for easy portability.
-* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.  
+* Performant, similar performance with JSON data compared to `jq`.  Slightly longer execution time when going to/from a non-JSON format.
 * Supports various other input/output [formats](https://blacksmoke16.github.io/oq/OQ/Format.html), such as `XML` and `YAML`.
 * Can be used as a dependency within other Crystal projects.
 
@@ -68,7 +68,7 @@ The built binary will be available as `./bin/oq`.  This can be relocated elsewhe
 
 ```dockerfile
 # Set an arg to store the oq version that should be installed.
-ARG OQ_VERSION=1.3.4
+ARG OQ_VERSION=1.3.5
 
 # Grab the binary from the latest Github release and make it executable; placing it within /usr/local/bin.  Can also put it elsewhere if you so desire.
 RUN wget https://github.com/Blacksmoke16/oq/releases/download/v${OQ_VERSION}/oq-v${OQ_VERSION}-linux-x86_64 -O /usr/local/bin/oq && chmod +x /usr/local/bin/oq
@@ -126,7 +126,7 @@ numbers:
 ```
 
 ```sh
-$ oq -i yaml -o xml . data.yaml 
+$ oq -i yaml -o xml . data.yaml
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <name>Jim</name>
