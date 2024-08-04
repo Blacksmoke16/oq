@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: binary-artifacts
-        path: bin/
+        path: bin/oq-*
         retention-days: 1
         if-no-files-found: error
   dist_linux_upload:
