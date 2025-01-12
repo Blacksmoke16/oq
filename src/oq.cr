@@ -111,7 +111,7 @@ module OQ
       @indent : Int32 = 2,
       @tab : Bool = false,
       @null : Bool = false,
-      @xmlns : Bool = false
+      @xmlns : Bool = false,
     )
     end
 
