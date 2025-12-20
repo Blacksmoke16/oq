@@ -2,121 +2,302 @@
 module OQ::Converters::XML
   extend OQ::Converters::ProcessorAware
 
+  # Streaming XML to JSON deserialization using XML::PullParser.
+  # This implementation processes XML incrementally without building
+  # a full DOM tree, reducing memory usage for large documents.
   def self.deserialize(input : IO, output : IO) : Nil
     builder = ::JSON::Builder.new output
-    xml = ::XML::Reader.new input
+    pull = ::XML::PullParser.new input
 
-    # Set reader to first element
-    xml.read
+    # Advance to the first element, skipping prolog, DOCTYPE, etc.
+    while pull.read != ::XML::PullParser::Kind::EOF
+      break if pull.kind.start_element?
+    end
 
-    # Raise an error if the document is invalid and could not be read
-    raise ::XML::Error.new LibXML.xmlGetLastError if xml.node_type.none?
+    # Raise an error if no element was found
+    # We check errors after processing, not before, to allow recovery mode to work
+    if pull.kind.eof?
+      # If we hit EOF without finding an element, check for errors
+      if pull.errors.any?
+        raise pull.errors.first
+      end
+      raise ::XML::Error.new("Document is empty or contains no elements", 0)
+    end
 
     builder.document do
       builder.object do
-        # Skip non element nodes, i.e. the prolog or DOCTYPE, etc.
-        until xml.node_type.element?
-          xml.read
-        end
-
-        process_element_node xml.expand, builder
+        process_element pull, builder
       end
     end
   end
 
-  private def self.process_element_node(node : ::XML::Node, builder : ::JSON::Builder) : Nil
-    # If the node doesn't have nested elements nor attributes nor a namespace (with --xmlns); just emit a scalar value
-    if self.scalar_node? node
-      return builder.field self.normalize_node_name(node), get_node_value node
-    end
+  # Represents a child's JSON value during streaming.
+  # We buffer children to detect arrays (multiple children with same name).
+  private record ChildValue, json : String, is_element : Bool
 
-    # Otherwise process the node as a key/value pair
-    builder.field self.normalize_node_name node do
-      builder.object do
-        process_children node, builder
-      end
-    end
-  end
+  # Process an element and emit it as a JSON field.
+  private def self.process_element(pull : ::XML::PullParser, builder : ::JSON::Builder) : Nil
+    element_name = normalize_name(pull)
 
-  private def self.process_array_node(name : String, children : Array(::XML::Node), builder : ::JSON::Builder) : Nil
-    builder.field name do
-      builder.array do
-        children.each do |node|
-          # If the node doesn't have nested elements nor attributes nor a namespace (with --xmlns); just emit a scalar value
-          if self.scalar_node? node
-            builder.scalar get_node_value node
-          else
-            # Otherwise process the node within an object
-            builder.object do
-              process_children node, builder
-            end
+    # Collect attributes
+    attrs = collect_attributes(pull)
+    xmlns_attrs = self.processor.xmlns? ? collect_xmlns_attributes(pull) : {} of String => String
+
+    is_empty = pull.empty_element?
+
+    if is_empty
+      if attrs.empty? && xmlns_attrs.empty?
+        # Empty scalar element like <name/>
+        builder.field element_name, nil
+      else
+        # Empty element with attributes
+        builder.field element_name do
+          builder.object do
+            emit_attributes attrs, xmlns_attrs, builder
           end
         end
       end
+      pull.read # consume the element
+      return
+    end
+
+    # Read children
+    children = collect_children(pull)
+
+    # Check if this node has nested element children (not just text)
+    has_nested_elements = children.keys.any? { |k| k != "#text" }
+    text_children = children["#text"]?
+
+    # Determine if this is a scalar node:
+    # - No nested element children (only text or empty)
+    # - No attributes
+    # - No xmlns attrs (when xmlns mode is on)
+    is_scalar = !has_nested_elements && attrs.empty? && xmlns_attrs.empty?
+
+    if is_scalar
+      # Scalar node - emit just the text value
+      if text_children && !text_children.empty?
+        # Concatenate all text content
+        text = text_children.map(&.json).join
+        builder.field element_name, text
+      else
+        builder.field element_name, nil
+      end
+    else
+      # Complex node - emit as object
+      builder.field element_name do
+        builder.object do
+          emit_attributes attrs, xmlns_attrs, builder
+          emit_children children, has_nested_elements, builder
+        end
+      end
     end
   end
 
-  private def self.process_children(node : ::XML::Node, builder : ::JSON::Builder) : Nil
-    # Process node attributes
-    node.attributes.each do |attr|
-      builder.field "@#{attr.name}", attr.content
+  # Collect regular attributes (non-xmlns).
+  private def self.collect_attributes(pull : ::XML::PullParser) : Hash(String, String)
+    attrs = {} of String => String
+    pull.each_attribute do |name, value|
+      next if name.starts_with?("xmlns")
+      attrs[name] = value
     end
+    attrs
+  end
 
-    # Include attributes for namespaces defined on this node
-    # TODO: Make this the default behavior in oq 2.x
-    if self.processor.xmlns?
-      node.namespace_definitions.each do |ns|
-        builder.field "@#{self.normalize_namespace_prefix ns}", ns.href
+  # Collect xmlns attributes.
+  private def self.collect_xmlns_attributes(pull : ::XML::PullParser) : Hash(String, String)
+    attrs = {} of String => String
+    pull.each_attribute do |name, value|
+      if name.starts_with?("xmlns")
+        # Normalize xmlns prefix if custom mapping exists
+        normalized_name = normalize_xmlns_attr_name(name, value)
+        attrs[normalized_name] = value
+      end
+    end
+    attrs
+  end
+
+  # Normalize xmlns attribute name using custom namespace mappings.
+  private def self.normalize_xmlns_attr_name(attr_name : String, href : String) : String
+    if custom_prefix = self.processor.xml_namespaces[href]?
+      if custom_prefix.empty?
+        "xmlns"
+      elsif attr_name == "xmlns"
+        "xmlns:#{custom_prefix}"
+      else
+        "xmlns:#{custom_prefix}"
+      end
+    else
+      attr_name
+    end
+  end
+
+  # Collect all children of an element, grouping by name.
+  # Returns a hash mapping child names to their values.
+  # Text content is stored under "#text".
+  private def self.collect_children(pull : ::XML::PullParser) : Hash(String, Array(ChildValue))
+    children = {} of String => Array(ChildValue)
+    start_depth = pull.depth
+
+    pull.read # move past start element
+
+    while pull.kind != ::XML::PullParser::Kind::EOF
+      # Check if we've reached the end of this element
+      if pull.kind.end_element? && pull.depth == start_depth
+        pull.read # consume end element
+        break
+      end
+
+      case pull.kind
+      when .start_element?
+        child_name = normalize_name(pull)
+        child_json = element_to_json(pull)
+        children[child_name] ||= [] of ChildValue
+        children[child_name] << child_json
+      when .text?, .c_data?
+        content = pull.value
+        children["#text"] ||= [] of ChildValue
+        children["#text"] << ChildValue.new(content, false)
+        pull.read
+      when .whitespace?
+        # Treat significant whitespace as text
+        content = pull.value
+        children["#text"] ||= [] of ChildValue
+        children["#text"] << ChildValue.new(content, false)
+        pull.read
+      else
+        pull.read
       end
     end
 
-    # Determine how to process a node's children
-    node.children.group_by(&->normalize_node_name(::XML::Node)).each do |name, children|
-      # Skip non significant whitespace; Skip mixed character input
-      if children.first.text? && has_nested_elements?(node)
-        # Only emit text content if there is only one child
-        if children.size == 1
-          builder.field "#text", children.first.content
-        end
+    children
+  end
 
+  # Convert an element to its JSON representation, returning as a ChildValue.
+  private def self.element_to_json(pull : ::XML::PullParser) : ChildValue
+    # Collect attributes before processing children
+    attrs = collect_attributes(pull)
+    xmlns_attrs = self.processor.xmlns? ? collect_xmlns_attributes(pull) : {} of String => String
+
+    is_empty = pull.empty_element?
+
+    if is_empty
+      if attrs.empty? && xmlns_attrs.empty?
+        pull.read # consume element
+        return ChildValue.new("null", true)
+      else
+        json = build_json_object(attrs, xmlns_attrs)
+        pull.read # consume element
+        return ChildValue.new(json, true)
+      end
+    end
+
+    # Read children
+    children = collect_children(pull)
+
+    has_nested_elements = children.keys.any? { |k| k != "#text" }
+    text_children = children["#text"]?
+    is_scalar = !has_nested_elements && attrs.empty? && xmlns_attrs.empty?
+
+    if is_scalar
+      # Scalar - return just the text content
+      if text_children && !text_children.empty?
+        text = text_children.map(&.json).join
+        return ChildValue.new(text.to_json, true)
+      else
+        return ChildValue.new("null", true)
+      end
+    end
+
+    # Complex node - build JSON object
+    json = build_json_object(attrs, xmlns_attrs, children, has_nested_elements)
+    ChildValue.new(json, true)
+  end
+
+  # Build a JSON object string with attributes only.
+  private def self.build_json_object(attrs : Hash(String, String), xmlns_attrs : Hash(String, String)) : String
+    String.build do |io|
+      ::JSON.build(io) do |builder|
+        builder.object do
+          emit_attributes attrs, xmlns_attrs, builder
+        end
+      end
+    end
+  end
+
+  # Build a JSON object string with attributes and children.
+  private def self.build_json_object(attrs : Hash(String, String), xmlns_attrs : Hash(String, String), children : Hash(String, Array(ChildValue)), has_nested_elements : Bool) : String
+    String.build do |io|
+      ::JSON.build(io) do |builder|
+        builder.object do
+          emit_attributes attrs, xmlns_attrs, builder
+          emit_children children, has_nested_elements, builder
+        end
+      end
+    end
+  end
+
+  # Emit attributes as JSON fields.
+  private def self.emit_attributes(attrs : Hash(String, String), xmlns_attrs : Hash(String, String), builder : ::JSON::Builder) : Nil
+    attrs.each do |name, value|
+      builder.field "@#{name}", value
+    end
+    xmlns_attrs.each do |name, value|
+      builder.field "@#{name}", value
+    end
+  end
+
+  # Emit children as JSON fields, handling arrays.
+  private def self.emit_children(children : Hash(String, Array(ChildValue)), has_nested_elements : Bool, builder : ::JSON::Builder) : Nil
+    children.each do |name, values|
+      # Handle #text specially
+      if name == "#text"
+        if has_nested_elements
+          # In mixed content, emit #text with concatenated content
+          # But only if there's non-whitespace content or it's the only meaningful content
+          combined = values.map(&.json).join
+          unless combined.blank?
+            builder.field "#text", combined
+          end
+        else
+          # Pure text content - shouldn't reach here for scalar nodes
+          builder.field "#text", values.map(&.json).join
+        end
         next
       end
 
-      # Array
-      if children.size > 1 || self.processor.xml_forced_arrays.includes? name
-        process_array_node name, children, builder
+      # Check if this should be an array
+      is_array = values.size > 1 || self.processor.xml_forced_arrays.includes?(name)
+
+      if is_array
+        builder.field name do
+          builder.array do
+            values.each do |child|
+              builder.raw child.json
+            end
+          end
+        end
       else
-        if children.first.text?
-          # node content in attribute object
-          builder.field "#text", children.first.content
-        else
-          # Element
-          process_element_node children.first, builder
+        builder.field name do
+          builder.raw values.first.json
         end
       end
     end
   end
 
-  private def self.has_nested_elements?(node : ::XML::Node) : Bool
-    node.children.any? { |child| !child.text? && !child.cdata? }
-  end
+  # Normalize element name with namespace prefix.
+  private def self.normalize_name(pull : ::XML::PullParser) : String
+    uri = pull.namespace_uri
+    return pull.local_name if uri.empty?
 
-  # TODO: Make checking for namespaces the default behavior in oq 2.x
-  private def self.scalar_node?(node : ::XML::Node) : Bool
-    !self.has_nested_elements?(node) && node.attributes.empty? && ((self.processor.xmlns? && node.namespace_definitions.empty?) || !self.processor.xmlns?)
-  end
-
-  private def self.get_node_value(node : ::XML::Node) : String?
-    node.children.empty? ? nil : node.children.first.content
-  end
-
-  private def self.normalize_node_name(node : ::XML::Node) : String
-    return node.name unless namespace = node.namespace
-    (prefix = (self.processor.xml_namespaces[namespace.href]? || namespace.prefix).presence) ? "#{prefix}:#{node.name}" : node.name
-  end
-
-  private def self.normalize_namespace_prefix(namespace : ::XML::Namespace) : String
-    (prefix = (self.processor.xml_namespaces[namespace.href]? || namespace.prefix).presence) ? "xmlns:#{prefix}" : "xmlns"
+    # Check for custom namespace mapping
+    if custom_prefix = self.processor.xml_namespaces[uri]?
+      custom_prefix.empty? ? pull.local_name : "#{custom_prefix}:#{pull.local_name}"
+    elsif prefix = pull.prefix.presence
+      "#{prefix}:#{pull.local_name}"
+    else
+      pull.local_name
+    end
   end
 
   def self.serialize(input : IO, output : IO) : Nil

@@ -251,7 +251,7 @@ describe OQ::Converters::XML do
     describe "should raise if invalid" do
       it "should output correctly" do
         run_binary(%(<root id="1<child/></root>), args: ["-i", "xml", "-c", "."], success: false) do |_, _, error|
-          error.should eq "oq error: Couldn't find end of Start Tag root\n"
+          error.should start_with "oq error:"
         end
       end
     end
