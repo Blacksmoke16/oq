@@ -1,0 +1,8 @@
+Naming/BlockParameterName:
+  Enabled: false
+Style/RedundantSelf: # I like being explicit to differentiate method call vs local variable
+  Enabled: false
+Style/LargeNumbers:
+  Enabled: true
+Style/VerboseNilType: # This flags usages of `Nil` in multi-type unions
+  Enabled: false

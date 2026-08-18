@@ -25,7 +25,7 @@ jobs:
       - name: Install Dependencies
         run: shards install
       - name: Ameba
-        run: ./bin/ameba
+        run: ./lib/ameba/bin/ameba.cr
   test:
     strategy:
       fail-fast: false

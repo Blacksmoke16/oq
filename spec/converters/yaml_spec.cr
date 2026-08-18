@@ -1,75 +1,75 @@
 require "../spec_helper"
 
 LITERAL_BLOCK = <<-YAML
----
-literal_block: |
-    This entire block of text will be the value of the 'literal_block' key,
-    with line breaks being preserved.
+  ---
+  literal_block: |
+      This entire block of text will be the value of the 'literal_block' key,
+      with line breaks being preserved.
 
-    The literal continues until de-dented, and the leading indentation is
-    stripped.
+      The literal continues until de-dented, and the leading indentation is
+      stripped.
 
-        Any lines that are 'more-indented' keep the rest of their indentation -
-        these lines will be indented by 4 spaces.
-YAML
+          Any lines that are 'more-indented' keep the rest of their indentation -
+          these lines will be indented by 4 spaces.
+  YAML
 
 FOLDED_BLOCK = <<-YAML
-folded_style: >
-    This entire block of text will be the value of 'folded_style', but this
-    time, all newlines will be replaced with a single space.
+  folded_style: >
+      This entire block of text will be the value of 'folded_style', but this
+      time, all newlines will be replaced with a single space.
 
-    Blank lines, like above, are converted to a newline character.
+      Blank lines, like above, are converted to a newline character.
 
-        'More-indented' lines keep their newlines, too -
-        this text will appear over two lines.
-YAML
+          'More-indented' lines keep their newlines, too -
+          this text will appear over two lines.
+  YAML
 
 NESTED_OBJECT = <<-YAML
-a_nested_map:
-  key: value
-  another_key: Another Value
-  another_nested_map:
-    hello: hello
-YAML
+  a_nested_map:
+    key: value
+    another_key: Another Value
+    another_nested_map:
+      hello: hello
+  YAML
 
 COMPLEX_MAPPING_KEY = <<-YAML
-? |
-  This is a key
-  that has multiple lines
-: and this is its value
-YAML
+  ? |
+    This is a key
+    that has multiple lines
+  : and this is its value
+  YAML
 
 COMPLEX_SEQUENCE_KEY = <<-YAML
-? - Manchester United
-  - Real Madrid
-: [2001-01-01, 2002-02-02]
-YAML
+  ? - Manchester United
+    - Real Madrid
+  : [2001-01-01, 2002-02-02]
+  YAML
 
 NESTED_ARRAY = <<-YAML
-a_sequence:
-  - Item 1
-  - Item 2
-  - 0.5  # sequences can contain disparate types.
-  - Item 4
-  - key: value
-    another_key: another_value
-  -
-    - This is a sequence
-    - inside another sequence
-  - - - Nested sequence indicators
-      - can be collapsed
-YAML
+  a_sequence:
+    - Item 1
+    - Item 2
+    - 0.5  # sequences can contain disparate types.
+    - Item 4
+    - key: value
+      another_key: another_value
+    -
+      - This is a sequence
+      - inside another sequence
+    - - - Nested sequence indicators
+        - can be collapsed
+  YAML
 
 ANCHORS = <<-YAML
-base: &base
-  name: Everyone has same name
-foo: &foo
-  <<: *base
-  age: 10
-bar: &bar
-  <<: *base
-  age: 20
-YAML
+  base: &base
+    name: Everyone has same name
+  foo: &foo
+    <<: *base
+    age: 10
+  bar: &bar
+    <<: *base
+    age: 20
+  YAML
 
 describe OQ::Converters::YAML do
   describe ".deserialize" do
@@ -282,8 +282,8 @@ describe OQ::Converters::YAML do
         it "should output correctly" do
           run_binary(%("Jim"), args: ["-o", "yaml", "."]) do |output|
             output.should start_with <<-YAML
-            --- Jim
-            YAML
+              --- Jim
+              YAML
           end
         end
       end
@@ -412,7 +412,7 @@ describe OQ::Converters::YAML do
 
       describe "when the jq filter doesn't return data" do
         it "should return an empty string" do
-          run_binary(%([{"name":"foo"}]), args: ["-i", "yaml", "-o", "yaml", %<.[] | select(.name != "foo")>]) do |output|
+          run_binary(%([{"name":"foo"}]), args: ["-i", "yaml", "-o", "yaml", %(.[] | select(.name != "foo"))]) do |output|
             output.should be_empty
           end
         end

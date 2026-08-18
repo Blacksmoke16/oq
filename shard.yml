@@ -19,4 +19,4 @@ targets:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.5.0
+    commit: f53fcd3382553121239c8f144aec5e27aeadbed8
