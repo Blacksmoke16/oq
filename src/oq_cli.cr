@@ -40,7 +40,7 @@ end
 
 begin
   processor.process
-rescue ex : RuntimeError
+rescue RuntimeError
   # ignore jq errors as it writes directly to error output.
   exit 1
 rescue ex

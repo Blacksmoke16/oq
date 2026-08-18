@@ -1,18 +1,18 @@
 require "./spec_helper"
 
 private SIMPLE_JSON_OBJECT = <<-JSON
-{
-  "name": "Jim"
-}
-JSON
+  {
+    "name": "Jim"
+  }
+  JSON
 
 private NESTED_JSON_OBJECT = <<-JSON
-{"foo":{"bar":{"baz":5}}}
-JSON
+  {"foo":{"bar":{"baz":5}}}
+  JSON
 
 private ARRAY_JSON_OBJECT = <<-JSON
-{"names":[1,2,3]}
-JSON
+  {"names":[1,2,3]}
+  JSON
 
 describe OQ do
   describe "when given a filter file" do

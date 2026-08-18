@@ -1,41 +1,6 @@
 require "../spec_helper"
 
 WITH_WHITESPACE = <<-XML
-<item>
-  <flagID>0</flagID>
-  <itemID>0</itemID>
-  <locationID>0</locationID>
-  <ownerID>0</ownerID>
-  <quantity>-1</quantity>
-  <typeID>0</typeID>
-</item>
-XML
-
-XML_SCALAR_ARRAY = <<-XML
-<?xml version="1.0" encoding="utf-8"?>
-<items>
-  <number>1</number>
-  <number>2</number>
-  <number>3</number>
-</items>
-XML
-
-XML_SCALAR_ARRAY_WITH_ATTRIBUTE = <<-XML
-<?xml version="1.0" encoding="utf-8"?>
-<items>
-  <number>1</number>
-  <number>2</number>
-  <number foo="bar">3</number>
-</items>
-XML
-
-XML_CDATA = <<-XML
-<desc><![CDATA[<message>Some Description</message>]]></desc>
-XML
-
-XML_OBJECT_ARRAY = <<-XML
-<?xml version="1.0" encoding="utf-8"?>
-<items>
   <item>
     <flagID>0</flagID>
     <itemID>0</itemID>
@@ -44,154 +9,189 @@ XML_OBJECT_ARRAY = <<-XML
     <quantity>-1</quantity>
     <typeID>0</typeID>
   </item>
-  <item>
-    <flagID>0</flagID>
-    <itemID>1</itemID>
-    <locationID>0</locationID>
-    <ownerID>0</ownerID>
-    <quantity>-1</quantity>
-    <typeID>0</typeID>
-  </item>
-</items>
-XML
+  XML
+
+XML_SCALAR_ARRAY = <<-XML
+  <?xml version="1.0" encoding="utf-8"?>
+  <items>
+    <number>1</number>
+    <number>2</number>
+    <number>3</number>
+  </items>
+  XML
+
+XML_SCALAR_ARRAY_WITH_ATTRIBUTE = <<-XML
+  <?xml version="1.0" encoding="utf-8"?>
+  <items>
+    <number>1</number>
+    <number>2</number>
+    <number foo="bar">3</number>
+  </items>
+  XML
+
+XML_CDATA = <<-XML
+  <desc><![CDATA[<message>Some Description</message>]]></desc>
+  XML
+
+XML_OBJECT_ARRAY = <<-XML
+  <?xml version="1.0" encoding="utf-8"?>
+  <items>
+    <item>
+      <flagID>0</flagID>
+      <itemID>0</itemID>
+      <locationID>0</locationID>
+      <ownerID>0</ownerID>
+      <quantity>-1</quantity>
+      <typeID>0</typeID>
+    </item>
+    <item>
+      <flagID>0</flagID>
+      <itemID>1</itemID>
+      <locationID>0</locationID>
+      <ownerID>0</ownerID>
+      <quantity>-1</quantity>
+      <typeID>0</typeID>
+    </item>
+  </items>
+  XML
 
 XML_NESTED_OBJECT_ARRAY = <<-XML
-<?xml version='1.0' ?>
-<!DOCTYPE root SYSTEM "http://www.cs.washington.edu/research/projects/xmltk/xmldata/data/auctions/ebay.dtd">
-<root>
- <listing>
-   <seller_info>
-       <seller_name> cubsfantony</seller_name>
-       <seller_rating> 848</seller_rating>
-   </seller_info>
-   <payment_types>Visa/MasterCard, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted</payment_types>
-</listing>
-<listing>
-   <seller_info>
-       <seller_name> ct-inc</seller_name>
-       <seller_rating> 403</seller_rating>
-   </seller_info>
-   <payment_types>Visa/MasterCard, Discover, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted</payment_types>
-</listing>
-</root>
-XML
+  <?xml version='1.0' ?>
+  <!DOCTYPE root SYSTEM "http://www.cs.washington.edu/research/projects/xmltk/xmldata/data/auctions/ebay.dtd">
+  <root>
+   <listing>
+     <seller_info>
+         <seller_name> cubsfantony</seller_name>
+         <seller_rating> 848</seller_rating>
+     </seller_info>
+     <payment_types>Visa/MasterCard, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted</payment_types>
+  </listing>
+  <listing>
+     <seller_info>
+         <seller_name> ct-inc</seller_name>
+         <seller_rating> 403</seller_rating>
+     </seller_info>
+     <payment_types>Visa/MasterCard, Discover, Money Order/Cashiers Checks, Personal Checks, See item description for payment methods accepted</payment_types>
+  </listing>
+  </root>
+  XML
 
 XML_INLINE_ARRAY = <<-XML
-<article key="tr/ibm/RJ2144">
-  <author>E. F. Codd</author>
-  <author>Robert S. Arnold</author>
-  <author>Jean-Marc Cadiou</author>
-  <author>Chin-Liang Chang</author>
-  <author>Nick Roussopoulos</author>
-  <title>RENDEZVOUS Version 1: An Experimental English Language Query Formulation System for Casual Users of Relational Data Bases.</title>
-  <journal>IBM Research Report</journal>
-  <volume>RJ2144</volume>
-  <month>January</month>
-  <year>1978</year>
-  <ee>db/labs/ibm/RJ2144.html</ee>
-  <cdrom>ibmTR/rj2144.pdf</cdrom>
-</article>
-XML
+  <article key="tr/ibm/RJ2144">
+    <author>E. F. Codd</author>
+    <author>Robert S. Arnold</author>
+    <author>Jean-Marc Cadiou</author>
+    <author>Chin-Liang Chang</author>
+    <author>Nick Roussopoulos</author>
+    <title>RENDEZVOUS Version 1: An Experimental English Language Query Formulation System for Casual Users of Relational Data Bases.</title>
+    <journal>IBM Research Report</journal>
+    <volume>RJ2144</volume>
+    <month>January</month>
+    <year>1978</year>
+    <ee>db/labs/ibm/RJ2144.html</ee>
+    <cdrom>ibmTR/rj2144.pdf</cdrom>
+  </article>
+  XML
 
 XML_INLINE_ARRAY_WITHIN_ARRAY = <<-XML
-<articles>
-  <article key="tr/dec/SRC1997-018">
-    <year>1997</year>
-    <ee>db/labs/dec/SRC1997-018.html</ee>
-    <ee>http://www.mcjones.org/System_R/SQL_Reunion_95/</ee>
-  </article>
-  <article key="tr/gte/TR-0263-08-94-165">
-    <ee>db/labs/gte/TR-0263-08-94-165.html</ee>
-    <year>1994</year>
-  </article>
-</articles>
-XML
+  <articles>
+    <article key="tr/dec/SRC1997-018">
+      <year>1997</year>
+      <ee>db/labs/dec/SRC1997-018.html</ee>
+      <ee>http://www.mcjones.org/System_R/SQL_Reunion_95/</ee>
+    </article>
+    <article key="tr/gte/TR-0263-08-94-165">
+      <ee>db/labs/gte/TR-0263-08-94-165.html</ee>
+      <year>1994</year>
+    </article>
+  </articles>
+  XML
 
 XML_DOCTYPE = <<-XML
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE dblp SYSTEM "dblp.dtd">
-<dblp>
-  <mastersthesis key="ms/Brown92">
-    <author>Kurt P. Brown</author>
-    <title>PRPL: A Database Workload Specification Language, v1.3.</title>
-    <year>1992</year>
-    <school>Univ. of Wisconsin-Madison</school>
-  </mastersthesis>
-</dblp>
-XML
+  <?xml version="1.0" encoding="ISO-8859-1"?>
+  <!DOCTYPE dblp SYSTEM "dblp.dtd">
+  <dblp>
+    <mastersthesis key="ms/Brown92">
+      <author>Kurt P. Brown</author>
+      <title>PRPL: A Database Workload Specification Language, v1.3.</title>
+      <year>1992</year>
+      <school>Univ. of Wisconsin-Madison</school>
+    </mastersthesis>
+  </dblp>
+  XML
 
 XML_ATTRIBUTE_IN_ARRAY = <<-XML
-<jobs>
-  <ad>
-    <salary currency="CAD">80000</salary>
-    <working_hours>full-time</working_hours>
-  </ad>
-  <ad>
-    <working_hours>full-time</working_hours>
-  </ad>
-</jobs>
-XML
+  <jobs>
+    <ad>
+      <salary currency="CAD">80000</salary>
+      <working_hours>full-time</working_hours>
+    </ad>
+    <ad>
+      <working_hours>full-time</working_hours>
+    </ad>
+  </jobs>
+  XML
 
 XML_ATTRIBUTE_IN_ARRAY_ROOT_ELEMENT = <<-XML
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE dblp SYSTEM "dblp.dtd">
-<dblp>
-  <mastersthesis key="ms/Brown92">
-    <author>Kurt P. Brown</author>
-  </mastersthesis>
-  <mastersthesis key="ms/Yurek97">
-    <author>Tolga Yurek</author>
-  </mastersthesis>
-</dblp>
-XML
+  <?xml version="1.0" encoding="ISO-8859-1"?>
+  <!DOCTYPE dblp SYSTEM "dblp.dtd">
+  <dblp>
+    <mastersthesis key="ms/Brown92">
+      <author>Kurt P. Brown</author>
+    </mastersthesis>
+    <mastersthesis key="ms/Yurek97">
+      <author>Tolga Yurek</author>
+    </mastersthesis>
+  </dblp>
+  XML
 
 XML_ALL_EMPTY = <<-XML
-<root>
-  <one> </one>
-  <two>
-  </two>
-  <three/>
-  <four></four>
-</root>
-XML
+  <root>
+    <one> </one>
+    <two>
+    </two>
+    <three/>
+    <four></four>
+  </root>
+  XML
 
 XML_NAMESPACE_ARRAY = <<-XML
-<?xml version="1.0" encoding="utf-8"?>
-<items xmlns:n="http://n">
-  <n:number>1</n:number>
-  <n:number>2</n:number>
-  <number xmlns="http://default">3</number>
-</items>
-XML
+  <?xml version="1.0" encoding="utf-8"?>
+  <items xmlns:n="http://n">
+    <n:number>1</n:number>
+    <n:number>2</n:number>
+    <number xmlns="http://default">3</number>
+  </items>
+  XML
 
 XML_NAMESPACE_ARRAY_SCALAR_VALUE_PREFIX = <<-XML
-<?xml version="1.0" encoding="utf-8"?>
-<items xmlns:n="http://n">
-  <n:number>1</n:number>
-  <n:number>2</n:number>
-  <n:number xmlns="http://default">3</n:number>
-</items>
-XML
+  <?xml version="1.0" encoding="utf-8"?>
+  <items xmlns:n="http://n">
+    <n:number>1</n:number>
+    <n:number>2</n:number>
+    <n:number xmlns="http://default">3</n:number>
+  </items>
+  XML
 
 XML_NAMESPACE_PREFIXES = <<-XML
-<?xml version="1.0" ?>
-<root xmlns:a="https://a">
-  <foo>foo</foo>
-  <a:bar>bar</a:bar>
-</root>
-XML
+  <?xml version="1.0" ?>
+  <root xmlns:a="https://a">
+    <foo>foo</foo>
+    <a:bar>bar</a:bar>
+  </root>
+  XML
 
 XML_NESTED_NAMESPACES = <<-XML
-<?xml version="1.0" ?>
-<root xmlns:a="https://a" xmlns="https://b">
-  <a:foo>herp</a:foo>
-  <foo>
-    <bar xmlns="https://c">
-      <baz xmlns="https://d"/>
-    </bar>
-  </foo>
-</root>
-XML
+  <?xml version="1.0" ?>
+  <root xmlns:a="https://a" xmlns="https://b">
+    <a:foo>herp</a:foo>
+    <foo>
+      <bar xmlns="https://c">
+        <baz xmlns="https://d"/>
+      </bar>
+    </foo>
+  </root>
+  XML
 
 describe OQ::Converters::XML do
   describe ".deserialize" do
@@ -596,12 +596,12 @@ describe OQ::Converters::XML do
         it "should emit item tags for non empty values" do
           run_binary(%(["x",{}]), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
             output.should eq(<<-XML
-                <?xml version="1.0" encoding="UTF-8"?>
-                <root>
-                  <foo>x</foo>
-                  <foo/>
-                </root>\n
-                XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <foo>x</foo>
+                <foo/>
+              </root>\n
+              XML
             )
           end
         end
@@ -611,11 +611,11 @@ describe OQ::Converters::XML do
         it "should emit item tags for non empty values" do
           run_binary(%({"a":[[]]}), args: ["-o", "xml", "--xml-item", "foo", "."]) do |output|
             output.should eq(<<-XML
-                <?xml version="1.0" encoding="UTF-8"?>
-                <root>
-                  <a/>
-                </root>\n
-                XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                <a/>
+              </root>\n
+              XML
             )
           end
         end
@@ -627,12 +627,12 @@ describe OQ::Converters::XML do
         it "should emit the extra spaces" do
           run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "4", "."]) do |output|
             output.should eq(<<-XML
-                <?xml version="1.0" encoding="UTF-8"?>
-                <root>
-                    <name>Jim</name>
-                    <age>12</age>
-                </root>\n
-                XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+                  <name>Jim</name>
+                  <age>12</age>
+              </root>\n
+              XML
             )
           end
         end
@@ -642,12 +642,12 @@ describe OQ::Converters::XML do
         it "should emit the indent as tabs" do
           run_binary(%({"name": "Jim", "age": 12}), args: ["-o", "xml", "--indent", "3", "--tab", "."]) do |output|
             output.should eq(<<-XML
-                <?xml version="1.0" encoding="UTF-8"?>
-                <root>
-                \t\t\t<name>Jim</name>
-                \t\t\t<age>12</age>
-                </root>\n
-                XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root>
+              \t\t\t<name>Jim</name>
+              \t\t\t<age>12</age>
+              </root>\n
+              XML
             )
           end
         end
@@ -671,9 +671,9 @@ describe OQ::Converters::XML do
         it "should output correctly" do
           run_binary(%(""), args: ["-o", "xml", "."]) do |output|
             output.should eq(<<-XML
-            <?xml version="1.0" encoding="UTF-8"?>
-            <root></root>\n
-            XML
+              <?xml version="1.0" encoding="UTF-8"?>
+              <root></root>\n
+              XML
             )
           end
         end

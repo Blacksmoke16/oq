@@ -150,8 +150,6 @@ module OQ::Converters::XML
     when .string?, .int?, .float?, .bool? then builder.text get_value json
     when .begin_object?                   then handle_object builder, json, key, array_key
     when .begin_array?                    then handle_array builder, json, key, array_key
-    else
-      nil
     end
   end
 

@@ -206,8 +206,8 @@ describe OQ::Converters::SimpleYAML do
         it "should output correctly" do
           run_binary(%("Jim"), args: ["-o", "simpleyaml", "."]) do |output|
             output.should start_with <<-YAML
-            --- Jim
-            YAML
+              --- Jim
+              YAML
           end
         end
       end
@@ -336,7 +336,7 @@ describe OQ::Converters::SimpleYAML do
 
       describe "when the jq filter doesn't return data" do
         it "should return an empty string" do
-          run_binary(%([{"name":"foo"}]), args: ["-i", "simpleyaml", "-o", "simpleyaml", %<.[] | select(.name != "foo")>]) do |output|
+          run_binary(%([{"name":"foo"}]), args: ["-i", "simpleyaml", "-o", "simpleyaml", %(.[] | select(.name != "foo"))]) do |output|
             output.should be_empty
           end
         end
