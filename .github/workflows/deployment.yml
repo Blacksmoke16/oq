@@ -45,7 +45,7 @@ jobs:
       - run: git config --global user.email "george@dietrich.app"
       - run: git config --global user.name "George Dietrich"
       - name: Bump Formula
-        uses: Homebrew/actions/bump-formulae@b5d9170bc1edf1103e40226592b5842b783dd1e0
+        uses: Homebrew/actions/bump-formulae@c262868c096d909fc278daa87ed9772967331ea3
         with:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           formulae: oq
